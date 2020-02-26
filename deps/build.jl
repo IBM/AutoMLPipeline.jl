@@ -7,6 +7,8 @@ function installpypackage()
 	catch
 		try
 			Conda.add("scikit-learn")
+			pyimport_conda("sklearn", "scikit-learn")
+			pyimport_conda("sklearn.decomposition", "scikit-learn")
 		catch
 			println("scikit-learn failed to install")
 		end
