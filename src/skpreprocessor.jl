@@ -129,45 +129,5 @@ function transform!(skp::SKPreprocessor, x::DataFrame)
   return collect(model.transform(features)) |> DataFrame
 end
 
-using Statistics
-function skprun()
-    iris=getiris()
-    features=iris[:,1:4] 
-    labels=iris[:,5:5]  
-
-    pca = SKPreprocessor(Dict(:preprocessor=>"PCA",:impl_args=>Dict(:n_components=>3)))
-    fit!(pca,features)
-    @assert transform!(pca,features) |> x->size(x,2) == 3
-
-    svd = SKPreprocessor(Dict(:preprocessor=>"TruncatedSVD",:impl_args=>Dict(:n_components=>2)))
-    fit!(svd,features)
-    @assert transform!(svd,features) |> x->size(x,2) == 2
-
-    ica = SKPreprocessor(Dict(:preprocessor=>"FastICA",:impl_args=>Dict(:n_components=>2)))
-    fit!(ica,features)
-    @assert transform!(ica,features) |> x->size(x,2) == 2
-
-
-    stdsc = SKPreprocessor(Dict(:preprocessor=>"StandardScaler",:impl_args=>Dict()))
-    fit!(stdsc,features)
-    @assert abs(mean(transform!(stdsc,features) |> Matrix)) < 0.00001
-
-    minmax = SKPreprocessor(Dict(:preprocessor=>"MinMaxScaler",:impl_args=>Dict()))
-    fit!(minmax,features)
-    @assert mean(transform!(minmax,features) |> Matrix) ≈ 0.4486931104833648
-
-    #learner = VoteEnsemble()
-    #learner = StackEnsemble()
-    #learner = BestLearner()
-
-    #pipeline = LinearPipeline(Dict(
-    #        :transformers => [stdsc,pca,learner]
-    #))
-    #fit!(pipeline,features,labels)
-    #pred = transform!(pipeline,features)
-    #score(:accuracy,pred,labels)
-
-end
-
 end
 

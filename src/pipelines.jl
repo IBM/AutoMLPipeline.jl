@@ -161,11 +161,6 @@ function processexpr(args)
       args[ndx] = :Pipeline
     elseif args[ndx] == :*
       args[ndx] = :ComboPipeline
-    #else
-    #  esc(:(args[ndx] = eval(args[ndx]))) # refer to local variable
-    #  #args[ndx] = eval(:($(args[ndx])))
-    #  #args[ndx] = eval(args[ndx])
-    #  #println(args[ndx])
     end
   end
   return args
