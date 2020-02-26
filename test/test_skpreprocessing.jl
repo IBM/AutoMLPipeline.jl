@@ -1,8 +1,13 @@
 module TestSKPreprocessing
 
 using Test
+using AutoMLPipeline
 using AutoMLPipeline.SKPreprocessors
 using AutoMLPipeline.Utils
+using AutoMLPipeline.BaseFilters
+using AutoMLPipeline.Pipelines
+using AutoMLPipeline.EnsembleMethods
+using AutoMLPipeline.FeatureSelectors
 using Statistics
 using DataFrames
 
@@ -76,6 +81,25 @@ function skptest()
     minmax = SKPreprocessor(Dict(:preprocessor=>"MinMaxScaler",:impl_args=>Dict()))
     fit!(minmax,features)
     @test mean(transform!(minmax,features) |> Matrix) ≈ 0.4486931104833648
+
+    vote = VoteEnsemble()
+    stack = StackEnsemble()
+    best = BestLearner()
+    cat = CatFeatureSelector()
+    num = NumFeatureSelector()
+    disc = CatNumDiscriminator()
+    ohe = OneHotEncoder()
+
+    mpipeline = Pipeline(Dict(
+            :machines => [stdsc,pca,best]
+    ))
+    fit!(mpipeline,features,labels)
+    pred = transform!(mpipeline,features)
+    @test score(:accuracy,pred,labels) > 95.0
+
+    fpipe = @pipeline ((cat * num) * (num * pca))  + stack
+    fit!(fpipe,features,labels)
+    (transform!(fpipe,features) .== labels) |> sum == nrow(features)
 end
 @testset "scikit preprocessor fit/transform test with real data" begin
     skptest()
