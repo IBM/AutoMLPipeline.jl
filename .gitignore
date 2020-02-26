@@ -1,0 +1,12 @@
+*.swp
+.DS_Store
+.ipynb_checkpoints
+*.serialized
+*.serialized.*
+Manifest.toml
+docs/build/
+testdata_output.csv
+*builddir*
+paper.pdf
+version.js
+latest
