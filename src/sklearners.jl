@@ -14,17 +14,17 @@ export SKLearner
 
 
 function __init__()
-  global ENS=pyimport_conda("sklearn.ensemble") 
-  global LM=pyimport_conda("sklearn.linear_model")
-  global DA=pyimport_conda("sklearn.discriminant_analysis")
-  global NN=pyimport_conda("sklearn.neighbors")
-  global SVM=pyimport_conda("sklearn.svm")
-  global TREE=pyimport_conda("sklearn.tree")
-  global ANN=pyimport_conda("sklearn.neural_network")
-  global GP=pyimport_conda("sklearn.gaussian_process")
-  global KR=pyimport_conda("sklearn.kernel_ridge")
-  global NB=pyimport_conda("sklearn.naive_bayes")
-  global ISO=pyimport_conda("sklearn.isotonic")
+  global ENS=pyimport_conda("sklearn.ensemble","scikit-learn") 
+  global LM=pyimport_conda("sklearn.linear_model","scikit-learn")
+  global DA=pyimport_conda("sklearn.discriminant_analysis","scikit-learn")
+  global NN=pyimport_conda("sklearn.neighbors","scikit-learn")
+  global SVM=pyimport_conda("sklearn.svm","scikit-learn")
+  global TREE=pyimport_conda("sklearn.tree","scikit-learn")
+  global ANN=pyimport_conda("sklearn.neural_network","scikit-learn")
+  global GP=pyimport_conda("sklearn.gaussian_process","scikit-learn")
+  global KR=pyimport_conda("sklearn.kernel_ridge","scikit-learn")
+  global NB=pyimport_conda("sklearn.naive_bayes","scikit-learn")
+  global ISO=pyimport_conda("sklearn.isotonic","scikit-learn")
 
   # Available scikit-learn learners.
   global learner_dict = Dict(

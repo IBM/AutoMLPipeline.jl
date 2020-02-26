@@ -12,7 +12,7 @@ import AutoMLPipeline.CrossValidators.crossvalidate
 export crossvalidate
 
 function __init__()
-    global SKM = pyimport_conda("sklearn.metrics")
+    global SKM = pyimport_conda("sklearn.metrics","scikit-learn")
     global metric_dict = Dict(
           "roc_auc_score" => SKM.roc_auc_score,
           "accuracy_score" => SKM.accuracy_score,
