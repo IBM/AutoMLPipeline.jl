@@ -74,11 +74,11 @@ function skptest()
     fit!(ica,features)
     @test transform!(ica,features) |> x->size(x,2) == 2
 
-    stdsc = SKPreprocessor(Dict(:preprocessor=>"StandardScaler",:impl_args=>Dict()))
+    stdsc = SKPreprocessor("StandardScaler")
     fit!(stdsc,features)
     @test abs(mean(transform!(stdsc,features) |> Matrix)) < 0.00001
 
-    minmax = SKPreprocessor(Dict(:preprocessor=>"MinMaxScaler",:impl_args=>Dict()))
+    minmax = SKPreprocessor("MinMaxScaler")
     fit!(minmax,features)
     @test mean(transform!(minmax,features) |> Matrix) ≈ 0.4486931104833648
 
