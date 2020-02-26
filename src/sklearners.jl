@@ -14,17 +14,17 @@ export SKLearner
 
 
 function __init__()
-  global ENS=pyimport("sklearn.ensemble") 
-  global LM=pyimport("sklearn.linear_model")
-  global DA=pyimport("sklearn.discriminant_analysis")
-  global NN=pyimport("sklearn.neighbors")
-  global SVM=pyimport("sklearn.svm")
-  global TREE=pyimport("sklearn.tree")
-  global ANN=pyimport("sklearn.neural_network")
-  global GP=pyimport("sklearn.gaussian_process")
-  global KR=pyimport("sklearn.kernel_ridge")
-  global NB=pyimport("sklearn.naive_bayes")
-  global ISO=pyimport("sklearn.isotonic")
+  global ENS=pyimport_conda("sklearn.ensemble") 
+  global LM=pyimport_conda("sklearn.linear_model")
+  global DA=pyimport_conda("sklearn.discriminant_analysis")
+  global NN=pyimport_conda("sklearn.neighbors")
+  global SVM=pyimport_conda("sklearn.svm")
+  global TREE=pyimport_conda("sklearn.tree")
+  global ANN=pyimport_conda("sklearn.neural_network")
+  global GP=pyimport_conda("sklearn.gaussian_process")
+  global KR=pyimport_conda("sklearn.kernel_ridge")
+  global NB=pyimport_conda("sklearn.naive_bayes")
+  global ISO=pyimport_conda("sklearn.isotonic")
 
   # Available scikit-learn learners.
   global learner_dict = Dict(
