@@ -19,12 +19,12 @@ function test_crossvalidator()
   rf = RandomForest()
   @test crossvalidate(rf,X,Y,acc).mean > 80.0
   Random.seed!(123)
-  ppl1 = LinearPipeline([RandomForest()])
+  ppl1 = Pipeline([RandomForest()])
   @test crossvalidate(ppl1,X,Y,acc).mean > 80.0
   Random.seed!(123)
   ohe = OneHotEncoder()
   stdsc= SKPreprocessor("StandardScaler")
-  ppl2 = LinearPipeline([ohe,stdsc,RandomForest()])
+  ppl2 = Pipeline([ohe,stdsc,RandomForest()])
   @test crossvalidate(ppl2,X,Y,acc).mean > 80.0
   Random.seed!(123)
   mpca = SKPreprocessor("PCA")
@@ -32,13 +32,13 @@ function test_crossvalidator()
   mfa = SKPreprocessor("FactorAnalysis")
   mica = SKPreprocessor("FastICA")
   mrb = SKPreprocessor("RobustScaler")
-  ppl3 = LinearPipeline(Dict(:machines=>[mrb,mica,mpca,mppca,RandomForest()]))
+  ppl3 = Pipeline(Dict(:machines=>[mrb,mica,mpca,mppca,RandomForest()]))
   @test crossvalidate(ppl3,X,Y,acc).mean > 80.0
   Random.seed!(123)
   fit!(ppl3,X,Y)
   @test size(transform!(ppl3,X))[1] == length(Y)
   Random.seed!(123)
-  ppl5 = LinearPipeline(Dict(:machines=>[mrb,mica,mppca,RandomForest()]))
+  ppl5 = Pipeline(Dict(:machines=>[mrb,mica,mppca,RandomForest()]))
   @test crossvalidate(ppl5,X,Y,acc).mean > 50.0
 end
 @testset "CrossValidator" begin

@@ -13,7 +13,7 @@ function test_skcrossvalidator()
   data=getiris()
   X=data[:,1:4]
   Y=data[:,5] |> Vector{String}
-  ppl1 = LinearPipeline(Dict(:machines=>[RandomForest()]))
+  ppl1 = Pipeline(Dict(:machines=>[RandomForest()]))
   @test crossvalidate(ppl1,X,Y,"accuracy_score").mean > 0.80
   @test crossvalidate(ppl1,X,Y,"balanced_accuracy_score").mean > 0.80
   @test crossvalidate(ppl1,X,Y,"cohen_kappa_score").mean > 0.80

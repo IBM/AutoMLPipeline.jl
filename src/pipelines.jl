@@ -9,14 +9,14 @@ using AutoMLPipeline.Utils
 
 import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
-export LinearPipeline, ComboPipeline, @pipeline, @pipelinex
+export Pipeline, ComboPipeline, @pipeline, @pipelinex
 
-mutable struct LinearPipeline <: Workflow
+mutable struct Pipeline <: Workflow
   name::String
   model::Dict
   args::Dict
 
-  function LinearPipeline(args::Dict = Dict())
+  function Pipeline(args::Dict = Dict())
     default_args = Dict(
 			:name => "linearpipeline",
 			# machines as list to chain in sequence.
@@ -30,22 +30,22 @@ mutable struct LinearPipeline <: Workflow
   end
 end
 
-function LinearPipeline(machs::Vector{T}) where {T<:Machine}
-  LinearPipeline(Dict(:machines => machs))
+function Pipeline(machs::Vector{T}) where {T<:Machine}
+  Pipeline(Dict(:machines => machs))
 end
 
-function LinearPipeline(machs...)
+function Pipeline(machs...)
   combo=nothing
   if eltype(machs) <: Machine
     v=[x for x in machs] # convert tuples to vector
-    combo = LinearPipeline(v)
+    combo = Pipeline(v)
   else
     error("argument setup error")
   end
   return combo
 end
 
-function fit!(pipe::LinearPipeline, features::DataFrame, labels::Vector=[])
+function fit!(pipe::Pipeline, features::DataFrame=DataFrame(), labels::Vector=[])
   instances=deepcopy(features)
   machines = pipe.args[:machines]
   machine_args = pipe.args[:machine_args]
@@ -72,7 +72,7 @@ function fit!(pipe::LinearPipeline, features::DataFrame, labels::Vector=[])
   )
 end
 
-function transform!(pipe::LinearPipeline, instances::DataFrame)
+function transform!(pipe::Pipeline, instances::DataFrame=DataFrame())
   machines = pipe.model[:machines]
 
   current_instances = deepcopy(instances)
@@ -140,7 +140,7 @@ function fit!(pipe::ComboPipeline, features::DataFrame, labels::Vector=[])
   )
 end
 
-function transform!(pipe::ComboPipeline, features::DataFrame)
+function transform!(pipe::ComboPipeline, features::DataFrame=DataFrame())
   machines = pipe.model[:machines]
   instances = deepcopy(features)
   new_instances = DataFrame()
@@ -158,7 +158,7 @@ function processexpr(args)
     if typeof(args[ndx]) == Expr
       processexpr(args[ndx].args)
     elseif args[ndx] == :+
-      args[ndx] = :LinearPipeline
+      args[ndx] = :Pipeline
     elseif args[ndx] == :*
       args[ndx] = :ComboPipeline
     #else
