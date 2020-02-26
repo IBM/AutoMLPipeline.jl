@@ -100,6 +100,12 @@ mutable struct SKPreprocessor <: Transformer
                      )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
+    prep = cargs[:preprocessor]
+    if !(prep in keys(preprocessor_dict)) 
+      println("$prep is not supported.") 
+      println("keywords: ", keys(preprocessor_dict))
+      error("Argument keyword error")
+    end
     new(cargs[:name],Dict(),cargs)
   end
 end

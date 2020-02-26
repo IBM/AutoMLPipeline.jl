@@ -4,6 +4,7 @@ using Test
 include("test_pipeline.jl")
 include("test_skpreprocessing.jl")
 include("test_decisiontree.jl")
+include("test_sklearner.jl")
 include("test_ensemble.jl")
 include("test_crossvalidator.jl")
 include("test_skcrossvalidator.jl")

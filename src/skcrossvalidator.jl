@@ -41,9 +41,17 @@ function __init__()
          )
 end
 
+function checkfun(sfunc::String)
+    if !(sfunc in keys(metric_dict))
+        println("$sfunc metric is not supported")
+        println("metric: ",keys(metric_dict))
+        error("Metric keyword error")
+    end
+end
+
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String,nfolds=10)
-    @assert sfunc in keys(metric_dict)
+    checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(X,Y) = pfunc(X,Y)
     crossvalidate(pl,X,Y,metric,nfolds)
@@ -51,7 +59,7 @@ end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String,averagetype::String,nfolds=10)
-    @assert sfunc in keys(metric_dict)
+    checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(X,Y) = pfunc(X,Y,average=averagetype)
     crossvalidate(pl,X,Y,metric,nfolds)
