@@ -13,10 +13,10 @@ export SKPreprocessor
 using PyCall
 
 function __init__()
-  global DEC=pyimport("sklearn.decomposition") 
-  global FS=pyimport("sklearn.feature_selection")
-  global IMP=pyimport("sklearn.impute")
-  global PREP=pyimport("sklearn.preprocessing")
+  global DEC=pyimport_conda("sklearn.decomposition") 
+  global FS=pyimport_conda("sklearn.feature_selection")
+  global IMP=pyimport_conda("sklearn.impute")
+  global PREP=pyimport_conda("sklearn.preprocessing")
 
   # Available scikit-learn learners.
   global preprocessor_dict = Dict(
