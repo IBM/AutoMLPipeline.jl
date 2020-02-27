@@ -176,7 +176,7 @@ end
 macro pipelinex(expr)
   lexpr = :($(esc(expr)))
   res = processexpr(lexpr.args)
-  res
+  :($res[1])
 end
 
 
