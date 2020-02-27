@@ -3,9 +3,12 @@ module TestSKCrossValidator
 using Test
 using Random
 using AutoMLPipeline
+using AutoMLPipeline.EnsembleMethods
+using AutoMLPipeline.SKPreprocessors
 using AutoMLPipeline.SKCrossValidators
 using AutoMLPipeline.DecisionTreeLearners
 using AutoMLPipeline.Pipelines
+using AutoMLPipeline.FeatureSelectors
 using AutoMLPipeline.Utils
 
 function crossv(ppl,X,Y)
