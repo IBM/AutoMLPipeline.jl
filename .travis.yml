@@ -11,9 +11,13 @@ matrix:
   allow_failures:
     - julia: nightly
     - julia: 1.0
+addons:
+  apt:
+    packages:
+      - python3-numpy
+      - python3-scipy
 env:
-    global:
-    - PYTHON=conda
+  - PYTHON=Conda
 notifications:
   email: false
 
