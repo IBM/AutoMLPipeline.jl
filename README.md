@@ -26,17 +26,21 @@ using AutoMLPipeline.Utils
 pca = SKPreprocessor("PCA")
 fa = SKPreprocessor("FactorAnalysis")
 ica = SKPreprocessor("FastICA")
+
 #### Scaler 
 rb = SKPreprocessor("RobustScaler")
 pt = SKPreprocessor("PowerTransformer")
 norm = SKPreprocessor("Normalizer")
 mx = SKPreprocessor("MinMaxScaler")
+
 #### categorical preprocessing
 ohe = OneHotEncoder()
+
 #### Column selector
 disc = CatNumDiscriminator()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
+
 #### Learners
 rf = SKLearner("RandomForestClassifier")
 gb = SKLearner("GradientBoostingClassifier")
@@ -53,9 +57,10 @@ best = BestLearner();
 #### Load data
 ```julia
 using CSV
-profbdata = CSV.read("profb.csv")
+profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector;
+@show first(profbdata,5)
 ```
 
 #### A pipeline example using the Voting Ensemble learner
@@ -70,6 +75,7 @@ crossvalidate(pvote,X,Y,"accuracy_score",5)
 #### Print corresponding function call of the pipeline expression
 ```julia
 @pipelinex (catf |> ohe) + (numf) |> vote
+# outputs: :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
 #### Another pipeline example using the RandomForest learner
