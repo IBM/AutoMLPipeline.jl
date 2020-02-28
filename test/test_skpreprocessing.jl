@@ -97,7 +97,7 @@ function skptest()
     pred = transform!(mpipeline,features)
     @test score(:accuracy,pred,labels) > 95.0
 
-    fpipe = @pipeline ((cat * num) * (num * pca))  + stack
+    fpipe = @pipeline ((cat + num) + (num + pca))  |> stack
     fit!(fpipe,features,labels)
     (transform!(fpipe,features) .== labels) |> sum == nrow(features)
 end

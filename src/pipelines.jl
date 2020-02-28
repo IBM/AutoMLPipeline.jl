@@ -157,9 +157,9 @@ function processexpr(args)
   for ndx in eachindex(args)
     if typeof(args[ndx]) == Expr
       processexpr(args[ndx].args)
-    elseif args[ndx] == :+
+    elseif args[ndx] == :(|>)
       args[ndx] = :Pipeline
-    elseif args[ndx] == :*
+    elseif args[ndx] == :+
       args[ndx] = :ComboPipeline
     end
   end
