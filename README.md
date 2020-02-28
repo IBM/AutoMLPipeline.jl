@@ -63,7 +63,7 @@ Y = profbdata[:,1] |> Vector;
 @show first(profbdata,5)
 ```
 
-#### A pipeline example using the Voting Ensemble learner
+#### A pipeline expression example using the Voting Ensemble learner
 ```julia
 pvote = @pipeline  (catf |> ohe) + (numf) |> vote
 pred = fit_transform!(pvote,X,Y)
