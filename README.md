@@ -4,7 +4,7 @@
 | [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
 ### AutoMLPipeline 
-is a package that makes it trivial to create complex ML pipeline structures using simple expressions. It helps to symbolically process or manipulate its elements to automatically discover optimal pipeline stuctures for machine learning prediction and classification.
+is a package that makes it trivial to create complex ML pipeline structures using simple expressions. Using Julia macro programming features, it becomes trivial to symbolically process and manipulate the pipeline expressions and its elements  to automatically discover optimal structures for machine learning prediction and classification.
 
 #### Load the AutoMLPipeline package and submodules
 ```julia
