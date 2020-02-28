@@ -1,5 +1,5 @@
 # Main author
-- Paulito P. Palmes ([ppalmes-ibm](https://github.com/ppalmes))
+- [Paulito P. Palmes, IBM Research](https://github.com/ppalmes)
 
 # Contributors
 This is an open-source project sponsored by IBM. We highly encourage contribution by making a PR.
