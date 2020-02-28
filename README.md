@@ -93,11 +93,11 @@ score(:accuracy,pred,Y) |> println
 crossvalidate(plsvc,X,Y,"accuracy_score",5)
 ```
 
-## Feature Requests and Contributions
+### Feature Requests and Contributions
 
 We welcome contributions, feature requests, and suggestions. Here is the link to open an [issue][issues-url] for any problems you encounter. If you want to contribute, please follow the guidelines in [contributors page][contrib-url].
 
-## Help usage
+### Help usage
 
 Usage questions can be posted in:
 - [Julia Community](https://julialang.org/community/) 
