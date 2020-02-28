@@ -6,7 +6,7 @@
 ### AutoMLPipeline 
 is a package to make it trivial to create complex ML pipeline structure using simple expressions which paves the way to manipulate its elements to automatically discover optimal pipelines for machine learning prediction and classification.
 
-#### Load the AutMLPipeline package and submodules
+#### Load the AutoMLPipeline package and submodules
 ```julia
 using Random
 using AutoMLPipeline
@@ -20,7 +20,7 @@ using AutoMLPipeline.SKPreprocessors
 using AutoMLPipeline.Utils
 ```
 
-#### Load the different elements in a pipeline
+#### Load some of filters, transformers, learners to be used in a pipeline
 ```julia
 #### Decomposition
 pca = SKPreprocessor("PCA")
@@ -58,7 +58,7 @@ X = profbdata[:,2:end]
 Y = profbdata[:,1] |> Vector;
 ```
 
-#### Votelearner pipeline
+#### A pipeline example using the Voting Ensemble learner
 ```julia
 pvote = @pipeline  (catf |> ohe) + (numf) |> vote
 pred = fit_transform!(pvote,X,Y)
@@ -67,19 +67,19 @@ println(sc)
 ### cross-validate
 crossvalidate(pvote,X,Y,"accuracy_score",5)
 ```
-#### Print corresponding function call
+#### Print corresponding function call of the pipeline expression
 ```julia
 @pipelinex (catf |> ohe) + (numf) |> vote
 ```
 
-#### RandomForest learner
+#### Another pipeline example using the RandomForest learner
 ```julia
 prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> rf
 pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score",5)
 ```
-#### Linear Support Vector for Classification
+#### A pipeline for the Linear Support Vector for Classification
 ```julia
 plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
