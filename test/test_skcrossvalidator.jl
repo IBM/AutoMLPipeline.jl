@@ -38,7 +38,7 @@ function test_skcrossvalidator()
   pca = SKPreprocessor("PCA")
   ptf = SKPreprocessor("PowerTransformer")
   rbc = SKPreprocessor("RobustScaler")
-  ppl3=@pipeline (cat*num) * (num+ptf) * (num+rbc) * (num+pca) + VoteEnsemble()
+  ppl3=@pipeline ((cat + num) + (num |> ptf) + (num |> rbc) + (num |> pca)) |> VoteEnsemble()
   crossv(ppl3,X,Y)
 end
 @testset "CrossValidator" begin
