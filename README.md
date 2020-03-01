@@ -46,28 +46,22 @@ using CSV
 profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector;
-@show first(profbdata,5)
+head(x)=first(x,5)
+head(profbdata)
 ```
 
 #### Filter categories and hot-encode them
 ```julia
 pohe = @pipeline catf |> ohe
 tr = fit_transform!(pohe,X,Y)
-@show tr
+head(tr)
 ```
 
 #### Filter numeric features, compute ica and pca features, and combine both features
 ```julia
 pdec = @pipeline (numf |> pca) + (numf |> ica)
 tr = fit_transform!(pdec,X,Y)
-@show tr
-```
-
-####  Convert numeric features with low number of unique instances to categories and process catf and numf
-```julia
-pcat = @pipeline disc + ((catf |> ohe)+(numf |> pca))
-tr = fit_transform!(pcat,X,Y)
-@show tr
+head(tr)
 ```
 
 #### A pipeline expression example for classification using the Voting Ensemble learner
