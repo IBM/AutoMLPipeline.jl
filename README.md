@@ -101,8 +101,9 @@ crossvalidate(plsvc,X,Y,"accuracy_score",5)
 #### Extending AutoMLPipeline
 ```
 # If you want to add your own filter/transformer/learner, it is trivial. 
-# Just take note that filters and transformers expect one input argument 
-# while learners expect input and output arguments in the fit! function. 
+# Just take note that filters and transformers process the first input argument 
+# and ignores the target output while learners process both 
+# the input and target output arguments in the fit! function. 
 # transform! function always expect one input argument in all cases. 
 
 # First, import the abstract types and define your own mutable structure 
