@@ -99,6 +99,41 @@ score(:accuracy,pred,Y) |> println
 crossvalidate(plsvc,X,Y,"accuracy_score",5)
 ```
 
+#### Extending AutoMLPipeline
+```
+# If you want to add your own filter/transformer/learner, it is trivial. 
+# Just take note that filters and transformers expect one input argument 
+# while learners expect input and output arguments in the fit! function. 
+# transform! function always expect one input argument in all cases. 
+
+# Import the abstract types and define your own structure as subtype of either Learner or Transformer
+using DataFrames
+import AutoMLPipeline.AbsTypes: fit!, transform! # for overloading the behavior
+export fit!, transform!, MyFilter
+
+mutable struct MyFilter <: Transformer
+  local variables here....
+  function MyFilter()
+      ....
+  end
+end
+
+#define your fit! function
+function fit!(fl::MyFilter, X::DataFrame, Y::Vector=Vector())
+     ....
+end
+
+#define your transform! function
+function transform!(fl::MyFilter, X::DataFrame)::DataFrame
+     ....
+end
+
+# Note that the main data interchange format is a dataframe so transform! 
+# output should always be a dataframe as well as the input for fit! and transform!.
+# This is necessary to the pipeline iteration passes dataframe format consistently to
+# its elements. Once you have this filter, you can use it as part of the pipeline.
+```
+
 ### Feature Requests and Contributions
 
 We welcome contributions, feature requests, and suggestions. Here is the link to open an [issue][issues-url] for any problems you encounter. If you want to contribute, please follow the guidelines in [contributors page][contrib-url].
