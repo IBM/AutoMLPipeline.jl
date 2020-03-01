@@ -115,13 +115,15 @@ export fit!, transform!, MyFilter
 
 # define your filter structure
 mutable struct MyFilter <: Transformer
-  local variables here....
+  variables here....
   function MyFilter()
       ....
   end
 end
 
-#define your fit! function
+#define your fit! function. 
+# filters and transformer ignore Y argument. 
+# learners process both X and Y arguments.
 function fit!(fl::MyFilter, X::DataFrame, Y::Vector=Vector())
      ....
 end
