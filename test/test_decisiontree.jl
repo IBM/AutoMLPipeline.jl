@@ -18,7 +18,6 @@ end
 const X,Y = generateXY()
 
 function test_decisiontree()
-    Random.seed!(123)
     learners = Dict(:rf=>RandomForest(),:ada=>Adaboost(),:ptree=>PrunedTree())
     results = Dict(:rf=>50.0,:ada=>50.0,:ptree=>50.0)
     for (name,obj) in learners
@@ -40,6 +39,7 @@ function test_decisiontree()
     end
 end
 @testset "DecisionTrees" begin
+    Random.seed!(123)
     test_decisiontree()
 end
 

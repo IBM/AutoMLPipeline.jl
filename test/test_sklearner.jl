@@ -1,6 +1,6 @@
 module TestSKL
 
-
+using Random
 using Test
 using AutoMLPipeline.AbsTypes
 using AutoMLPipeline.SKLearners
@@ -59,10 +59,10 @@ const regressors = [
     	
 
 function fit_test(learner::String,in::DataFrame,out::Vector)
-	_learner=SKLearner(Dict(:learner=>learner))
-	fit!(_learner,in,out)
-	@test _learner.model != Dict()
-	return _learner
+    _learner=SKLearner(Dict(:learner=>learner))
+    fit!(_learner,in,out)
+    @test _learner.model != Dict()
+    return _learner
 end
 
 function fit_transform_reg(model::Learner,in::DataFrame,out::Vector)
@@ -70,12 +70,14 @@ function fit_transform_reg(model::Learner,in::DataFrame,out::Vector)
 end
 
 @testset "scikit classifiers" begin
+    Random.seed!(123)
     for cl in classifiers
 	fit_test(cl,XC,YC)
     end
 end
 
 @testset "scikit regressors" begin
+    Random.seed!(123)
     for rg in regressors
 	model=fit_test(rg,X,Y)
 	fit_transform_reg(model,X,Y)

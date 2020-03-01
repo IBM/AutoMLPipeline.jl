@@ -1,5 +1,6 @@
 module TestPipeline
 
+using Random
 using Test
 using AutoMLPipeline
 using AutoMLPipeline.Pipelines
@@ -15,6 +16,7 @@ function test_pipeline()
   X=data[:,1:5]
   Y=data[:,5] |> Vector
   X[!,5]= X[!,5] .|> string
+  # test initialization of types
   ohe = OneHotEncoder()
   ohe1 = OneHotEncoder()
   linear1 = Pipeline(Dict(:name=>"lp",:machines => [ohe]))
@@ -25,6 +27,7 @@ function test_pipeline()
   linear2 = Pipeline([ohe])
   combo1 = ComboPipeline([ohe,ohe])
   combo2 = ComboPipeline([linear1,linear2])
+  # test fit/transform workflow
   fit!(combo1,X)
   res1=transform!(combo1,X)
   res2=fit_transform!(combo1,X)
@@ -32,7 +35,8 @@ function test_pipeline()
   fit!(combo2,X)
   res3=transform!(combo2,X)
   res4=fit_transform!(combo2,X)
-  @test (res3 .== res3) |> Matrix |> sum == 2100
+  @test (res3 .== res4) |> Matrix |> sum == 2100
+  # test symbolic pipeline expression 
   pcombo1 = @pipeline ohe1 + ohe1
   pres1 = fit_transform!(pcombo1,X)
   @test (pres1 .== res1) |> Matrix |> sum == 2100
@@ -52,7 +56,8 @@ function test_pipeline()
   (fit_transform!(pcombo3,X,Y)  .== Y) |> sum == 150
 end
 @testset "Pipelines" begin
-    test_pipeline()
+  Random.seed!(123)
+  test_pipeline()
 end
 
 

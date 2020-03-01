@@ -25,7 +25,6 @@ function crossv(ppl,X,Y)
 end
 
 function test_skcrossvalidator()
-  Random.seed!(123)
   data=getiris()
   X=data[:,1:4]
   Y=data[:,5] |> Vector{String}
@@ -42,6 +41,7 @@ function test_skcrossvalidator()
   crossv(ppl3,X,Y)
 end
 @testset "CrossValidator" begin
+  Random.seed!(123)
   test_skcrossvalidator()
 end
 
