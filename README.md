@@ -106,11 +106,15 @@ crossvalidate(plsvc,X,Y,"accuracy_score",5)
 # while learners expect input and output arguments in the fit! function. 
 # transform! function always expect one input argument in all cases. 
 
-# Import the abstract types and define your own structure as subtype of either Learner or Transformer
+# First, import the abstract types and define your own mutable structure 
+# as subtype of either Learner or Transformer. Also load the DataFrames package
+
 using DataFrames
-import AutoMLPipeline.AbsTypes: fit!, transform! # for overloading the behavior
+import AutoMLPipeline.AbsTypes: fit!, transform!  #for function overloading 
+
 export fit!, transform!, MyFilter
 
+# define your filter structure
 mutable struct MyFilter <: Transformer
   local variables here....
   function MyFilter()
@@ -130,8 +134,9 @@ end
 
 # Note that the main data interchange format is a dataframe so transform! 
 # output should always be a dataframe as well as the input for fit! and transform!.
-# This is necessary to the pipeline iteration passes dataframe format consistently to
-# its elements. Once you have this filter, you can use it as part of the pipeline.
+# This is necessary so that the pipeline iteration passes dataframe format consistently to
+# its elements. Once you have this filter, you can use it as part of the pipeline together
+# with existing learners and filters.
 ```
 
 ### Feature Requests and Contributions
