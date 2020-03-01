@@ -23,35 +23,25 @@ using AutoMLPipeline.Utils
 #### Load some of filters, transformers, learners to be used in a pipeline
 ```julia
 #### Decomposition
-pca = SKPreprocessor("PCA")
-fa = SKPreprocessor("FactorAnalysis")
-ica = SKPreprocessor("FastICA")
+pca = SKPreprocessor("PCA"); fa = SKPreprocessor("FactorAnalysis"); ica = SKPreprocessor("FastICA")
 
 #### Scaler 
-rb = SKPreprocessor("RobustScaler")
-pt = SKPreprocessor("PowerTransformer")
-norm = SKPreprocessor("Normalizer")
-mx = SKPreprocessor("MinMaxScaler")
+rb = SKPreprocessor("RobustScaler"); pt = SKPreprocessor("PowerTransformer"); 
+norm = SKPreprocessor("Normalizer"); mx = SKPreprocessor("MinMaxScaler")
 
 #### categorical preprocessing
 ohe = OneHotEncoder()
 
 #### Column selector
-disc = CatNumDiscriminator(12) # columns with less than 12 unique instances are converted to categories
-catf = CatFeatureSelector()
-numf = NumFeatureSelector()
+disc = CatNumDiscriminator(12) # max unique instances for numeric columns converted as categories
+catf = CatFeatureSelector(); numf = NumFeatureSelector()
 
 #### Learners
-rf = SKLearner("RandomForestClassifier")
-gb = SKLearner("GradientBoostingClassifier")
-lsvc = SKLearner("LinearSVC")
-svc = SKLearner("SVC")
-mlp = SKLearner("MLPClassifier")
-ada = SKLearner("AdaBoostClassifier");
-jrf = RandomForest();
-vote = VoteEnsemble();
-stack = StackEnsemble();
-best = BestLearner();
+rf = SKLearner("RandomForestClassifier"); gb = SKLearner("GradientBoostingClassifier")
+lsvc = SKLearner("LinearSVC"); svc = SKLearner("SVC")
+mlp = SKLearner("MLPClassifier"); ada = SKLearner("AdaBoostClassifier")
+jrf = RandomForest(); vote = VoteEnsemble();
+stack = StackEnsemble();best = BestLearner();
 ```
 
 #### Load data
