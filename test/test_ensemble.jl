@@ -29,6 +29,7 @@ function test_ensembles()
   end
 end
 @testset "Ensemble learners" begin
+  Random.seed!(123)
   test_ensembles()
 end
   
