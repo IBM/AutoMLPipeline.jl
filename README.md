@@ -137,7 +137,7 @@ end
 # output should always be a dataframe as well as the input for fit! and transform!.
 # This is necessary so that the pipeline passes the dataframe format consistently to
 # its filters/transformers/learners. Once you have this filter, you can use 
-# it as part of the pipeline together with existing learners and filters.
+# it as part of the pipeline together with the other learners and filters.
 ```
 
 ### Feature Requests and Contributions
