@@ -65,6 +65,9 @@ Y = profbdata[:,1] |> Vector;
 
 #### A pipeline expression example using the Voting Ensemble learner
 ```julia
+# take all categorical columns and hotbit encode each, 
+# concatenate them to the numerical features,
+# and feed them to the voting ensemble
 pvote = @pipeline  (catf |> ohe) + (numf) |> vote
 pred = fit_transform!(pvote,X,Y)
 sc=score(:accuracy,pred,Y)
@@ -80,6 +83,9 @@ crossvalidate(pvote,X,Y,"accuracy_score",5)
 
 #### Another pipeline example using the RandomForest learner
 ```julia
+# combine the pca, ica, fa of the numerical columns,
+# combine them with the hot-bit encoded categorial features
+# and feed all to the random forest classifier
 prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> rf
 pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
