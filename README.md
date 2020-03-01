@@ -26,7 +26,6 @@ norm = SKPreprocessor("Normalizer"); mx = SKPreprocessor("MinMaxScaler")
 ohe = OneHotEncoder()
 
 #### Column selector
-disc = CatNumDiscriminator(12) # max unique instances for numeric columns converted as categories
 catf = CatFeatureSelector(); 
 numf = NumFeatureSelector()
 
