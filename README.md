@@ -8,7 +8,6 @@ is a package that makes it trivial to create complex ML pipeline structures usin
 
 #### Load the AutoMLPipeline package and submodules
 ```julia
-using Random
 using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
 using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
 using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline.Utils
