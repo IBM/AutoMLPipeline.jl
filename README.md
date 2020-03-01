@@ -37,7 +37,7 @@ mx = SKPreprocessor("MinMaxScaler")
 ohe = OneHotEncoder()
 
 #### Column selector
-disc = CatNumDiscriminator()
+disc = CatNumDiscriminator(12) # columns with less than 12 unique instances are converted to categories
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
 
@@ -63,7 +63,28 @@ Y = profbdata[:,1] |> Vector;
 @show first(profbdata,5)
 ```
 
-#### A pipeline expression example using the Voting Ensemble learner
+#### Filter categories and hot-encode them
+```julia
+pohe = @pipeline catf |> ohe
+tr = fit_transform!(pohe,X,Y)
+@show tr
+```
+
+#### Filter numeric features, compute ica and pca features, and combine both features
+```julia
+pdec = @pipeline (numf |> pca) + (numf |> ica)
+tr = fit_transform!(pdec,X,Y)
+@show tr
+```
+
+####  Convert numeric features with low number of unique instances to categories and process catf and numf
+```julia
+pcat = @pipeline disc + ((catf |> ohe)+(numf |> pca))
+tr = fit_transform!(pcat,X,Y)
+@show tr
+```
+
+#### A pipeline expression example for classification using the Voting Ensemble learner
 ```julia
 # take all categorical columns and hotbit encode each, 
 # concatenate them to the numerical features,
