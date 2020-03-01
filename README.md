@@ -40,7 +40,7 @@ jrf = RandomForest();              vote = VoteEnsemble();
 stack = StackEnsemble();           best = BestLearner();
 ```
 
-#### Load data
+#### Load data. Make sure that the input feature is a dataframe and the target output is a 1-D vector.
 ```julia
 using CSV
 profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
