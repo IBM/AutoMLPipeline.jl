@@ -126,9 +126,9 @@ mutable struct MyFilter <: Transformer
   end
 end
 
-#define your fit! function. 
-# filters and transformer ignore Y argument. 
-# learners process both X and Y arguments.
+# define your fit! function. 
+# filters and transformer ignore the target argument. 
+# learners process both the input features and target argument.
 function fit!(fl::MyFilter, inputfeatures::DataFrame, target::Vector=Vector())
      ....
 end
