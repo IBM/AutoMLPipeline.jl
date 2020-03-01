@@ -6,6 +6,8 @@
 ### AutoMLPipeline 
 is a package that makes it trivial to create complex ML pipeline structures using simple expressions. Using Julia macro programming features, it becomes trivial to symbolically process and manipulate the pipeline expressions and its elements  to automatically discover optimal structures for machine learning prediction and classification.
 
+Future work will focus on algorithms to automatically optimize the pipeline structure for any given dataset.
+
 #### Load the AutoMLPipeline package and submodules
 ```julia
 using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
