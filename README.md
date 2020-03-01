@@ -34,14 +34,16 @@ ohe = OneHotEncoder()
 
 #### Column selector
 disc = CatNumDiscriminator(12) # max unique instances for numeric columns converted as categories
-catf = CatFeatureSelector(); numf = NumFeatureSelector()
+catf = CatFeatureSelector(); 
+numf = NumFeatureSelector()
 
 #### Learners
-rf = SKLearner("RandomForestClassifier"); gb = SKLearner("GradientBoostingClassifier")
-lsvc = SKLearner("LinearSVC"); svc = SKLearner("SVC")
-mlp = SKLearner("MLPClassifier"); ada = SKLearner("AdaBoostClassifier")
-jrf = RandomForest(); vote = VoteEnsemble();
-stack = StackEnsemble();best = BestLearner();
+rf = SKLearner("RandomForestClassifier"); 
+gb = SKLearner("GradientBoostingClassifier")
+lsvc = SKLearner("LinearSVC");     svc = SKLearner("SVC")
+mlp = SKLearner("MLPClassifier");  ada = SKLearner("AdaBoostClassifier")
+jrf = RandomForest();              vote = VoteEnsemble();
+stack = StackEnsemble();           best = BestLearner();
 ```
 
 #### Load data
