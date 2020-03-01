@@ -84,7 +84,7 @@ crossvalidate(pvote,X,Y,"accuracy_score",5)
 
 #### Another pipeline example using the RandomForest learner
 ```julia
-# combine the pca, ica, fa of the numerical columns,
+# compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorial features
 # and feed all to the random forest classifier
 prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> rf
