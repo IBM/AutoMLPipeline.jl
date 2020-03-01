@@ -9,15 +9,9 @@ is a package that makes it trivial to create complex ML pipeline structures usin
 #### Load the AutoMLPipeline package and submodules
 ```julia
 using Random
-using AutoMLPipeline
-using AutoMLPipeline.FeatureSelectors
-using AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.CrossValidators
-using AutoMLPipeline.DecisionTreeLearners
-using AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils
+using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
+using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
+using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline.Utils
 ```
 
 #### Load some of filters, transformers, learners to be used in a pipeline
