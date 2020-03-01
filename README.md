@@ -107,9 +107,13 @@ crossvalidate(plsvc,X,Y,"accuracy_score",5)
 # transform! function always expect one input argument in all cases. 
 
 # First, import the abstract types and define your own mutable structure 
-# as subtype of either Learner or Transformer. Also load the DataFrames package
+# as subtype of either Learner or Transformer. Also import the fit! and
+# transform! functions to be overloaded. Also load the DataFrames package
+# as the main data interchange format.
 
 using DataFrames
+using AutoMLPipeline.AbsTypes, AutoMLPipeline.Utils
+
 import AutoMLPipeline.AbsTypes: fit!, transform!  #for function overloading 
 
 export fit!, transform!, MyFilter
