@@ -90,6 +90,7 @@ Below outlines some typical way to preprocess and model any dataset.
 #### 1. Load Data
 ```julia
 # Make sure that the input feature is a dataframe and the target output is a 1-D vector.
+using AutoMLPipeline
 using CSV
 profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
 X = profbdata[:,2:end] 
