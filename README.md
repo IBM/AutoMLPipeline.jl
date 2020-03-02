@@ -180,7 +180,7 @@ score(:accuracy,pred,Y) |> println
 crossvalidate(plsvc,X,Y,"accuracy_score",5)
 ```
 
-#### Extending AutoMLPipeline
+### Extending AutoMLPipeline
 ```
 # If you want to add your own filter/transformer/learner, it is trivial. 
 # Just take note that filters and transformers process the first 
