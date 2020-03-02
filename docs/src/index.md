@@ -51,7 +51,7 @@ the optimal model and its hyper-parameters.
 Because of close dependencies among various
 steps, we can consider the entire process 
 to be a pipeline optimization problem (POP).
-POP requires simultaneuous optimization of pipeline
+POP requires simultaneous optimization of pipeline
 structure and parameter adaptation of its elements.
 As a consequence, having an elegant way to
 express pipeline structure helps in the analysis
