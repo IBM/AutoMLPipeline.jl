@@ -132,6 +132,10 @@ jrf = RandomForest();              vote = VoteEnsemble();
 stack = StackEnsemble();           best = BestLearner();
 ```
 
+Note: You can get a listing of available `SKPreprocessors` and `SKLearners` by invoking the following functions, respectively: 
+- `skpreprocessors()`
+- `sklearners()`
+
 #### 4. Feature extraction example: Filter categories and hot-encode them
 ```julia
 pohe = @pipeline catf |> ohe
