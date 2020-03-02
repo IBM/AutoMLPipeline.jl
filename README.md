@@ -40,8 +40,9 @@ to be a pipeline optimization problem (POP).
 POP requires simultaneous optimization of pipeline
 structure and parameter adaptation of its elements.
 As a consequence, having an elegant way to
-express pipeline structure helps in the analysis
-and implementation of the optimization routines.
+express pipeline structure can help lessen
+the complexity in the management and analysis 
+of the wide-array of choices of optimization routines.
 
 The target of future work will be the
 implementations of different pipeline
