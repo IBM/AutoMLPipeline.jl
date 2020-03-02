@@ -37,7 +37,7 @@ the optimal model and its hyper-parameters.
 Because of close dependencies among various
 steps, we can consider the entire process
 to be a pipeline optimization problem (POP).
-POP requires simultaneuous optimization of pipeline
+POP requires simultaneous optimization of pipeline
 structure and parameter adaptation of its elements.
 As a consequence, having an elegant way to
 express pipeline structure helps in the analysis
@@ -154,7 +154,7 @@ pred = fit_transform!(pvote,X,Y)
 sc=score(:accuracy,pred,Y)
 println(sc)
 ### cross-validate
-crossvalidate(pvote,X,Y,"accuracy_score",5)
+crossvalidate(pvote,X,Y,"accuracy_score")
 ```
 #### 7. An example how to print corresponding function call of the pipeline expression
 ```julia
@@ -170,14 +170,14 @@ crossvalidate(pvote,X,Y,"accuracy_score",5)
 prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> rf
 pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
-crossvalidate(prf,X,Y,"accuracy_score",5)
+crossvalidate(prf,X,Y,"accuracy_score")
 ```
 #### 9. An example of pipeline for the Linear Support Vector for Classification
 ```julia
 plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
 score(:accuracy,pred,Y) |> println
-crossvalidate(plsvc,X,Y,"accuracy_score",5)
+crossvalidate(plsvc,X,Y,"accuracy_score")
 ```
 
 ### Extending AutoMLPipeline
