@@ -9,7 +9,7 @@ is a package that makes it trivial to create complex ML pipeline structures usin
 To illustrate, here is a pipeline expression and evaluation of a typical machine learning workflow that extracts numerical features (numf) for ICA (independent component analysis) and PCA (principal component analysis) transformations, respectively, concatentated with the hot-bit encoding (ohe) of categorical features (catf) of a given data for RF modeling:
 
 ```julia
-julia> model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica)
+julia> model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
 julia> fit!(model,Xtrain,Ytrain)
 julia> prediction = transform!(model,Xtest)
 julia> score(:accuracy,prediction,Ytest)
@@ -40,8 +40,9 @@ to be a pipeline optimization problem (POP).
 POP requires simultaneous optimization of pipeline
 structure and parameter adaptation of its elements.
 As a consequence, having an elegant way to
-express pipeline structure helps in the analysis
-and implementation of the optimization routines.
+express pipeline structure can help lessen
+the complexity in the management and analysis 
+of the wide-array of choices of optimization routines.
 
 The target of future work will be the
 implementations of different pipeline
