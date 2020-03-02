@@ -10,7 +10,7 @@ using AutoMLPipeline.Utils
 
 import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
-export SKLearner
+export SKLearner, sklearners
 
 
 function __init__()
@@ -104,6 +104,23 @@ mutable struct SKLearner <: Learner
   end
 end
 
+function SKLearner(learner::String, args::Dict=Dict())
+  SKLearner(Dict(:learner => learner, :impl_args => args))
+end
+
+function sklearners()
+  println()
+  println("syntax: SKLearner(name::String, args::Dict=Dict())")
+  println()
+  println("where *name* can be one of:")
+  println()
+  println(keys(learner_dict))
+  println()
+  println("and *args* are the corresponding learner's initial parameters.")
+  println()
+  println("Note: Consult Scikitlearn's online help for more details about the learner's arguments.")
+end
+
 function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
   x = xx |> Array
   impl_args = copy(skl.args[:impl_args])
@@ -126,9 +143,6 @@ function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
      )
 end
 
-function SKLearner(learner::String)
-  SKLearner(Dict(:learner => learner))
-end
 
 function transform!(skl::SKLearner, xx::DataFrame)
   x = xx |> Array

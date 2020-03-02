@@ -24,11 +24,11 @@ using .FeatureSelectors
 
 include("skpreprocessor.jl")
 using .SKPreprocessors
-export SKPreprocessor
+export SKPreprocessor, skpreprocessors
 
 include("sklearners.jl")
 using .SKLearners
-export SKLearner
+export SKLearner, sklearners
 
 include("decisiontree.jl")
 using .DecisionTreeLearners
