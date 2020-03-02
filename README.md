@@ -6,7 +6,7 @@
 ### AutoMLPipeline (AMLP)
 is a package that makes it trivial to create complex ML pipeline structures using simple expressions. AMLP leverages on the built-in macro programming features of Julia to symbolically process, manipulate pipeline expressions, and automatically discover optimal structures for machine learning prediction and classification.
 
-To illustrate, a typical machine learning workflow that extracts numerical features (numf) for ICA (independent component analysis) and PCA (principal component analysis) transformations, respectively, concatentated with the hot-bit encoding (ohe) of categorical features (catf) of a given data for RF modeling can be expressed in AMLP as:
+To illustrate, here is a pipeline expression and evaluation of a typical machine learning workflow that extracts numerical features (numf) for ICA (independent component analysis) and PCA (principal component analysis) transformations, respectively, concatentated with the hot-bit encoding (ohe) of categorical features (catf) of a given data for RF modeling:
 
 ```julia
 julia> model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica)
