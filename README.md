@@ -167,13 +167,13 @@ Note: `crossvalidate()` supports the following sklearn's performance metric
 - `jaccard_score`, `matthews_corrcoef`, `hamming_loss`, `zero_one_loss`
 - `f1_score`, `precision_score`, `recall_score`
 
-#### 7. An example how to print corresponding function call of the pipeline expression
+#### 7. An example how to print the corresponding function call of the pipeline expression in 6
 ```julia
 @pipelinex (catf |> ohe) + (numf) |> vote
 # outputs: :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
-#### 8. An example of pipeline expression with more elements for Random Forest modeling
+#### 8. Another example of a pipeline expression with more expressions for Random Forest modeling
 ```julia
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorial features
@@ -183,7 +183,7 @@ pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score")
 ```
-#### 9. An example of pipeline for the Linear Support Vector for Classification
+#### 9. An example of a pipeline for the Linear Support Vector for Classification
 ```julia
 plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
