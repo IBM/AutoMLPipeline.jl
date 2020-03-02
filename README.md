@@ -3,19 +3,109 @@
 |:---:|:---:|:---:|
 | [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
-### AutoMLPipeline 
-is a package that makes it trivial to create complex ML pipeline structures using simple expressions. Using Julia macro programming features, it becomes trivial to symbolically process and manipulate the pipeline expressions and its elements  to automatically discover optimal structures for machine learning prediction and classification.
+### AutoMLPipeline (AMLP)
+is a package that makes it trivial to create complex ML pipeline structures using simple expressions. AMLP leverages on the built-in macro programming features of Julia to symbolically process, manipulate pipeline expressions, and automatically discover optimal structures for machine learning prediction and classification.
 
-Future work will focus on algorithms to automatically optimize the pipeline structure for any given dataset.
+To illustrate, a typical machine learning workflow that extracts numerical features (numf) for ICA (independent component analysis) and PCA (principal component analysis) transformations, respectively, concatentated with the hot-bit encoding (ohe) of categorical features (catf) of a given data for RF modeling can be expressed in AMLP as:
 
-#### Load the AutoMLPipeline package and submodules
+```julia
+julia> model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica)
+julia> fit!(model,Xtrain,Ytrain)
+julia> prediction = transform!(model,Xtest)
+julia> score(:accuracy,prediction,Ytest)
+julia> crossvalidate(model,X,Y,"balanced_accuracy_score")
+```
+### Motivations
+The typical workflow in machine learning
+classification or prediction requires
+some or combination of the following
+preprocessing steps together with modeling:
+- feature extraction (e.g. ica, pca, svd)
+- feature transformation (e.g. normalization, scaling, ohe)
+- feature selection (anova, correlation)
+- modeling (rf, adaboost, xgboost, lm, svm, mlp)
+
+Each step has several choices of functions
+to use together with their corresponding
+parameters. Optimizing the performance of the
+entire pipeline is a combinatorial search
+of the proper order and combination of preprocessing
+steps, optimization of their corresponding
+parameters, together with searching for
+the optimal model and its hyper-parameters.
+
+Because of close dependencies among various
+steps, we can consider the entire process
+to be a pipeline optimization problem (POP).
+POP requires simultaneuous optimization of pipeline
+structure and parameter adaptation of its elements.
+As a consequence, having an elegant way to
+express pipeline structure helps in the analysis
+and implementation of the optimization routines.
+
+The target of future work will be the
+implementations of different pipeline
+optimization algorithms ranging from
+evolutionary approaches, integer
+programming (discrete choices of POP elements),
+tree/graph search, and hyper-parameter search.
+
+### Package Features
+- Pipeline API that allows high-level description of processing workflow
+- Common API wrappers for ML libs including Scikitlearn, DecisionTree, etc
+- Support of symbolic pipeline parsing for easy expression
+  of complexed pipeline structures
+- Easily extensible architecture by overloading just two main interfaces: fit! and transform!
+- Meta-ensembles that allows composition of
+    ensembles of ensembles (recursively if needed)
+    for robust prediction routines
+- Categorical and numerical feature selectors for
+    specialized preprocessing routines based on types
+
+### Installation
+
+AutoMLPipeline is in the Julia Official package registry.
+The latest release can be installed at the Julia
+prompt using Julia's package management which is triggered
+by pressing `]` at the julia prompt:
+```julia
+julia> ]
+(v1.0) pkg> add AutoMLPipeline
+```
+or
+```julia
+julia> using Pkg
+julia> pkg"add AutoMLPipeline"
+```
+or
+
+```julia
+julia> using Pkg
+julia> Pkg.add("AutoMLPipeline")
+```
+
+### Sample Usage of AMLP
+Below outlines some typical way to preprocess and model any dataset.
+
+#### 1. Load Data
+```julia
+# Make sure that the input feature is a dataframe and the target output is a 1-D vector.
+using CSV
+profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
+X = profbdata[:,2:end] 
+Y = profbdata[:,1] |> Vector;
+head(x)=first(x,5)
+head(profbdata)
+```
+
+#### 2. Load AutoMLPipeline package and submodules
 ```julia
 using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
 using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
 using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline.Utils
 ```
 
-#### Load some of filters, transformers, learners to be used in a pipeline
+#### 3. Load some of filters, transformers, learners 
 ```julia
 #### Decomposition
 pca = SKPreprocessor("PCA"); fa = SKPreprocessor("FactorAnalysis"); ica = SKPreprocessor("FastICA")
@@ -40,31 +130,21 @@ jrf = RandomForest();              vote = VoteEnsemble();
 stack = StackEnsemble();           best = BestLearner();
 ```
 
-#### Load data. Make sure that the input feature is a dataframe and the target output is a 1-D vector.
-```julia
-using CSV
-profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
-X = profbdata[:,2:end] 
-Y = profbdata[:,1] |> Vector;
-head(x)=first(x,5)
-head(profbdata)
-```
-
-#### Filter categories and hot-encode them
+#### 4. Feature extraction example: Filter categories and hot-encode them
 ```julia
 pohe = @pipeline catf |> ohe
 tr = fit_transform!(pohe,X,Y)
 head(tr)
 ```
 
-#### Filter numeric features, compute ica and pca features, and combine both features
+#### 5. Feature extraction example: Filter numeric features, compute ica and pca features, and combine both features
 ```julia
 pdec = @pipeline (numf |> pca) + (numf |> ica)
 tr = fit_transform!(pdec,X,Y)
 head(tr)
 ```
 
-#### A pipeline expression example for classification using the Voting Ensemble learner
+#### 6. An example of pipeline expression for classification using the Voting Ensemble learner
 ```julia
 # take all categorical columns and hotbit encode each, 
 # concatenate them to the numerical features,
@@ -76,13 +156,13 @@ println(sc)
 ### cross-validate
 crossvalidate(pvote,X,Y,"accuracy_score",5)
 ```
-#### Print corresponding function call of the pipeline expression
+#### 7. An example how to print corresponding function call of the pipeline expression
 ```julia
 @pipelinex (catf |> ohe) + (numf) |> vote
 # outputs: :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
-#### Another pipeline example using the RandomForest learner
+#### 8. An example of pipeline expression with more elements for Random Forest modeling
 ```julia
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorial features
@@ -92,7 +172,7 @@ pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score",5)
 ```
-#### A pipeline for the Linear Support Vector for Classification
+#### 9. An example of pipeline for the Linear Support Vector for Classification
 ```julia
 plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
