@@ -53,7 +53,7 @@ tree/graph search, and hyper-parameter search.
 ### Package Features
 - Pipeline API that allows high-level description of processing workflow
 - Common API wrappers for ML libs including Scikitlearn, DecisionTree, etc
-- Support of symbolic pipeline parsing for easy expression
+- Symbolic pipeline parsing for easy expression
   of complexed pipeline structures
 - Easily extensible architecture by overloading just two main interfaces: fit! and transform!
 - Meta-ensembles that allows composition of
