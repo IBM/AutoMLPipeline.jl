@@ -162,6 +162,11 @@ println(sc)
 ### cross-validate
 crossvalidate(pvote,X,Y,"accuracy_score")
 ```
+Note: `crossvalidate()` supports the following sklearn's performance metric
+- `accuracy_score`, `balanced_accuracy_score`, `cohen_kappa_score`
+- `jaccard_score`, `matthews_corrcoef`, `hamming_loss`, `zero_one_loss`
+- `f1_score`, `precision_score`, `recall_score`
+
 #### 7. An example how to print corresponding function call of the pipeline expression
 ```julia
 @pipelinex (catf |> ohe) + (numf) |> vote
