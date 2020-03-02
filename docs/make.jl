@@ -10,7 +10,7 @@ makedocs(
   pages = Any[
     "HOME" => "index.md",
     "Tutorial" => Any[
-       "tutorial/pipeline.md",
+       #"tutorial/pipeline.md",
        "tutorial/preprocessing.md",
        "tutorial/learning.md",
        "tutorial/crossvalidation.md"
