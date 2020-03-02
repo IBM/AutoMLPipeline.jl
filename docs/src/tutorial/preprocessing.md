@@ -1,7 +1,9 @@
 # Preprocessing
 Let us start by loading the `diabetes` dataset:
 ```@setup preprocessing
+using Random
 ENV["COLUMNS"]=1000
+Random.seed!(123)
 ```
 ```@example preprocessing
 using AutoMLPipeline
@@ -31,10 +33,11 @@ sign of diabetes or not based on certain features:
 - Class variable (0 or 1) indicating diabetec or not
 
 What is interesting with this dataset is that one or more numeric columns
-can be categorical and should be hot-bit encoded. One way to check is 
-to compute the number of unique instances for each column:
+can be categorical and should be hot-bit encoded. One way to verify is 
+to compute the number of unique instances for each column and look for 
+columns with relatively smaller count:
 ```@repl preprocessing
-[n=>length(unique(x)) for (n,x) in eachcol(diabetesdf,true)]
+[n=>length(unique(x)) for (n,x) in eachcol(diabetesdf,true)] |> collect
 ```
 
 Among the input columns, `preg` has only 17 unique instances and it can
@@ -48,4 +51,25 @@ or categorical and choose the pipeline with the optimal performance.
 
 ### CatNumDiscriminator for Detecting Categorical Numeric Features
 *Transform numeric columns with small unique instances to catergories.*
+
+Let us use `CatNumDiscriminator` which expects one argument to indicate
+the maximum number of unique instances in order to consider a particular
+column as categorical. For the sake of this discussion, let us use its 
+default value which is 24.
+```@example preprocessing
+using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
+using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
+using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
+using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
+using AutoMLPipeline.Utils
+
+disc = CatNumDiscriminator()
+@pipeline disc
+tr_disc = fit_transform!(disc,X,Y)
+nothing #hide
+```
+```@repl preprocessing
+show5(tr_disc)
+```
+
 
