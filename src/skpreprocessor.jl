@@ -8,7 +8,7 @@ using AutoMLPipeline.Utils
 
 import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
-export SKPreprocessor
+export SKPreprocessor, skpreprocessors
 
 using PyCall
 
@@ -110,8 +110,21 @@ mutable struct SKPreprocessor <: Transformer
   end
 end
 
-function SKPreprocessor(prep::String)
-  SKPreprocessor(Dict(:preprocessor => prep))
+function SKPreprocessor(prep::String,args::Dict=Dict())
+  SKPreprocessor(Dict(:preprocessor => prep,:impl_args => args))
+end
+
+function skpreprocessors()
+  println()
+  println("syntax: SKPreprocessor(name::String, args::Dict=Dict())")
+  println()
+  println("where *name* can be one of:")
+  println()
+  println(keys(preprocessor_dict))
+  println()
+  println("and *args* are the corresponding preprocessor's initial parameters.")
+  println()
+  println("Note: Please consult Scikitlearn's online help for more details about the preprocessor's arguments.")
 end
 
 function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])
