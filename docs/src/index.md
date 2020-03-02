@@ -113,8 +113,8 @@ or
 ```julia
 julia> import AutoMLPipeline
 ```
-Generally, you will need the different learners/transformers and utils in AutoMLPipeline for
-time-series processing. 
+Generally, you will need the different learners/transformers and utils in AMLP for
+to carry-out the processing and modeling routines. 
 
 ```julia
 using AutoMLPipeline 

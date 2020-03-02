@@ -1,7 +1,3 @@
-```@meta
-Author = "Paulito Palmes"
-```
-
 # [Types and Functions](@id lib_decisiontree)
 
 ## Index
