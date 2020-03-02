@@ -4,7 +4,9 @@
 ### Dataset
 Let us start the tutorial by loading the dataset.
 ```@setup pipeline
+using Random
 ENV["COLUMNS"]=1000
+Random.seed!(123)
 ```
 ```@example pipeline
 using AutoMLPipeline
@@ -171,5 +173,5 @@ tr_rf = crossvalidate(pop_rf,X,Y,"balanced_accuracy_score",5)
     with respect to the different pipelines evaluated.
     The compact expression supported by the 
     pipeline makes testing of the different combination of features 
-    and models trivial. It makes performance evaluation easily 
+    and models trivial. It makes performance evaluation  
     of the pipeline easily manageable in a systematic way.
