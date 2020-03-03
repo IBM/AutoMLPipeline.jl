@@ -21,25 +21,6 @@ env:
 notifications:
   email: false
 
-before_install:
-  # linux
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y "deb http://cran.rstudio.com/bin/linux/ubuntu $(lsb_release -s -c)/"; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq -y --allow-unauthenticated; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y --allow-unauthenticated python-sklearn; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo pip install -U scikit-learn; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo conda install -c intel scikit-learn; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y --allow-unauthenticated git r-base r-base-dev r-recommended; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y --allow-unauthenticated r-cran-caret r-cran-randomforest r-cran-e1071; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y --allow-unauthenticated r-cran-caret r-cran-randomforest r-cran-mass r-cran-e1071 r-cran-gam; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y --allow-unauthenticated r-cran-kernlab r-cran-nnet r-cran-grid r-cran-pls; fi
-
-  # osx
-  # faster than using homebrew/science tap
-  # but no permalink to release download
-  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then wget "https://cran.rstudio.com/bin/macosx/$(wget -qO- https://cran.rstudio.com/bin/macosx/ | sed -n 's/.*href="\(R-[^"]*.pkg\)".*/\1/p' | head -n 1)"; fi
-  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then sudo installer -pkg R-*.pkg -target /; fi
-
 after_success:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       julia --project=coverage/ -e 'using Pkg; Pkg.instantiate();
