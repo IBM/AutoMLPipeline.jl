@@ -138,11 +138,12 @@ pca = SKPreprocessor("PCA")
 learner = SKLearner("DecisionTreeClassifier")
 rbs = SKPreprocessor("RobustScaler")
 jrf = RandomForest()
-disc = CatNumDiscriminator(24)
+lsvc = SKLearner("LinearSVC")
 ohe = OneHotEncoder()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
-pl = @pipeline disc |> ((numf |>rbs |>  pca) +(catf |> ohe)) |> learner
+disc = CatNumDiscriminator(5)
+pl = @pipeline disc |> ((numf |>  pca) + (catf|>ohe)) |> jrf
 nothing #hide
 ```
 ```@repl preprocessing

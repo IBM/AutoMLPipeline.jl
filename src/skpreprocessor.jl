@@ -143,7 +143,7 @@ function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])
 end
 
 function transform!(skp::SKPreprocessor, x::DataFrame)
-  features = x |> Array
+  features = deepcopy(x) |> Array
   model=skp.model[:skpreprocessor]
   return collect(model.transform(features)) |> DataFrame
 end
