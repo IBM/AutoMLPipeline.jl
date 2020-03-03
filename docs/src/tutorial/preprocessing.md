@@ -142,8 +142,8 @@ lsvc = SKLearner("LinearSVC")
 ohe = OneHotEncoder()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
-disc = CatNumDiscriminator(5)
-pl = @pipeline disc |> ((numf |>  pca) + (catf|>ohe)) |> jrf
+disc = CatNumDiscriminator(0)
+pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> learner
 nothing #hide
 ```
 ```@repl preprocessing
