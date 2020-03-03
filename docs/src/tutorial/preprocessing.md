@@ -9,8 +9,8 @@ Random.seed!(123)
 using AutoMLPipeline
 using CSV
 diabetesdf = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/diabetes.csv"))
-X = diabetesdf[:,2:end]
-Y = diabetesdf[:,1] |> Vector
+X = diabetesdf[:,1:end-1]
+Y = diabetesdf[:,end] |> Vector
 nothing #hide
 ```
 We can check the data by showing the first 5 rows:
@@ -19,7 +19,7 @@ show5(df)=first(df,5); # show first 5 rows
 show5(diabetesdf)
 ```
 
-This dataset is a collection diagnostic tests among the 
+This dataset is a collection of diagnostic tests among the 
 Pima Indians to investigate whether the patient shows 
 sign of diabetes or not based on certain features:
 - Number of times pregnant
@@ -61,9 +61,9 @@ using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
 using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
 using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
 using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils
+using AutoMLPipeline.Utils, AutoMLPipeline.SKLearners
 
-disc = CatNumDiscriminator()
+disc = CatNumDiscriminator(24)
 @pipeline disc
 tr_disc = fit_transform!(disc,X,Y)
 nothing #hide
@@ -71,5 +71,81 @@ nothing #hide
 ```@repl preprocessing
 show5(tr_disc)
 ```
+You may notice that the `preg` column is converted by the `CatNumDiscriminator`
+into `String` type which can be fed to hot-bit encoder to preprocess 
+categorical data:
+```@example preprocessing
+disc = CatNumDiscriminator(24)
+catf = CatFeatureSelector()
+ohe = OneHotEncoder()
+pohe = @pipeline disc |> catf |> ohe
+tr_pohe = fit_transform!(pohe,X,Y)
+nothing #hide
+```
+```@repl preprocessing
+show5(tr_pohe)
+```
+We have now converted all categorical data into hot-bit encoded values.
 
+For a typical scenario, one can consider columns with around 3-10 
+unique numeric instances to be categorical. 
+Using `CatNumDiscriminator`, it is trivial
+to convert columns of features with small unique instances into categorical
+and hot-bit encode them as shown below. Let us use 5 as the cut-off and any
+columns with less than 5 unique instances is converted to hot-bits.
+```@repl preprocessing
+using DataFrames
+df = rand(1:3,100,3) |> DataFrame;
+show5(df)
+disc = CatNumDiscriminator(5);
+pohe = @pipeline disc |> catf |> ohe;
+tr_pohe = fit_transform!(pohe,df);
+show5(tr_pohe)
+```
+
+### Concatenating Hot-Bits with PCA of Numeric Columns
+
+Going back to the original `diabetes` dataset, we can now use the 
+`CatNumDiscriminator` to differentiate between categorical 
+columns and numerical columns and preprocess them based on their 
+types (String vs Number). Below is the pipeline to convert `preg`
+column to hot-bits and use PCA for the numerical features:
+```@example preprocessing
+pca = SKPreprocessor("PCA")
+disc = CatNumDiscriminator(24)
+ohe = OneHotEncoder()
+catf = CatFeatureSelector()
+numf = NumFeatureSelector()
+pl = @pipeline disc |> ((numf |> pca) + (catf |> ohe) )
+res_pl = fit_transform!(pl,X,Y)
+nothing #hide
+```
+```@repl preprocessing
+show5(res_pl)
+```
+
+### Performance Evaluation
+
+Let us compare the RF cross-validation result between two options:
+- `preg` column should be categorical vs
+- `preg` column is numerical
+in predicting diabetes where numerical values are scaled by robust scaler and
+decomposed by PCA.
+
+#### Categorical `preg`
+```@example preprocessing
+pca = SKPreprocessor("PCA")
+learner = SKLearner("DecisionTreeClassifier")
+rbs = SKPreprocessor("RobustScaler")
+jrf = RandomForest()
+disc = CatNumDiscriminator(24)
+ohe = OneHotEncoder()
+catf = CatFeatureSelector()
+numf = NumFeatureSelector()
+pl = @pipeline disc |> ((numf |>rbs |>  pca) +(catf |> ohe)) |> learner
+nothing #hide
+```
+```@repl preprocessing
+crossvalidate(pl,X,Y,"accuracy_score")
+```
 
