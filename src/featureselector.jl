@@ -46,7 +46,12 @@ function transform!(ft::FeatureSelector, features::DataFrame)
     if nfeatures == DataFrame()
 	error("empty dataframe")
     end
-    return nfeatures[:,ft.model[:columns]]
+    cols = ft.model[:columns]
+    if  cols != []
+	return nfeatures[:,cols]
+    else
+	return DataFrame()
+    end
 end
 
 # ----------
@@ -59,6 +64,7 @@ mutable struct CatFeatureSelector <: Transformer
     function CatFeatureSelector(args::Dict = Dict())
 	default_args = Dict(
 			    :name => "catfeatsel",
+			    :nominal_columns => Int[]
 			    )
 	cargs=nested_dict_merge(default_args,args)
 	cargs[:name] = cargs[:name]*"_"*randstring(3)
@@ -81,7 +87,11 @@ end
 function transform!(ft::CatFeatureSelector, features::DataFrame)
     nfeatures = deepcopy(features)
     catcols = ft.model[:nominal_columns]
-    return nfeatures[:,catcols]
+    if catcols != []
+	return nfeatures[:,catcols]
+    else
+	return DataFrame()
+    end
 end
 
 # ---------
@@ -93,7 +103,8 @@ mutable struct NumFeatureSelector <: Transformer
 
     function NumFeatureSelector(args::Dict = Dict())
 	default_args = Dict(
-			    :name => "numfeatsel"
+			    :name => "numfeatsel",
+			    :real_columns => []
 			    )
 	cargs=nested_dict_merge(default_args,args)
 	cargs[:name] = cargs[:name]*"_"*randstring(3)
@@ -116,7 +127,11 @@ end
 function transform!(ft::NumFeatureSelector, features::DataFrame)
     nfeatures = deepcopy(features)
     realcols = ft.model[:real_columns]
-    return nfeatures[:,realcols]
+    if realcols != [] 
+	return nfeatures[:,realcols]
+    else
+	return DataFrame()
+    end
 end
 
 
@@ -132,9 +147,9 @@ mutable struct CatNumDiscriminator <: Transformer
 			    :name => "catnumdisc",
 			    # default max categories for numeric-encoded categories
 			    :maxcategories => 24,
-			    :nominal_columns => 0,
-			    :real_columns => 0
-			    )
+			    :nominal_columns => Int[],
+			    :real_columns => Int[]
+		       )
 	cargs=nested_dict_merge(default_args,args)
 	cargs[:name] = cargs[:name]*"_"*randstring(3)
 	new(cargs[:name],Dict(),cargs)
@@ -161,7 +176,7 @@ end
 function transform!(ft::CatNumDiscriminator, features::DataFrame)
     nfeatures = features |> deepcopy
     catcols = ft.model[:nominal_columns]
-    if catcols != 0 
+    if catcols != [] 
 	nfeatures[!,catcols] .= nfeatures[!,catcols] .|> string
     end
     return nfeatures
