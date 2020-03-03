@@ -57,7 +57,7 @@ tree/graph search, and hyper-parameter search.
 - Symbolic pipeline parsing for easy expression
   of complexed pipeline structures
 - Easily extensible architecture by overloading just two main interfaces: fit! and transform!
-- Meta-ensembles that allows composition of
+- Meta-ensembles that allow composition of
     ensembles of ensembles (recursively if needed)
     for robust prediction routines
 - Categorical and numerical feature selectors for
@@ -136,7 +136,15 @@ Note: You can get a listing of available `SKPreprocessors` and `SKLearners` by i
 - `skpreprocessors()`
 - `sklearners()`
 
-#### 4. Feature extraction example: Filter categories and hot-encode them
+#### 4. Feature extraction example: 
+
+#####  - Filter categories
+```julia
+pcatf = @pipeline catf 
+tr = fit_transform!(pcatf,X,Y)
+head(tr)
+```
+#####  - Filter categories and hot-encode them
 ```julia
 pohe = @pipeline catf |> ohe
 tr = fit_transform!(pohe,X,Y)
