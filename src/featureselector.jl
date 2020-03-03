@@ -148,37 +148,15 @@ function fit!(ft::CatNumDiscriminator, features::DataFrame, labels::Vector=[])
 
     # create model
     ft.model = Dict(
-		    :real_columns => realcols,
-		    :nominal_columns => catcols
-		    )
+	:real_columns => realcols,
+	:nominal_columns => catcols
+    )
 end
 
 function transform!(ft::CatNumDiscriminator, features::DataFrame)
     catcols = ft.model[:nominal_columns]
     features[!,catcols] .= features[!,catcols] .|> string
     return features
-end
-
-function feature_test()
-    data = getiris()
-    X = data[:,1:5]
-    X[!,5] = X[!,5] .|> string
-    catfeat = FeatureSelector([5])
-    numfeat = FeatureSelector([1,2,3,4])
-    autocat = CatFeatureSelector()
-    autonum = NumFeatureSelector()
-    @assert (fit_transform!(catfeat,X) .== X[:,5]) |> Matrix |> sum == 150
-    @assert (fit_transform!(numfeat,X) .== X[:,1:4]) |> Matrix |> sum == 600
-    @assert (fit_transform!(autocat,X) .== X[:,5]) |> Matrix |> sum == 150
-    @assert (fit_transform!(autonum,X) .== X[:,1:4]) |> Matrix |> sum == 600
-    catnumdata = hcat(X,repeat([1,2,3,4,5],30))
-    catnum = CatNumDiscriminator()
-    fit_transform!(catnum,catnumdata)
-    @assert eltype(catnumdata[:,6]) <: String
-    catnumdata = hcat(X,repeat([1,2,3,4,5],30))
-    catnum = CatNumDiscriminator(0)
-    fit_transform!(catnum,catnumdata)
-    @assert eltype(catnumdata[:,6]) <: Int
 end
 
 end

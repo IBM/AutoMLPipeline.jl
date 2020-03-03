@@ -51,7 +51,7 @@ using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
 using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
 using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
 using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils
+using AutoMLPipeline.Utils, AutoMLPipeline.SKLearners
 nothing #hide
 ```
 
@@ -150,18 +150,21 @@ the performance of the entire pipeline by cross-validation.
 
 Let us use a linear SVC model and evaluate using 5-fold cross-validation.
 ```@repl pipeline
+Random.seed!(12345);
 pop_lsvc = @pipeline ( (numf |> rb) + (catf |> ohe) + (numf |> pt)) |> lsvc;
 tr_lsvc = crossvalidate(pop_lsvc,X,Y,"balanced_accuracy_score",5)
 ```
 
 What about using Gradient Boosting model?
 ```@repl pipeline
+Random.seed!(12345);
 pop_gb = @pipeline ( (numf |> rb) + (catf |> ohe) + (numf |> pt)) |> gb;
 tr_gb = crossvalidate(pop_gb,X,Y,"balanced_accuracy_score",5)
 ```
 
 What about using Random Forest model?
 ```@repl pipeline
+Random.seed!(12345);
 pop_rf = @pipeline ( (numf |> rb) + (catf |> ohe) + (numf |> pt)) |> jrf;
 tr_rf = crossvalidate(pop_rf,X,Y,"balanced_accuracy_score",5)
 ```
