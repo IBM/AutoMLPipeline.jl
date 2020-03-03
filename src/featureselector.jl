@@ -132,6 +132,8 @@ mutable struct CatNumDiscriminator <: Transformer
 			    :name => "catnumdisc",
 			    # default max categories for numeric-encoded categories
 			    :maxcategories => 24,
+			    :nominal_columns => 0,
+			    :real_columns => 0
 			    )
 	cargs=nested_dict_merge(default_args,args)
 	cargs[:name] = cargs[:name]*"_"*randstring(3)
@@ -159,7 +161,9 @@ end
 function transform!(ft::CatNumDiscriminator, features::DataFrame)
     nfeatures = features |> deepcopy
     catcols = ft.model[:nominal_columns]
-    nfeatures[!,catcols] .= nfeatures[!,catcols] .|> string
+    if catcols != 0 
+	nfeatures[!,catcols] .= nfeatures[!,catcols] .|> string
+    end
     return nfeatures
 end
 
