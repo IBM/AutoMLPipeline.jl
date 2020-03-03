@@ -26,14 +26,17 @@ function feature_test()
     @test (fit_transform!(autonum,X) .== X[:,1:4]) |> Matrix |> sum == 600
     catnumdata = hcat(X,repeat([1,2,3,4,5],30))
     catnum = CatNumDiscriminator()
-    fit_transform!(catnum,catnumdata)
-    @test eltype(catnumdata[:,6]) <: String
-    @test eltype(catnumdata[:,2]) <: String
-    @test eltype(catnumdata[:,4]) <: String
+    res = fit_transform!(catnum,catnumdata)
+    @test eltype(catnumdata[:,6]) <: Number
+    @test eltype(catnumdata[:,2]) <: Number
+    @test eltype(catnumdata[:,4]) <: Number
+    @test eltype(res[:,6]) <: String
+    @test eltype(res[:,2]) <: String
+    @test eltype(res[:,4]) <: String
     catnumdata = hcat(X,repeat([1,2,3,4,5],30))
     catnum = CatNumDiscriminator(0)
-    fit_transform!(catnum,catnumdata)
-    @test eltype(catnumdata[:,6]) <: Int
+    res = fit_transform!(catnum,catnumdata)
+    @test eltype(res[:,6]) <: Number
     catnumdata = hcat(X,repeat([1,2,3,4,5],30))
     catnum = CatNumDiscriminator(5)
     ppp=@pipeline catnum |>  ((autocat |> OneHotEncoder()) + (autonum |> SKPreprocessor("PCA")))

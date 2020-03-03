@@ -42,10 +42,11 @@ function fit!(ft::FeatureSelector, features::DataFrame, labels::Vector=[])
 end
 
 function transform!(ft::FeatureSelector, features::DataFrame)
-    if features == DataFrame()
+    nfeatures = deepcopy(features) 
+    if nfeatures == DataFrame()
 	error("empty dataframe")
     end
-    return features[:,ft.model[:columns]]
+    return nfeatures[:,ft.model[:columns]]
 end
 
 # ----------
@@ -78,8 +79,9 @@ function fit!(ft::CatFeatureSelector, features::DataFrame, labels::Vector=[])
 end
 
 function transform!(ft::CatFeatureSelector, features::DataFrame)
+    nfeatures = deepcopy(features)
     catcols = ft.model[:nominal_columns]
-    return features[:,catcols]
+    return nfeatures[:,catcols]
 end
 
 # ---------
@@ -112,8 +114,9 @@ function fit!(ft::NumFeatureSelector, features::DataFrame, labels::Vector=[])
 end
 
 function transform!(ft::NumFeatureSelector, features::DataFrame)
+    nfeatures = deepcopy(features)
     realcols = ft.model[:real_columns]
-    return features[:,realcols]
+    return nfeatures[:,realcols]
 end
 
 
@@ -154,9 +157,10 @@ function fit!(ft::CatNumDiscriminator, features::DataFrame, labels::Vector=[])
 end
 
 function transform!(ft::CatNumDiscriminator, features::DataFrame)
+    nfeatures = features |> deepcopy
     catcols = ft.model[:nominal_columns]
-    features[!,catcols] .= features[!,catcols] .|> string
-    return features
+    nfeatures[!,catcols] .= nfeatures[!,catcols] .|> string
+    return nfeatures
 end
 
 end

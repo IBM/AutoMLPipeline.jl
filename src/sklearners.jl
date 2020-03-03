@@ -145,7 +145,7 @@ end
 
 
 function transform!(skl::SKLearner, xx::DataFrame)
-  x = xx |> Array
+	x = deepcopy(xx) |> Array
   #return collect(skl.model[:predict](x))
   sklearner = skl.model[:sklearner]
   return collect(sklearner.predict(x))
