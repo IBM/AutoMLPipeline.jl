@@ -45,6 +45,8 @@ after_success:
       julia --project=coverage/ -e 'using Pkg; Pkg.instantiate();
       using Coverage; Codecov.submit(Codecov.process_folder())';
     fi
+  - julia -e 'Pkg.add("Documenter")'
+  - julia -e 'cd(Pkg.dir("AutoMLPipeline")); include(joinpath("docs", "make.jl"))'
 
 jobs:
   include:
