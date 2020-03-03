@@ -191,6 +191,11 @@ score(:accuracy,pred,Y) |> println
 crossvalidate(plsvc,X,Y,"accuracy_score")
 ```
 
+Note: More examples can be found in the *test* directory of the package. Since
+the code is written in Julia, you are highly encouraged to read the source
+code and feel free to extend or adapt the package to your problem. Please
+feel free to submit PRs to improve the package features. 
+
 ### Extending AutoMLPipeline
 ```
 # If you want to add your own filter/transformer/learner, it is trivial. 
