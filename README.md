@@ -105,6 +105,7 @@ head(profbdata)
 using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
 using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
 using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline.Utils
+using AutoMLPipeline.SKLearners
 ```
 
 #### 3. Load some of filters, transformers, learners 
