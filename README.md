@@ -279,7 +279,7 @@ Usage questions can be posted in:
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://ibm.github.io/AutoMLPipeline.jl/stable/
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://ibm.github.io/AutoMLPipeline.jl/latest/
+[docs-dev-url]: https://ibm.github.io/AutoMLPipeline.jl/dev/
 
 [travis-img]: https://travis-ci.org/IBM/AutoMLPipeline.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/IBM/AutoMLPipeline.jl
