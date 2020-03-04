@@ -52,6 +52,7 @@ end
 end
 
 function diabetes_test()
+
     Random.seed!(123)
     diabetesdf = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/diabetes.csv"))
     X = diabetesdf[:,1:end-1]

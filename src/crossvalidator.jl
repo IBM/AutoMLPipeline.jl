@@ -2,6 +2,9 @@ module CrossValidators
 
 using Statistics: mean, std
 
+using MLBase: StratifiedKfold, LOOCV,
+              RandomSub, StratifiedRandomSub
+
 # standard included modules
 using DataFrames
 using Random
@@ -10,25 +13,27 @@ using AutoMLPipeline.Utils
 
 export crossvalidate
 
+function holdoutcrossvalidate(pl::Machine,X::DataFrame,Y::Vector,metric::Function,ntimes=10)
+  @assert size(X)[1] == length(Y)
+end
+
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
 		       pfunc::Function,nfolds=10) 
   ## flatten arrays
   @assert size(X)[1] == length(Y)
   rowsize = size(X)[1]
-  folds = kfold(rowsize,nfolds)
+  folds = StratifiedKfold(Y,nfolds) |> collect
   pacc = Float64[]
   fold = 0
   error = 0
-  for trx in folds
+  for trndx in folds
     ppl = deepcopy(pl)
-    input = deepcopy(X)
-    output = deepcopy(Y) |> Vector{String}
-    elements = collect(1:rowsize) # nasty bug if not collected and placed inside setdiff
-    tsx = setdiff(elements,trx)
-    trX = input[trx,:] 
-    trY = output[trx] |> collect
-    tstX = input[tsx,:]
-    tstY = output[tsx] |> collect
+    rlist = collect(1:rowsize) # nasty bug if not collected and placed inside setdiff
+    tsndx = setdiff(rlist,trndx)
+    trX = X[trndx,:] 
+    trY = Y[trndx] |> collect
+    tstX = X[tsndx,:]
+    tstY = Y[tsndx] |> collect
     res = 0.0
     try 
       res = pipe_accuracy(ppl,pfunc,trX,trY,tstX,tstY)
@@ -36,6 +41,7 @@ function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
       fold += 1
       println("fold: ",fold,", ",res)
     catch e
+      #println(e)
       error += 1
     end
   end
@@ -46,13 +52,9 @@ end
 function pipe_accuracy(plearner,perf::Function,trX::DataFrame,
 		       trY::Vector,tstX::DataFrame,tstY::Vector)
   learner = deepcopy(plearner)
-  trainX = deepcopy(trX)
-  trainY = deepcopy(trY)
-  testX = deepcopy(tstX)
-  testY = deepcopy(tstY)
-  fit!(learner,trainX,trainY)
-  pred = transform!(learner,testX)
-  res = perf(pred,testY)
+  fit!(learner,trX,trY)
+  pred = transform!(learner,tstX)
+  res = perf(pred,tstY)
   return res
 end
 
