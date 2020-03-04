@@ -149,10 +149,10 @@ pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> jrf
 nothing #hide
 ```
 ```@repl preprocessing
-crossvalidate(pl,X,Y,"accuracy_score")
+crossvalidate(pl,X,Y,"accuracy_score",30)
 ```
 
-##### Option 2: Assume Numeric Columns <= 24 as Categorical and Evaluate
+##### Option 2: Assume as Categorical Numeric Columns <= 24 and Evaluate
 
 ```@example preprocessing
 disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances <= 24
@@ -160,5 +160,14 @@ pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> jrf
 nothing #hide
 ```
 ```@repl preprocessing
-crossvalidate(pl,X,Y,"accuracy_score")
+crossvalidate(pl,X,Y,"accuracy_score",30)
 ```
+From this evaluation, `preg` column should be treated as numerical
+because the corresponding pipeline got better performance. One
+thing to note is the presence of errors in the crossvalidation
+performance for the pipeline that treats `preg` as categorical
+data. The subset of training data during the
+kfold validation may contain singularities and evaluation causes
+some errors due to hotbit encoding that increases data sparsity.
+The error, however, may be a bug which needs to be addressed in 
+the future.
