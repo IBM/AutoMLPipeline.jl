@@ -96,11 +96,11 @@ julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; 
 julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)
 fold: 1, 0.6634615384615384
 fold: 2, 0.5916666666666667
-fold: 3, 0.6011396011396011
-fold: 4, 0.663384512683578
+fold: 3, 0.6481060606060606
+fold: 4, 0.672164119066774
 fold: 5, 0.6384645515080297
 errors: 0
-(mean = 0.6316233740918828, std = 0.033893359324430584, folds = 5)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+(mean = 0.642772587261814, std = 0.03142735700561586, folds = 5)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
 
 julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;
 
@@ -111,4 +111,4 @@ fold: 3, 0.6499326145552561
 fold: 4, 0.5416666666666666
 fold: 5, 0.554337613529596
 errors: 0
-(mean = 0.5991450536900229, std = 0.04806693297939452, folds = 5)</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 4 March 2020 11:20">Wednesday 4 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.5991450536900229, std = 0.04806693297939452, folds = 5)</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 4 March 2020 11:36">Wednesday 4 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
