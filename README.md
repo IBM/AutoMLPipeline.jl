@@ -181,8 +181,8 @@ Note: `crossvalidate()` supports the following sklearn's performance metric
 julia> @pipelinex (catf |> ohe) + (numf) |> vote
 julia> :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 
-# another way is to use @macroexpand 
-julia> @macroexpand @pipelinex (catf |> ohe) + (numf) |> vote
+# another way is to use @macroexpand with @pipeline
+julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 julia> :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
