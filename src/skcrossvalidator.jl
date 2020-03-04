@@ -50,7 +50,7 @@ function checkfun(sfunc::String)
 end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String,nfolds=10)
+                       sfunc::String="balanced_accuracy_score",nfolds=10)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(a,b) = pfunc(a,b)
