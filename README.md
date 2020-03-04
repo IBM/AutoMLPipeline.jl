@@ -176,7 +176,7 @@ Note: `crossvalidate()` supports the following sklearn's performance metric
 - `jaccard_score`, `matthews_corrcoef`, `hamming_loss`, `zero_one_loss`
 - `f1_score`, `precision_score`, `recall_score`
 
-#### 7. Use `@pipelinex` instead of `@pipeline` to print the corresponding function call in 6
+#### 7. Use `@pipelinex` instead of `@pipeline` to print the corresponding function calls in 6
 ```julia
 julia> @pipelinex (catf |> ohe) + (numf) |> vote
 julia> :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
