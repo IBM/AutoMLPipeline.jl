@@ -19,8 +19,9 @@ show5(df)=first(df,5); # show first 5 rows
 show5(diabetesdf)
 ```
 
-This dataset is a collection of diagnostic tests among the 
-Pima Indians to investigate whether the patient shows 
+This [UCI dataset](https://archive.ics.uci.edu/ml/datasets/diabetes) 
+is a collection of diagnostic tests among the Pima Indians 
+to investigate whether the patient shows 
 sign of diabetes or not based on certain features:
 - Number of times pregnant
 - Plasma glucose concentration a 2 hours in an oral glucose tolerance test
@@ -132,7 +133,7 @@ Let us compare the RF cross-validation result between two options:
 in predicting diabetes where numerical values are scaled by robust scaler and
 decomposed by PCA.
 
-#### Categorical `preg`
+##### Option 1: Assume All Numeric Columns as not Categorical and Evaluate
 ```@example preprocessing
 pca = SKPreprocessor("PCA")
 dt = SKLearner("DecisionTreeClassifier")
@@ -143,12 +144,21 @@ lsvc = SKLearner("LinearSVC")
 ohe = OneHotEncoder()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
-disc = CatNumDiscriminator(0)
+disc = CatNumDiscriminator(0) # disable turning numeric to categorical features
 pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> jrf
-crossvalidate(pl,X,Y,"accuracy_score")
 nothing #hide
 ```
 ```@repl preprocessing
 crossvalidate(pl,X,Y,"accuracy_score")
 ```
 
+##### Option 2: Assume Numeric Columns <= 24 as Categorical and Evaluate
+
+```@example preprocessing
+disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances <= 24
+pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> jrf
+nothing #hide
+```
+```@repl preprocessing
+crossvalidate(pl,X,Y,"accuracy_score")
+```
