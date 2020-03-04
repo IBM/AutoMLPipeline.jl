@@ -32,5 +32,7 @@ ohe = OneHotEncoder()
 kohe = SKPreprocessor("OneHotEncoder")
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
-disc = CatNumDiscriminator()
+disc = CatNumDiscriminator(5) # unique instances <= 5 are categories
+
+pcmc = @pipeline disc
 ```

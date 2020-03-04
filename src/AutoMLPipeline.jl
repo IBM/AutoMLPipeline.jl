@@ -12,6 +12,7 @@ using .Utils
 
 include("basefilters.jl")
 using .BaseFilters
+export OneHotEncoder
 
 include("pipelines.jl")
 using .Pipelines
