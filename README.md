@@ -180,6 +180,9 @@ Note: `crossvalidate()` supports the following sklearn's performance metric
 ```julia
 @pipelinex (catf |> ohe) + (numf) |> vote
 # outputs: :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
+
+# another way is to use @macroexpand 
+@macroexpand @pipelinex (catf |> ohe) + (numf) |> vote
 ```
 
 #### 8. Another example of a pipeline expression with more expressions for Random Forest modeling
