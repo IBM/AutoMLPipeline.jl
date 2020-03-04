@@ -21,6 +21,7 @@ export Pipeline, ComboPipeline
 
 include("featureselector.jl")
 using .FeatureSelectors
+export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscriminator
 
 include("skpreprocessor.jl")
 using .SKPreprocessors
@@ -32,9 +33,11 @@ export SKLearner, sklearners
 
 include("decisiontree.jl")
 using .DecisionTreeLearners
+export PrunedTree, RandomForest, Adaboost
 
 include("ensemble.jl")
 using .EnsembleMethods
+export VoteEnsemble, StackEnsemble, BestLearner
 
 include("crossvalidator.jl")
 using .CrossValidators
