@@ -116,7 +116,7 @@ disc = CatNumDiscriminator(24)
 ohe = OneHotEncoder()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
-pl = @pipeline disc |> ((numf |> pca) + (catf |> ohe) )
+pl = @pipeline disc |> ((numf |> pca) + (catf |> ohe))
 res_pl = fit_transform!(pl,X,Y)
 nothing #hide
 ```
@@ -135,7 +135,8 @@ decomposed by PCA.
 #### Categorical `preg`
 ```@example preprocessing
 pca = SKPreprocessor("PCA")
-learner = SKLearner("DecisionTreeClassifier")
+dt = SKLearner("DecisionTreeClassifier")
+rf = SKLearner("RandomForestClassifier")
 rbs = SKPreprocessor("RobustScaler")
 jrf = RandomForest()
 lsvc = SKLearner("LinearSVC")
@@ -143,7 +144,8 @@ ohe = OneHotEncoder()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
 disc = CatNumDiscriminator(0)
-pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> learner
+pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> jrf
+crossvalidate(pl,X,Y,"accuracy_score")
 nothing #hide
 ```
 ```@repl preprocessing
