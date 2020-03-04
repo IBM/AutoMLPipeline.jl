@@ -53,7 +53,7 @@ function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String,nfolds=10)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
-    metric(X,Y) = pfunc(X,Y)
+    metric(a,b) = pfunc(a,b)
     crossvalidate(pl,X,Y,metric,nfolds)
 end
 
@@ -61,7 +61,7 @@ function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String,averagetype::String,nfolds=10)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
-    metric(X,Y) = pfunc(X,Y,average=averagetype)
+    metric(a,b) = pfunc(a,b,average=averagetype)
     crossvalidate(pl,X,Y,metric,nfolds)
 end
 

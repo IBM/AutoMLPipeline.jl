@@ -2,6 +2,9 @@ module TestFeatureSelectors
 
 using Random
 using Test
+using CSV
+using AutoMLPipeline
+using AutoMLPipeline.DecisionTreeLearners
 using AutoMLPipeline.AbsTypes
 using AutoMLPipeline.SKLearners
 using AutoMLPipeline.SKPreprocessors
@@ -13,7 +16,7 @@ using AutoMLPipeline.FeatureSelectors
 using Statistics
 using DataFrames
 
-function feature_test()
+function iris_test()
     data = getiris()
     X = data[:,1:5]
     catfeat = FeatureSelector([5])
@@ -45,7 +48,50 @@ function feature_test()
 end
 @testset "test feature selectors" begin
     Random.seed!(123)
-    feature_test()
+    iris_test()
+end
+
+function diabetes_test()
+    Random.seed!(123)
+    diabetesdf = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/diabetes.csv"))
+    X = diabetesdf[:,1:end-1]
+    Y = diabetesdf[:,end] |> Vector
+    pca = SKPreprocessor("PCA")
+    ica = SKPreprocessor("FastICA")
+    dt = SKLearner("DecisionTreeClassifier")
+    rf = SKLearner("RandomForestClassifier")
+    rbs = SKPreprocessor("RobustScaler")
+    jrf = RandomForest()
+    lsvc = SKLearner("LinearSVC")
+    ohe = OneHotEncoder()
+    catf = CatFeatureSelector()
+    numf = NumFeatureSelector()
+
+    disc = CatNumDiscriminator(0)
+    pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> jrf
+    @test crossvalidate(pl,X,Y,"accuracy_score").mean > 0.60
+
+    pl = @pipeline disc |> ((numf |> rbs |>  pca) + (catf |> ohe)) |> lsvc
+    @test crossvalidate(pl,X,Y,"accuracy_score").mean > 0.60
+
+    pl = @pipeline disc |> ((numf |> rbs |>  ica) + (catf |> ohe)) |> rf
+    @test crossvalidate(pl,X,Y,"accuracy_score").mean > 0.60
+
+    disc = CatNumDiscriminator(20)
+    pl = @pipeline disc |> ( (catf |> ohe)) |> jrf
+    @test crossvalidate(pl,X,Y,"accuracy_score",20).mean > 0.60
+
+    disc = CatNumDiscriminator(50)
+    pl = @pipeline disc |> ((numf |> rbs |>  pca) + (catf |> ohe)) |> lsvc
+    @test crossvalidate(pl,X,Y,"accuracy_score",20).mean > 0.60
+
+    disc = CatNumDiscriminator(100)
+    pl = @pipeline disc |> ((numf |> rbs |>  ica) + (catf |> ohe)) |> rf
+    @test crossvalidate(pl,X,Y,"accuracy_score",20).mean > 0.60
+end
+@testset "test feature selectors" begin
+    Random.seed!(123)
+    diabetes_test()
 end
 
 end
