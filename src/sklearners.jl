@@ -105,7 +105,7 @@ mutable struct SKLearner <: Learner
 end
 
 function SKLearner(learner::String, args::Dict=Dict())
-  SKLearner(Dict(:learner => learner, :impl_args => args))
+  SKLearner(Dict(:learner => learner,:name=>learner, :impl_args => args))
 end
 
 function sklearners()

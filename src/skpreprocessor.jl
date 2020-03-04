@@ -111,7 +111,7 @@ mutable struct SKPreprocessor <: Transformer
 end
 
 function SKPreprocessor(prep::String,args::Dict=Dict())
-  SKPreprocessor(Dict(:preprocessor => prep,:impl_args => args))
+  SKPreprocessor(Dict(:preprocessor => prep,:name=>prep,:impl_args => args))
 end
 
 function skpreprocessors()
