@@ -20,6 +20,7 @@ You can visualize the pipeline by using AbstractTrees julia package:
 julia> using AbstractTrees
 julia> expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
+
 julia> print_tree(stdout, expr)
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
 ├─ :Pipeline
