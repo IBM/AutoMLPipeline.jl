@@ -13,6 +13,7 @@ makedocs(
        "tutorial/pipeline.md",
        "tutorial/preprocessing.md",
        "tutorial/learning.md"
+       "tutorial/extending.md"
     ],
     "Manual" => Any[
       "Pipeline" => "man/pipeline.md",
