@@ -244,9 +244,10 @@ sgd = SKLearner("SGDClassifier")
 tree = PrunedTree()
 std = SKPreprocessor("StandardScaler")
 disc = CatNumDiscriminator()
+lsvc = SKLearner("LinearSVC")
 
 learners = DataFrame()
-for learner in [jrf,ada,sgd,tree]
+for learner in [jrf,ada,sgd,tree,lsvc]
   pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
   println(learner.name)
   mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",5)
@@ -256,15 +257,18 @@ end;
 ```
 which outputs:
 ```julia
-learners = 4×3 DataFrame
-│ Row │ name                   │ mean     │ sd         │
-│     │ String                 │ Float64  │ Float64    │
-├─────┼────────────────────────┼──────────┼────────────┤
-│ 1   │ rf_gIR                 │ 0.680077 │ 0.00817007 │
-│ 2   │ AdaBoostClassifier_mki │ 0.696396 │ 0.0358593  │
-│ 3   │ SGDClassifier_rMk      │ 0.69654  │ 0.0418547  │
-│ 4   │ prunetree_zJp          │ 0.583427 │ 0.0419022  │
+learners = 5×3 DataFrame
+│ Row │ name                   │ mean     │ sd        │
+│     │ String                 │ Float64  │ Float64   │
+├─────┼────────────────────────┼──────────┼───────────┤
+│ 1   │ rf_gIR                 │ 0.662222 │ 0.0440654 │
+│ 2   │ AdaBoostClassifier_mki │ 0.678496 │ 0.0485435 │
+│ 3   │ SGDClassifier_rMk      │ 0.691973 │ 0.0169108 │
+│ 4   │ prunetree_zJp          │ 0.632272 │ 0.0622693 │
+│ 5   │ LinearSVC_zMk          │ 0.73508  │ 0.0199626 │
 ```
+
+Remarks: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
 ### Extending AutoMLPipeline
 ```
