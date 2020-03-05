@@ -18,8 +18,13 @@ julia> crossvalidate(model,X,Y,"balanced_accuracy_score")
 Just take note that `+` has higher priority than `|>` so if you
 are not sure, enclose the operations inside parenthes.
 ```julia
-julia> @pipeline a |> b + c # is equivalent to @pipeline a |> (b + c)
-julia> @pipeline a + b |> c # is equivalent to @pipeline (a + b) |> c
+### these two expressions are the same
+@pipeline a |> b + c 
+@pipeline a |> (b + c)
+
+### these two expressions are the same
+@pipeline a + b |> c 
+@pipeline (a + b) |> c
 ```
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
@@ -219,11 +224,11 @@ Note: `crossvalidate()` supports the following sklearn's performance metric
 #### 7. Use `@pipelinex` instead of `@pipeline` to print the corresponding function calls in 6
 ```julia
 julia> @pipelinex (catf |> ohe) + (numf) |> vote
-julia> :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
+:(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 
 # another way is to use @macroexpand with @pipeline
 julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
-julia> :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
+:(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
 #### 8. Another example of a pipeline expression with more expressions for Random Forest modeling
