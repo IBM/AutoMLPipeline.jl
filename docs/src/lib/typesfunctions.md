@@ -4,12 +4,17 @@
 ```@index
 Modules = [
    AutoMLPipeline,
+   AutoMLPipeline.AbsTypes,
    AutoMLPipeline.Pipelines,
    AutoMLPipeline.BaseFilters,
+   AutoMLPipeline.FeatureSelectors,
+   AutoMLPipeline.EnsembleMethods,
    AutoMLPipeline.SKPreprocessors,
+   AutoMLPipeline.SKLearners,
    AutoMLPipeline.DecisionTreeLearners,
-   AutoMLPipeline.Utils,
-   AutoMLPipeline.FeatureSelectors
+   AutoMLPipeline.SKCrossValidators,
+   AutoMLPipeline.CrossValidators,
+   AutoMLPipeline.Utils
 ]
 ```
 
@@ -17,11 +22,16 @@ Modules = [
 ```@autodocs
 Modules = [
    AutoMLPipeline,
+   AutoMLPipeline.AbsTypes,
    AutoMLPipeline.Pipelines,
    AutoMLPipeline.BaseFilters,
+   AutoMLPipeline.FeatureSelectors,
+   AutoMLPipeline.EnsembleMethods,
    AutoMLPipeline.SKPreprocessors,
+   AutoMLPipeline.SKLearners,
    AutoMLPipeline.DecisionTreeLearners,
-   AutoMLPipeline.Utils,
-   AutoMLPipeline.FeatureSelectors
+   AutoMLPipeline.SKCrossValidators,
+   AutoMLPipeline.CrossValidators,
+   AutoMLPipeline.Utils
 ]
 ```
