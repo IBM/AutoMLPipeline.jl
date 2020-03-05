@@ -268,7 +268,7 @@ learners = 5×3 DataFrame
 │ 5   │ LinearSVC_zMk          │ 0.73508  │ 0.0199626 │
 ```
 
-Remarks: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
+Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
 ### Extending AutoMLPipeline
 ```
