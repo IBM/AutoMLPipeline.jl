@@ -80,6 +80,14 @@ function __init__()
       )
 end
 
+"""
+    SKLearner(learner::String, args::Dict=Dict())
+
+A Scikitlearn wrapper to load the different machine learning models.
+Invoking `sklearners()` will list the available learners.
+
+Implements `fit!` and `transform!`. 
+"""
 mutable struct SKLearner <: Learner
   name::String
   model::Dict
@@ -109,6 +117,11 @@ function SKLearner(learner::String, args::Dict=Dict())
   SKLearner(Dict(:learner => learner,:name=>learner, :impl_args => args))
 end
 
+"""
+    sklearners()
+
+List the available scikitlearn machine learners.
+"""
 function sklearners()
   learners = keys(learner_dict) |> collect |> x-> sort(x,lt=(x,y)->lowercase(x)<lowercase(y))
   println("syntax: SKLearner(name::String, args::Dict=Dict())")

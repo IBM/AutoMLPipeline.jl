@@ -19,14 +19,14 @@ export holdout, kfold, score, infer_eltype, nested_dict_to_tuples,
 
 
 """
-    find_nominal_columns(features::DataFrame) 
+    find_catnum_columns(instances::DataFrame,maxuniqcat::Int=0) 
 
-Finds all nominal columns.
-
-Nominal columns are those that do not have Real type nor
-do all their elements correspond to Real.
+Finds all categorial and numerical columns.
+Categorical columns are those that do not have Real type nor
+do all their elements correspond to Real. Also, columns
+with size of unique instances are less than `maxuniqcat` are
+considered categorical.
 """
-
 function find_catnum_columns(instances::DataFrame, maxuniqcat::Int=0)
   nominal_columns = Int[]
   real_columns = Int[]

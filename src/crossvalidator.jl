@@ -11,12 +11,19 @@ using Random
 using AutoMLPipeline.AbsTypes
 using AutoMLPipeline.Utils
 
-export crossvalidate
+export crossvalidate, holdoutcrossvalidate
 
 function holdoutcrossvalidate(pl::Machine,X::DataFrame,Y::Vector,metric::Function,ntimes=10)
   @assert size(X)[1] == length(Y)
 end
 
+"""
+    crossvalidate(pl::Machine,X::DataFrame,Y::Vector,pfunc::Function,kfolds=10) 
+
+Run K-fold crossvalidation where:
+- `pfunc` is a performance metric
+- `X` and `Y` are input and target 
+"""
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
 		       pfunc::Function,nfolds=10) 
   ## flatten arrays

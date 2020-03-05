@@ -11,6 +11,14 @@ import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
 export Pipeline, ComboPipeline, @pipeline, @pipelinex
 
+"""
+    Pipeline(machs::Vector{T}) where {T<:Machine}
+
+Linearpipeline which iteratively calls and passes the result
+of `fit_transform` to the succeeding elements in the pipeline. . 
+
+Implements `fit!` and `transform!`.
+"""
 mutable struct Pipeline <: Workflow
   name::String
   model::Dict
@@ -85,6 +93,15 @@ function transform!(pipe::Pipeline, instances::DataFrame=DataFrame())
 end
 
 
+"""
+    ComboPipeline(machs::Vector{T}) where {T<:Machine}
+
+Feature union pipeline which iteratively calls 
+of `fit_transform` each element and concatenate
+their output into one dataframe.
+
+Implements `fit!` and `transform!`.
+"""
 mutable struct ComboPipeline <: Workflow
   name::String
   model::Dict
@@ -92,12 +109,12 @@ mutable struct ComboPipeline <: Workflow
 
   function ComboPipeline(args::Dict = Dict())
     default_args = Dict(
-			:name => "combopipeline",
-			# machines as list to chain in sequence.
-			:machines => Vector{Machine}(),
-			# Transformer args as list applied to same index transformer.
-			:machine_args => Dict()
-		       )
+	:name => "combopipeline",
+	# machines as list to chain in sequence.
+	:machines => Vector{Machine}(),
+	# Transformer args as list applied to same index transformer.
+	:machine_args => Dict()
+       )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
     new(cargs[:name],Dict(),cargs)

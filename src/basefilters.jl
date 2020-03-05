@@ -23,9 +23,10 @@ export OneHotEncoder
        :nominal_column_values_map => Dict{Int,Any}()
     ))
 
-
 Transforms instances with nominal features into one-hot form
 and coerces the instance matrix to be of element type Float64.
+
+Implements `fit!` and `transform`.
 """
 mutable struct OneHotEncoder <: Transformer
   name::String
@@ -119,7 +120,9 @@ end
        )
     )
 
-#Imputes NaN values from Float64 features.
+Imputes NaN values from Float64 features.
+
+Implements `fit!` and `transform`.
 """
 mutable struct Imputer <: Transformer
   name::String
@@ -171,7 +174,9 @@ end
        )
     )
        
-Wraps around a TSML transformer.
+Wraps around a AutoMLPipeline transformer.
+
+Implements `fit!` and `transform`.
 """
 mutable struct Wrapper <: Transformer
   name::String
@@ -198,7 +203,7 @@ function fit!(wrapper::Wrapper, instances::DataFrame, labels::Vector)
     transformer_args
   )
 
-  if transformer_args != nothing
+  if transformer_args != Dict()
     transformer_args = mergedict(transformer.args, transformer_args)
   end
   fit!(transformer, instances, labels)
@@ -215,7 +220,7 @@ function transform!(wrapper::Wrapper, instances::DataFrame)
 end
 
 """
-    createtransformer(prototype::Transformer, args=nothing)
+    createtransformer(prototype::Transformer, args=Dict())
 
 Create transformer
 
@@ -224,9 +229,9 @@ Create transformer
 
 Returns: new transformer.
 """
-function createtransformer(prototype::Transformer, args=nothing)
+function createtransformer(prototype::Transformer, args=Dict())
   new_args = copy(prototype.args)
-  if args != nothing
+  if args != Dict()
     new_args = mergedict(new_args, args)
   end
 
