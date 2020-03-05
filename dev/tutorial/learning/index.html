@@ -41,32 +41,25 @@ dfcmc = fit_transform!(pcmc,X)</code></pre><pre><code class="language-julia-repl
 │ 3   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.27202  │ 1.58568   │
 │ 4   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.15043  │ 2.43394   │
 │ 5   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.420897 │ 2.00981   │</code></pre><h3 id="Evaluate-Learners-with-Same-Pipeline-1"><a class="docs-heading-anchor" href="#Evaluate-Learners-with-Same-Pipeline-1">Evaluate Learners with Same Pipeline</a><a class="docs-heading-anchor-permalink" href="#Evaluate-Learners-with-Same-Pipeline-1" title="Permalink"></a></h3><p>You can get a list of sklearners and skpreprocessors by using the following function calls: </p><pre><code class="language-julia-repl">julia&gt; sklearners()
-
 syntax: SKLearner(name::String, args::Dict=Dict())
+where &#39;name&#39; can be one of:
 
-where *name* can be one of:
+AdaBoostClassifier AdaBoostRegressor ARDRegression BaggingClassifier BayesianRidge BernoulliNB ComplementNB DecisionTreeClassifier DecisionTreeRegressor ElasticNet ExtraTreesClassifier ExtraTreesRegressor GaussianNB GaussianProcessClassifier GaussianProcessRegressor GradientBoostingClassifier GradientBoostingRegressor IsotonicRegression KernelRidge KNeighborsClassifier KNeighborsRegressor Lars Lasso LassoLars LDA LinearSVC LogisticRegression MLPClassifier MLPRegressor MultinomialNB NearestCentroid NuSVC OrthogonalMatchingPursuit PassiveAggressiveClassifier PassiveAggressiveRegressor QDA RadiusNeighborsClassifier RadiusNeighborsRegressor RandomForestClassifier RandomForestRegressor Ridge RidgeClassifier RidgeClassifierCV RidgeCV SGDClassifier SGDRegressor SVC SVR VotingClassifier 
 
-[&quot;LinearSVC&quot;, &quot;GaussianNB&quot;, &quot;RandomForestRegressor&quot;, &quot;NearestCentroid&quot;, &quot;NuSVC&quot;, &quot;DecisionTreeClassifier&quot;, &quot;RidgeClassifierCV&quot;, &quot;RidgeClassifier&quot;, &quot;SGDRegressor&quot;, &quot;IsotonicRegression&quot;, &quot;MLPRegressor&quot;, &quot;OrthogonalMatchingPursuit&quot;, &quot;GradientBoostingClassifier&quot;, &quot;GaussianProcessRegressor&quot;, &quot;AdaBoostRegressor&quot;, &quot;ElasticNet&quot;, &quot;MultinomialNB&quot;, &quot;Lars&quot;, &quot;DecisionTreeRegressor&quot;, &quot;PassiveAggressiveClassifier&quot;, &quot;ExtraTreesClassifier&quot;, &quot;LogisticRegression&quot;, &quot;AdaBoostClassifier&quot;, &quot;BayesianRidge&quot;, &quot;PassiveAggressiveRegressor&quot;, &quot;GaussianProcessClassifier&quot;, &quot;BaggingClassifier&quot;, &quot;BernoulliNB&quot;, &quot;KNeighborsRegressor&quot;, &quot;Ridge&quot;, &quot;MLPClassifier&quot;, &quot;RadiusNeighborsClassifier&quot;, &quot;KNeighborsClassifier&quot;, &quot;VotingClassifier&quot;, &quot;RadiusNeighborsRegressor&quot;, &quot;SGDClassifier&quot;, &quot;KernelRidge&quot;, &quot;Lasso&quot;, &quot;LDA&quot;, &quot;RandomForestClassifier&quot;, &quot;ExtraTreesRegressor&quot;, &quot;SVC&quot;, &quot;LassoLars&quot;, &quot;RidgeCV&quot;, &quot;ComplementNB&quot;, &quot;SVR&quot;, &quot;GradientBoostingRegressor&quot;, &quot;ARDRegression&quot;, &quot;QDA&quot;]
-
-and *args* are the corresponding learner&#39;s initial parameters.
-
+and &#39;args&#39; are the corresponding learner&#39;s initial parameters.
 Note: Consult Scikitlearn&#39;s online help for more details about the learner&#39;s arguments.
 
 julia&gt; skpreprocessors()
-
 syntax: SKPreprocessor(name::String, args::Dict=Dict())
-
 where *name* can be one of:
 
-[&quot;SelectFpr&quot;, &quot;RobustScaler&quot;, &quot;RFE&quot;, &quot;LabelBinarizer&quot;, &quot;dict_learning_online&quot;, &quot;f_classif&quot;, &quot;SelectPercentile&quot;, &quot;mutual_info_regression&quot;, &quot;KernelPCA&quot;, &quot;OrdinalEncoder&quot;, &quot;LatentDirichletAllocation&quot;, &quot;SelectFdr&quot;, &quot;PCA&quot;, &quot;QuantileTransformer&quot;, &quot;MissingIndicator&quot;, &quot;StandardScaler&quot;, &quot;SelectKBest&quot;, &quot;FastICA&quot;, &quot;RFECV&quot;, &quot;MiniBatchSparsePCA&quot;, &quot;SparsePCA&quot;, &quot;SelectFwe&quot;, &quot;mutual_info_classif&quot;, &quot;MiniBatchDictionaryLearning&quot;, &quot;VarianceThreshold&quot;, &quot;chi2&quot;, &quot;SparseCoder&quot;, &quot;Normalizer&quot;, &quot;OneHotEncoder&quot;, &quot;FactorAnalysis&quot;, &quot;DictionaryLearning&quot;, &quot;KernelCenterer&quot;, &quot;LabelEncoder&quot;, &quot;KBinsDiscretizer&quot;, &quot;MultiLabelBinarizer&quot;, &quot;GenericUnivariateSelect&quot;, &quot;SelectFromModel&quot;, &quot;MaxAbsScaler&quot;, &quot;PowerTransformer&quot;, &quot;MinMaxScaler&quot;, &quot;fastica&quot;, &quot;f_regression&quot;, &quot;non_negative_factorization&quot;, &quot;sparse_encode&quot;, &quot;FunctionTransformer&quot;, &quot;dict_learning&quot;, &quot;NMF&quot;, &quot;Binarizer&quot;, &quot;IncrementalPCA&quot;, &quot;TruncatedSVD&quot;, &quot;PolynomialFeatures&quot;, &quot;SimpleImputer&quot;]
+Binarizer chi2 dict_learning dict_learning_online DictionaryLearning f_classif f_regression FactorAnalysis FastICA fastica FunctionTransformer GenericUnivariateSelect IncrementalPCA KBinsDiscretizer KernelCenterer KernelPCA LabelBinarizer LabelEncoder LatentDirichletAllocation MaxAbsScaler MiniBatchDictionaryLearning MiniBatchSparsePCA MinMaxScaler MissingIndicator MultiLabelBinarizer mutual_info_classif mutual_info_regression NMF non_negative_factorization Normalizer OneHotEncoder OrdinalEncoder PCA PolynomialFeatures PowerTransformer QuantileTransformer RFE RFECV RobustScaler SelectFdr SelectFpr SelectFromModel SelectFwe SelectKBest SelectPercentile SimpleImputer sparse_encode SparseCoder SparsePCA StandardScaler TruncatedSVD VarianceThreshold 
 
 and *args* are the corresponding preprocessor&#39;s initial parameters.
-
 Note: Please consult Scikitlearn&#39;s online help for more details about the preprocessor&#39;s arguments.</code></pre><p>Let us evaluate 4 learners using the same preprocessing pipeline:</p><pre><code class="language-julia">jrf = RandomForest()
 ada = SKLearner(&quot;AdaBoostClassifier&quot;)
 sgd = SKLearner(&quot;SGDClassifier&quot;)
-tree = PrunedTree()
-nothing #dide</code></pre><pre><code class="language-julia">learners = Dict()
+tree = PrunedTree()</code></pre><pre><code class="language-julia">learners = Dict()
 for learner in [jrf,ada,sgd,tree]
   pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt; learner
   println(learner.name)
@@ -87,11 +80,11 @@ fold: 4, 0.564625850340136
 fold: 5, 0.5254237288135594
 errors: 0
 SGDClassifier_ZHI
-fold: 1, 0.5050847457627119
-fold: 2, 0.47619047619047616
-fold: 3, 0.4
-fold: 4, 0.45918367346938777
-fold: 5, 0.5050847457627119
+fold: 1, 0.49491525423728816
+fold: 2, 0.3979591836734694
+fold: 3, 0.46779661016949153
+fold: 4, 0.4421768707482993
+fold: 5, 0.5152542372881356
 errors: 0
 prunetree_byh
 fold: 1, 0.47796610169491527
@@ -103,7 +96,7 @@ errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; learners
 Dict{Any,Any} with 4 entries:
   &quot;rf_ahT&quot;                 =&gt; (mean = 0.500339, sd = 0.00969219)
   &quot;prunetree_byh&quot;          =&gt; (mean = 0.462989, sd = 0.0146251)
-  &quot;SGDClassifier_ZHI&quot;      =&gt; (mean = 0.469109, sd = 0.0433394)
+  &quot;SGDClassifier_ZHI&quot;      =&gt; (mean = 0.46362, sd = 0.0459186)
   &quot;AdaBoostClassifier_DWP&quot; =&gt; (mean = 0.545853, sd = 0.0214459)</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = Dict()
@@ -127,11 +120,11 @@ fold: 4, 0.5102040816326531
 fold: 5, 0.5457627118644067
 errors: 0
 SGDClassifier_ZHI
-fold: 1, 0.43050847457627117
-fold: 2, 0.445578231292517
-fold: 3, 0.43050847457627117
-fold: 4, 0.4523809523809524
-fold: 5, 0.49491525423728816
+fold: 1, 0.5016949152542373
+fold: 2, 0.43197278911564624
+fold: 3, 0.4406779661016949
+fold: 4, 0.47278911564625853
+fold: 5, 0.488135593220339
 errors: 0
 prunetree_byh
 fold: 1, 0.4847457627118644
@@ -142,7 +135,7 @@ fold: 5, 0.43050847457627117
 errors: 0
 GradientBoostingClassifier_43G
 fold: 1, 0.535593220338983
-fold: 2, 0.5374149659863946
+fold: 2, 0.5408163265306123
 fold: 3, 0.5288135593220339
 fold: 4, 0.6020408163265306
 fold: 5, 0.5525423728813559
@@ -150,6 +143,6 @@ errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; learners
 Dict{Any,Any} with 5 entries:
   &quot;rf_ahT&quot;                         =&gt; (mean = 0.51326, sd = 0.0205154)
   &quot;prunetree_byh&quot;                  =&gt; (mean = 0.477955, sd = 0.0273533)
-  &quot;SGDClassifier_ZHI&quot;              =&gt; (mean = 0.450778, sd = 0.0264547)
+  &quot;SGDClassifier_ZHI&quot;              =&gt; (mean = 0.467054, sd = 0.0300154)
   &quot;AdaBoostClassifier_DWP&quot;         =&gt; (mean = 0.534966, sd = 0.0224395)
-  &quot;GradientBoostingClassifier_43G&quot; =&gt; (mean = 0.551281, sd = 0.0296703)</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../../man/pipeline/">Pipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 4 March 2020 17:32">Wednesday 4 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  &quot;GradientBoostingClassifier_43G&quot; =&gt; (mean = 0.551961, sd = 0.0293097)</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../../man/pipeline/">Pipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 5 March 2020 17:23">Thursday 5 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
