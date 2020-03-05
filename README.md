@@ -16,7 +16,7 @@ julia> score(:accuracy,prediction,Ytest)
 julia> crossvalidate(model,X,Y,"balanced_accuracy_score")
 ```
 Just take note that `+` has higher priority than `|>` so if you
-are not sure, enclose the operations inside parenthes.
+are not sure, enclose the operations inside parentheses.
 ```julia
 ### these two expressions are the same
 @pipeline a |> b + c; @pipeline a |> (b + c)
