@@ -59,12 +59,13 @@ and *args* are the corresponding preprocessor&#39;s initial parameters.
 Note: Please consult Scikitlearn&#39;s online help for more details about the preprocessor&#39;s arguments.</code></pre><p>Let us evaluate 4 learners using the same preprocessing pipeline:</p><pre><code class="language-julia">jrf = RandomForest()
 ada = SKLearner(&quot;AdaBoostClassifier&quot;)
 sgd = SKLearner(&quot;SGDClassifier&quot;)
-tree = PrunedTree()</code></pre><pre><code class="language-julia">learners = Dict()
+tree = PrunedTree()</code></pre><pre><code class="language-julia">using DataFrames
+learners = DataFrame()
 for learner in [jrf,ada,sgd,tree]
   pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt; learner
   println(learner.name)
-  mean,sd,_ = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
-  learners[learner.name]=(mean=mean,sd=sd)
+  mean,sd,folds = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;</code></pre><pre><code class="language-none">rf_ahT
 fold: 1, 0.5152542372881356
 fold: 2, 0.5
@@ -80,11 +81,11 @@ fold: 4, 0.564625850340136
 fold: 5, 0.5254237288135594
 errors: 0
 SGDClassifier_ZHI
-fold: 1, 0.44745762711864406
-fold: 2, 0.47959183673469385
-fold: 3, 0.4610169491525424
-fold: 4, 0.47959183673469385
-fold: 5, 0.5288135593220339
+fold: 1, 0.46440677966101696
+fold: 2, 0.46938775510204084
+fold: 3, 0.48135593220338985
+fold: 4, 0.4489795918367347
+fold: 5, 0.488135593220339
 errors: 0
 prunetree_byh
 fold: 1, 0.47796610169491527
@@ -92,19 +93,22 @@ fold: 2, 0.46938775510204084
 fold: 3, 0.46440677966101696
 fold: 4, 0.4387755102040816
 fold: 5, 0.46440677966101696
-errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; learners
-Dict{Any,Any} with 4 entries:
-  &quot;rf_ahT&quot;                 =&gt; (mean = 0.500339, sd = 0.00969219)
-  &quot;prunetree_byh&quot;          =&gt; (mean = 0.462989, sd = 0.0146251)
-  &quot;SGDClassifier_ZHI&quot;      =&gt; (mean = 0.479294, sd = 0.0308219)
-  &quot;AdaBoostClassifier_DWP&quot; =&gt; (mean = 0.545853, sd = 0.0214459)</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+learners = 4×4 DataFrames.DataFrame
+│ Row │ name                   │ mean     │ sd         │ kfold │
+│     │ String                 │ Float64  │ Float64    │ Int64 │
+├─────┼────────────────────────┼──────────┼────────────┼───────┤
+│ 1   │ rf_ahT                 │ 0.500339 │ 0.00969219 │ 5     │
+│ 2   │ AdaBoostClassifier_DWP │ 0.545853 │ 0.0214459  │ 5     │
+│ 3   │ SGDClassifier_ZHI      │ 0.470453 │ 0.0152508  │ 5     │
+│ 4   │ prunetree_byh          │ 0.462989 │ 0.0146251  │ 5     │</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
-learners = Dict()
+learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,gb]
   pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; rbs) + (numf |&gt; std)) |&gt; learner
   println(learner.name)
-  mean,sd,_ = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
-  learners[learner.name]=(mean=mean,sd=sd)
+  mean,sd,folds = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;</code></pre><pre><code class="language-none">rf_ahT
 fold: 1, 0.5186440677966102
 fold: 2, 0.5136054421768708
@@ -120,11 +124,11 @@ fold: 4, 0.5102040816326531
 fold: 5, 0.5457627118644067
 errors: 0
 SGDClassifier_ZHI
-fold: 1, 0.4271186440677966
-fold: 2, 0.4489795918367347
-fold: 3, 0.5186440677966102
-fold: 4, 0.4557823129251701
-fold: 5, 0.5220338983050847
+fold: 1, 0.43389830508474575
+fold: 2, 0.46258503401360546
+fold: 3, 0.4847457627118644
+fold: 4, 0.4965986394557823
+fold: 5, 0.38305084745762713
 errors: 0
 prunetree_byh
 fold: 1, 0.4847457627118644
@@ -139,10 +143,13 @@ fold: 2, 0.5374149659863946
 fold: 3, 0.5288135593220339
 fold: 4, 0.6020408163265306
 fold: 5, 0.5525423728813559
-errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; learners
-Dict{Any,Any} with 5 entries:
-  &quot;rf_ahT&quot;                         =&gt; (mean = 0.51326, sd = 0.0205154)
-  &quot;prunetree_byh&quot;                  =&gt; (mean = 0.477955, sd = 0.0273533)
-  &quot;SGDClassifier_ZHI&quot;              =&gt; (mean = 0.474512, sd = 0.0431706)
-  &quot;AdaBoostClassifier_DWP&quot;         =&gt; (mean = 0.534966, sd = 0.0224395)
-  &quot;GradientBoostingClassifier_43G&quot; =&gt; (mean = 0.551281, sd = 0.0296703)</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../../man/pipeline/">Pipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 5 March 2020 18:28">Thursday 5 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+learners = 5×4 DataFrames.DataFrame
+│ Row │ name                           │ mean     │ sd        │ kfold │
+│     │ String                         │ Float64  │ Float64   │ Int64 │
+├─────┼────────────────────────────────┼──────────┼───────────┼───────┤
+│ 1   │ rf_ahT                         │ 0.51326  │ 0.0205154 │ 5     │
+│ 2   │ AdaBoostClassifier_DWP         │ 0.534966 │ 0.0224395 │ 5     │
+│ 3   │ SGDClassifier_ZHI              │ 0.452176 │ 0.0454282 │ 5     │
+│ 4   │ prunetree_byh                  │ 0.477955 │ 0.0273533 │ 5     │
+│ 5   │ GradientBoostingClassifier_43G │ 0.551281 │ 0.0296703 │ 5     │</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../../man/pipeline/">Pipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 5 March 2020 18:52">Thursday 5 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
