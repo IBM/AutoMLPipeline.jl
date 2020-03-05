@@ -97,7 +97,8 @@ mutable struct SKLearner <: Learner
     skl = cargs[:learner]
     if !(skl in keys(learner_dict)) 
       println("$skl is not supported.") 
-      println("keywords: ", keys(learner_dict))
+      println()
+      sklearners()
       error("Argument keyword error")
     end
     new(cargs[:name],Dict(),cargs)
@@ -109,15 +110,14 @@ function SKLearner(learner::String, args::Dict=Dict())
 end
 
 function sklearners()
-  println()
+  learners = keys(learner_dict) |> collect |> x-> sort(x,lt=(x,y)->lowercase(x)<lowercase(y))
   println("syntax: SKLearner(name::String, args::Dict=Dict())")
+  println("where 'name' can be one of:")
   println()
-  println("where *name* can be one of:")
+  [print(learner," ") for learner in learners]
   println()
-  println(keys(learner_dict))
   println()
-  println("and *args* are the corresponding learner's initial parameters.")
-  println()
+  println("and 'args' are the corresponding learner's initial parameters.")
   println("Note: Consult Scikitlearn's online help for more details about the learner's arguments.")
 end
 

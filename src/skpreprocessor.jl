@@ -103,7 +103,8 @@ mutable struct SKPreprocessor <: Transformer
     prep = cargs[:preprocessor]
     if !(prep in keys(preprocessor_dict)) 
       println("$prep is not supported.") 
-      println("keywords: ", keys(preprocessor_dict))
+      println()
+      skpreprocessors()
       error("Argument keyword error")
     end
     new(cargs[:name],Dict(),cargs)
@@ -115,15 +116,14 @@ function SKPreprocessor(prep::String,args::Dict=Dict())
 end
 
 function skpreprocessors()
-  println()
+  processors = keys(preprocessor_dict) |> collect |> x-> sort(x,lt=(x,y)->lowercase(x)<lowercase(y))
   println("syntax: SKPreprocessor(name::String, args::Dict=Dict())")
-  println()
   println("where *name* can be one of:")
   println()
-  println(keys(preprocessor_dict))
+  [print(processor," ") for processor in processors]
+  println()
   println()
   println("and *args* are the corresponding preprocessor's initial parameters.")
-  println()
   println("Note: Please consult Scikitlearn's online help for more details about the preprocessor's arguments.")
 end
 
