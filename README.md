@@ -19,12 +19,10 @@ Just take note that `+` has higher priority than `|>` so if you
 are not sure, enclose the operations inside parenthes.
 ```julia
 ### these two expressions are the same
-@pipeline a |> b + c 
-@pipeline a |> (b + c)
+@pipeline a |> b + c; @pipeline a |> (b + c)
 
 ### these two expressions are the same
-@pipeline a + b |> c 
-@pipeline (a + b) |> c
+@pipeline a + b |> c; @pipeline (a + b) |> c
 ```
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
