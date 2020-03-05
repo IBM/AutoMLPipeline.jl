@@ -238,7 +238,7 @@ the code is written in Julia, you are highly encouraged to read the source
 code and feel free to extend or adapt the package to your problem. Please
 feel free to submit PRs to improve the package features. 
 
-#### 10. Performance Comparison for Several Learners
+#### 10. Performance Comparison of Several Learners
 ```julia
 using DataFrames
 jrf = RandomForest()
