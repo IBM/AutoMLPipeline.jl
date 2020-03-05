@@ -15,7 +15,8 @@ julia> prediction = transform!(model,Xtest)
 julia> score(:accuracy,prediction,Ytest)
 julia> crossvalidate(model,X,Y,"balanced_accuracy_score")
 ```
-You can visualize the pipeline by using AbstractTrees julia package:
+You can visualize the pipeline by using AbstractTrees Julia package. Since the package is not part
+of AutoMLPipeline, you need to install it before invoking the commands below.
 ```julia
 julia> using AbstractTrees
 julia> expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
