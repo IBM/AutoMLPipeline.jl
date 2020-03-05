@@ -19,6 +19,8 @@ You can visualize the pipeline by using AbstractTrees Julia package. Since the p
 of AutoMLPipeline, you need to install it before invoking the commands below.
 ```julia
 julia> using AbstractTrees
+julia> using AutoMLPipeline
+
 julia> expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
 
