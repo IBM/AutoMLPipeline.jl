@@ -18,8 +18,8 @@ julia> crossvalidate(model,X,Y,"balanced_accuracy_score")
 Just take note that `+` has higher priority than `|>` so if you
 are not sure, enclose the operations inside parenthes.
 ```julia
-@pipeline a |> b + c # equivalent to @pipeline a |> (b + c)
-@pipeline a + b |> c # equivalent to @pipeline (a + b) |> c
+julia> @pipeline a |> b + c # is equivalent to @pipeline a |> (b + c)
+julia> @pipeline a + b |> c # is equivalent to @pipeline (a + b) |> c
 ```
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
