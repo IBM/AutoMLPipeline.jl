@@ -87,6 +87,15 @@ function __init__()
     )
 end
 
+"""
+    SKPreprocessor(prep::String,args::Dict=Dict())
+
+A wrapper for Scikitlearn preprocessor functions. 
+Invoking `skpreprocessors()` will list the acceptable 
+and supported functions.
+
+Implements `fit!` and `transform!`.
+"""
 mutable struct SKPreprocessor <: Transformer
   name::String
   model::Dict

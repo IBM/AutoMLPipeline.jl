@@ -14,6 +14,18 @@ export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscrimina
 export feature_test
 
 # generic way to extract num/cat features by specifying their columns
+"""
+    FeatureSelector(
+       Dict(
+         :name => "featureselector",
+	 :columns => [col1, col2, ...]
+       )
+    )
+
+Returns a dataframe of the selected columns.
+
+Implements `fit!` and `transform!`.
+"""
 mutable struct FeatureSelector <: Transformer
     name::String
     model::Dict
@@ -55,7 +67,14 @@ function transform!(ft::FeatureSelector, features::DataFrame)
 end
 
 # ----------
-# automatically extracts cat features based on their inferred element non-number types
+"""
+    CatFeatureSelector(Dict(:name => "catfeatsel"))
+
+Automatically extract categorical columns based on 
+inferred element types.
+
+Implements `fit!` and `transform!`.
+"""
 mutable struct CatFeatureSelector <: Transformer
     name::String
     model::Dict
@@ -64,8 +83,8 @@ mutable struct CatFeatureSelector <: Transformer
     function CatFeatureSelector(args::Dict = Dict())
 	default_args = Dict(
 			    :name => "catfeatsel",
-			    :nominal_columns => Int[]
-			    )
+			    :nominal_columns => []
+		       )
 	cargs=nested_dict_merge(default_args,args)
 	cargs[:name] = cargs[:name]*"_"*randstring(3)
 	new(cargs[:name],Dict(),cargs)
@@ -81,7 +100,7 @@ function fit!(ft::CatFeatureSelector, features::DataFrame, labels::Vector=[])
     # create model
     ft.model = Dict(
 		    :nominal_columns => catcols
-		    )
+	       )
 end
 
 function transform!(ft::CatFeatureSelector, features::DataFrame)
@@ -94,8 +113,13 @@ function transform!(ft::CatFeatureSelector, features::DataFrame)
     end
 end
 
-# ---------
-# automatically extracts numeric features based on their inferred element types
+"""
+    NumFeatureSelector(Dict(:name=>"numfeatsel"))
+
+Automatically extracts numeric features based on their inferred element types.
+
+Implements `fit!` and `transform!`.
+"""
 mutable struct NumFeatureSelector <: Transformer
     name::String
     model::Dict
@@ -134,9 +158,19 @@ function transform!(ft::NumFeatureSelector, features::DataFrame)
     end
 end
 
+"""
+    CatNumDiscriminator(
+       Dict(
+          :name => "catnumdisc",
+          :maxcategories => 24
+       )
+    )
 
-# ---------
-# convert numeric categories to string based on count of unique elements
+Transform numeric columns to string (as categories) 
+if the count of their unique elements <= maxcategories.
+
+Implements `fit!` and `transform!`.
+"""
 mutable struct CatNumDiscriminator <: Transformer
     name::String
     model::Dict
