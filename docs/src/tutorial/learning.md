@@ -58,7 +58,7 @@ jrf = RandomForest()
 ada = SKLearner("AdaBoostClassifier")
 sgd = SKLearner("SGDClassifier")
 tree = PrunedTree()
-nothing #dide
+nothing #hide
 ```
 ```@example learning
 learners = Dict() 
