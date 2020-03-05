@@ -254,6 +254,17 @@ for learner in [jrf,ada,sgd,tree]
 end;
 @show learners;
 ```
+which outputs:
+```julia
+learners = 4×3 DataFrame
+│ Row │ name                   │ mean     │ sd         │
+│     │ String                 │ Float64  │ Float64    │
+├─────┼────────────────────────┼──────────┼────────────┤
+│ 1   │ rf_gIR                 │ 0.680077 │ 0.00817007 │
+│ 2   │ AdaBoostClassifier_mki │ 0.696396 │ 0.0358593  │
+│ 3   │ SGDClassifier_rMk      │ 0.69654  │ 0.0418547  │
+│ 4   │ prunetree_zJp          │ 0.583427 │ 0.0419022  │
+```
 
 ### Extending AutoMLPipeline
 ```
