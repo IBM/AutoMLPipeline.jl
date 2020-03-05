@@ -61,17 +61,18 @@ tree = PrunedTree()
 nothing #hide
 ```
 ```@example learning
-learners = Dict() 
+using DataFrames
+learners = DataFrame() 
 for learner in [jrf,ada,sgd,tree]
   pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
   println(learner.name)
-  mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",5)
-  learners[learner.name]=(mean=mean,sd=sd)
+  mean,sd,folds = crossvalidate(pcmc,X,Y,"accuracy_score",5)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;
 nothing #hide
 ```
 ```@repl learning
-learners
+@show learners;
 ```
 For this particular pipeline, Adaboost has the best performance followed
 by RandomForest.
@@ -80,16 +81,16 @@ Let's extend the pipeline adding Gradient Boost learner and Robust Scaler.
 ```@example learning
 rbs = SKPreprocessor("RobustScaler")
 gb = SKLearner("GradientBoostingClassifier")
-learners = Dict() 
+learners = DataFrame() 
 for learner in [jrf,ada,sgd,tree,gb]
   pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> rbs) + (numf |> std)) |> learner
   println(learner.name)
-  mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",5)
-  learners[learner.name]=(mean=mean,sd=sd)
+  mean,sd,folds = crossvalidate(pcmc,X,Y,"accuracy_score",5)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;
 nothing #hide
 ```
 ```@repl learning
-learners
+@show learners;
 ```
 This time, Gradient boost has the best performance.
