@@ -209,6 +209,26 @@ the code is written in Julia, you are highly encouraged to read the source
 code and feel free to extend or adapt the package to your problem. Please
 feel free to submit PRs to improve the package features. 
 
+#### 10. Performance Comparison for Several Learners
+```julia
+using DataFrames
+jrf = RandomForest()
+ada = SKLearner("AdaBoostClassifier")
+sgd = SKLearner("SGDClassifier")
+tree = PrunedTree()
+std = SKPreprocessor("StandardScaler")
+disc = CatNumDiscriminator()
+
+learners = DataFrame()
+for learner in [jrf,ada,sgd,tree]
+  pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
+  println(learner.name)
+  mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",5)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
+end;
+@show learners;
+```
+
 ### Extending AutoMLPipeline
 ```
 # If you want to add your own filter/transformer/learner, it is trivial. 
