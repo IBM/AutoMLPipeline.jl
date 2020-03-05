@@ -15,6 +15,32 @@ julia> prediction = transform!(model,Xtest)
 julia> score(:accuracy,prediction,Ytest)
 julia> crossvalidate(model,X,Y,"balanced_accuracy_score")
 ```
+You can visualize the pipeline by using AbstractTrees julia package:
+```julia
+julia> using AbstractTrees
+julia> expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
+:(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
+
+julia> print_tree(stdout, expr)
+:(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
+├─ :Pipeline
+├─ :(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)))
+│  ├─ :ComboPipeline
+│  ├─ :(Pipeline(catf, ohe))
+│  │  ├─ :Pipeline
+│  │  ├─ :catf
+│  │  └─ :ohe
+│  ├─ :(Pipeline(numf, pca))
+│  │  ├─ :Pipeline
+│  │  ├─ :numf
+│  │  └─ :pca
+│  └─ :(Pipeline(numf, ica))
+│     ├─ :Pipeline
+│     ├─ :numf
+│     └─ :ica
+└─ :rf
+```
+
 ### Motivations
 The typical workflow in machine learning
 classification or prediction requires
