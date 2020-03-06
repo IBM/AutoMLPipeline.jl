@@ -1,6 +1,6 @@
 # Ensemble Methods
 
-AMPL supports three meta-ensemble methods, namely: 
+AMPL supports three types of meta-ensembles, namely: 
 StackEnsemble, VoteEnsemble, and BestLearner. They
 are considered as meta-ensembles because they can contain
 other learners including other ensembles as well as
@@ -10,8 +10,7 @@ show their flexibility is to provide some real examples.
 
 ### StackEnsemble
 Stack ensemble uses the idea of stacking to train 
-learners into two stages.  
-The first stage trains
+learners into two stages. The first stage trains
 bottom-level learners for the mapping 
 between the input and output. The default is to use
 70% of the data. Once the bottom-level learners finish the training, 

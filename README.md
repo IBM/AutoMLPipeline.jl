@@ -99,7 +99,7 @@ julia> Pkg.add("AutoMLPipeline")
 ```
 
 ### Sample Usage of AMLP
-Below outlines some typical way to ppreprocess and model any dataset.
+Below outlines some typical way to preprocess and model any dataset.
 
 #### 1. Load Data
 ##### 1.1 Install CSV and DataFrames packages
