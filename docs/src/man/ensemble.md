@@ -106,7 +106,7 @@ pplvote = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) +
 nothing #hide
 ```
 ```@repl ensemble
-crossvalidate(pplvote,X,Y);
+crossvalidate(pplvote,X,Y)
 ```
 
 ### BestLearner
