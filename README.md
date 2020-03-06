@@ -312,6 +312,18 @@ julia> print_tree(stdout, expr)
 │     └─ :ica
 └─ :rf
 ```
+#### 12. Learners as Filters
+It is also possible to use learners in the middle of expression to serve
+as filters and their outputs become input to the final learner as illustrated
+below.
+```julia
+expr = @pipeline ( ((numf |> pca) |> gb) + ((numf |> pca) |> rf) ) |> (catf |> ohe) |> ada
+crossvalidate(expr,X,Y,"accuracy_score")
+```
+It is important to take note that the expression `(catf |> ohe)` is necessary
+because the outputs of the two learners (`gb` and `rf`) are categorical 
+values that need to be hot-bit encoded before feeding to the final 
+`ada` learner.
 
 ### Extending AutoMLPipeline
 ```
