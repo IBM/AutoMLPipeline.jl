@@ -206,3 +206,19 @@ nothing #hide
     pipeline makes testing of the different combination of features 
     and models trivial. It makes performance evaluation  
     of the pipeline easily manageable in a systematic way.
+
+### Learners as Filters
+It is also possible to use learners in the middle of 
+expression to serve as filters and their outputs become 
+input to the final learner as illustrated below.
+```@repl pipeline
+expr = @pipeline ( 
+                   ((numf |> pca) |> gb) + ((numf |> pca) |> jrf) 
+                 ) |> (catf |> ohe) |> ada;
+                 
+crossvalidate(expr,X,Y,"accuracy_score",5)
+```
+It is important to take note that the expression `(catf |> ohe)`
+is necessary because the outputs of the two learners (`gb` and `jrf`) 
+are categorical values that need to be hot-bit encoded before 
+feeding them to the final `ada` learner.
