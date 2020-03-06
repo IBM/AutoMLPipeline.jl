@@ -61,12 +61,13 @@ pt = SKPreprocessor("PowerTransformer");
 pca = SKPreprocessor("PCA"); 
 fa = SKPreprocessor("FactorAnalysis"); 
 ica = SKPreprocessor("FastICA")
-pplstacks = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> stackens
+pplstacks = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + 
+                       (catf |> ohe) + (numf |> rb |> fa) |> stackens
 nothing #hide
 ```
 ```@repl ensemble
 using Random
-Random.seed!(123)
+Random.seed!(123);
 crossvalidate(pplstacks,X,Y)
 ```
 It is worth noting that stack ensemble is dealing with mixture of libraries consisting of Julia's
@@ -97,10 +98,11 @@ The VoteEnsemble supports the following function signatures:
 Let's use the same pipeline but substitute the stack ensemble
 with the vote ensemble:
 ```@example ensemble
-Random.seed!(123)
+Random.seed!(123);
 
 votingens = VoteEnsemble([gauss,svc,ridge,jrf]);
-pplvote = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> votingens;
+pplvote = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + 
+                     (catf |> ohe) + (numf |> rb |> fa) |> votingens;
 nothing #hide
 ```
 ```@repl ensemble
@@ -132,10 +134,12 @@ The VoteEnsemble supports the following function signatures:
 Let's use the same pipeline as above but substitute the vote ensemble
 with the BestLearner ensemble:
 ```@example ensemble
-Random.seed!(123)
+Random.seed!(123);
 
 bestens = BestLearner([gauss,svc,ridge,jrf]);
-pplbest = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> bestens;
+pplbest = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + 
+                     (catf |> ohe) + (numf |> rb |> fa) |> bestens;
+nothing #hide
 ```
 ```@repl ensemble
 crossvalidate(pplbest,X,Y)
