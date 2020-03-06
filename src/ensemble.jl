@@ -45,6 +45,7 @@ mutable struct VoteEnsemble <: Learner
       # (:class).
       :output => :class,
       # Learners in voting committee.
+      :impl_args => Dict(),
       :learners => [PrunedTree(), Adaboost(), RandomForest()]
     )
     cargs = nested_dict_merge(default_args, args)
@@ -52,6 +53,22 @@ mutable struct VoteEnsemble <: Learner
     new(cargs[:name],Dict(),cargs)
   end
 end
+
+function VoteEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
+  VoteEnsemble(Dict(:learners => learners, :impl_args => args))
+end
+
+function VoteEnsemble(learners...)
+  vlearner=nothing
+  if eltype(learners) <: Learner
+    v=[x for x in learners] # convert tuples to vector
+    vlearner = VoteEnsemble(v)
+  else
+    error("argument setup error")
+  end
+  return vlearner
+end
+
 
 """
     fit!(ve::VoteEnsemble, instances::DataFrame, labels::Vector)
@@ -123,6 +140,21 @@ mutable struct StackEnsemble <: Learner
     cargs[:name] = cargs[:name]*"_"*randstring(3)
     new(cargs[:name],Dict(),cargs)
   end
+end
+
+function StackEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
+  StackEnsemble(Dict(:learners => learners, :impl_args => args))
+end
+
+function StackEnsemble(learners...)
+  vlearner=nothing
+  if eltype(learners) <: Learner
+    v=[x for x in learners] # convert tuples to vector
+    vlearner = StackEnsemble(v)
+  else
+    error("argument setup error")
+  end
+  return vlearner
 end
 
 """
@@ -283,6 +315,22 @@ mutable struct BestLearner <: Learner
     new(cargs[:name],Dict(),cargs)
   end
 end
+
+function BestLearner(learners::Vector{<:Learner},args::Dict=Dict())
+  BestLearner(Dict(:learners => learners, :impl_args => args))
+end
+
+function BestLearner(learners...)
+  vlearner=nothing
+  if eltype(learners) <: Learner
+    v=[x for x in learners] # convert tuples to vector
+    vlearner = BestLearner(v)
+  else
+    error("argument setup error")
+  end
+  return vlearner
+end
+
 
 """
     fit!(bls::BestLearner, instances::DataFrame, labels::Vector)
