@@ -24,40 +24,6 @@ are not sure, enclose the operations inside parentheses.
 ### these two expressions are the same
 @pipeline a + b |> c; @pipeline (a + b) |> c
 ```
-You can visualize the pipeline by using AbstractTrees Julia package. 
-```julia
-# package installation 
-julia> using Pkg
-julia> Pkg.update()
-julia> Pkg.add("AbstractTrees") 
-julia> Pkg.add("AutoMLPipeline")
-
-# load the packages
-julia> using AbstractTrees
-julia> using AutoMLPipeline
-
-julia> expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
-:(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
-
-julia> print_tree(stdout, expr)
-:(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
-├─ :Pipeline
-├─ :(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)))
-│  ├─ :ComboPipeline
-│  ├─ :(Pipeline(catf, ohe))
-│  │  ├─ :Pipeline
-│  │  ├─ :catf
-│  │  └─ :ohe
-│  ├─ :(Pipeline(numf, pca))
-│  │  ├─ :Pipeline
-│  │  ├─ :numf
-│  │  └─ :pca
-│  └─ :(Pipeline(numf, ica))
-│     ├─ :Pipeline
-│     ├─ :numf
-│     └─ :ica
-└─ :rf
-```
 
 ### Motivations
 The typical workflow in machine learning
@@ -295,6 +261,42 @@ learners = 5×3 DataFrame
 ```
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
+
+### 11. Tree Visualization of the Pipeline Structure
+You can visualize the pipeline by using AbstractTrees Julia package. 
+```julia
+# package installation 
+julia> using Pkg
+julia> Pkg.update()
+julia> Pkg.add("AbstractTrees") 
+julia> Pkg.add("AutoMLPipeline")
+
+# load the packages
+julia> using AbstractTrees
+julia> using AutoMLPipeline
+
+julia> expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
+:(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
+
+julia> print_tree(stdout, expr)
+:(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
+├─ :Pipeline
+├─ :(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)))
+│  ├─ :ComboPipeline
+│  ├─ :(Pipeline(catf, ohe))
+│  │  ├─ :Pipeline
+│  │  ├─ :catf
+│  │  └─ :ohe
+│  ├─ :(Pipeline(numf, pca))
+│  │  ├─ :Pipeline
+│  │  ├─ :numf
+│  │  └─ :pca
+│  └─ :(Pipeline(numf, ica))
+│     ├─ :Pipeline
+│     ├─ :numf
+│     └─ :ica
+└─ :rf
+```
 
 ### Extending AutoMLPipeline
 ```
