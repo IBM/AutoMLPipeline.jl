@@ -232,7 +232,10 @@ feel free to submit PRs to improve the package features.
 
 #### 10. Performance Comparison of Several Learners
 ```julia
+using Random
 using DataFrames
+
+Random.seed!(1)
 jrf = RandomForest()
 ada = SKLearner("AdaBoostClassifier")
 sgd = SKLearner("SGDClassifier")
@@ -245,7 +248,7 @@ learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,lsvc]
   pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
   println(learner.name)
-  mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",5)
+  mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",10)
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
 end;
 @show learners;
@@ -256,11 +259,11 @@ learners = 5×3 DataFrame
 │ Row │ name                   │ mean     │ sd        │
 │     │ String                 │ Float64  │ Float64   │
 ├─────┼────────────────────────┼──────────┼───────────┤
-│ 1   │ rf_gIR                 │ 0.662222 │ 0.0440654 │
-│ 2   │ AdaBoostClassifier_mki │ 0.678496 │ 0.0485435 │
-│ 3   │ SGDClassifier_rMk      │ 0.691973 │ 0.0169108 │
-│ 4   │ prunetree_zJp          │ 0.632272 │ 0.0622693 │
-│ 5   │ LinearSVC_zMk          │ 0.73508  │ 0.0199626 │
+│ 1   │ rf_FoG                 │ 0.669615 │ 0.0327914 │
+│ 2   │ AdaBoostClassifier_sla │ 0.72741  │ 0.0460307 │
+│ 3   │ SGDClassifier_Vei      │ 0.703857 │ 0.0548356 │
+│ 4   │ prunetree_Bqd          │ 0.614631 │ 0.0609231 │
+│ 5   │ LinearSVC_KRY          │ 0.738434 │ 0.0446419 │
 ```
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
