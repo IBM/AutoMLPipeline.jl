@@ -6,7 +6,7 @@
 ### AutoMLPipeline (AMLP)
 is a package that makes it trivial to create complex ML pipeline structures using simple expressions. AMLP leverages on the built-in macro programming features of Julia to symbolically process, manipulate pipeline expressions, and automatically discover optimal structures for machine learning prediction and classification.
 
-To illustrate, here is a pipeline expression and evaluation of a typical machine learning workflow that extracts numerical features (`numf`) for `ica` (Independent Component Analysis) and `pca` (Principal Component Analysis) transformations, respectively, concatentated with the hot-bit encoding (`ohe`) of categorical features (`catf`) of a given data for `rf` (Random Forest) modeling:
+To illustrate, here is a pipeline expression and evaluation of a typical machine learning workflow that extracts numerical features (`numf`) for `ica` (Independent Component Analysis) and `pca` (Principal Component Analysis) transformations, respectively, concatenated with the hot-bit encoding (`ohe`) of categorical features (`catf`) of a given data for `rf` (Random Forest) modeling:
 
 ```julia
 julia> model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
@@ -65,7 +65,7 @@ tree/graph search, and hyper-parameter search.
 - Pipeline API that allows high-level description of processing workflow
 - Common API wrappers for ML libs including Scikitlearn, DecisionTree, etc
 - Symbolic pipeline parsing for easy expression
-  of complexed pipeline structures
+  of complex pipeline structures
 - Easily extensible architecture by overloading just two main interfaces: fit! and transform!
 - Meta-ensembles that allow composition of
     ensembles of ensembles (recursively if needed)
@@ -99,7 +99,7 @@ julia> Pkg.add("AutoMLPipeline")
 ```
 
 ### Sample Usage of AMLP
-Below outlines some typical way to preprocess and model any dataset.
+Below outlines some typical way to ppreprocess and model any dataset.
 
 #### 1. Load Data
 ##### 1.1 Install CSV and DataFrames packages
@@ -191,7 +191,7 @@ head(tr)
 
 #### 6. An example of pipeline expression for classification using the Voting Ensemble learner
 ```julia
-# take all categorical columns and hotbit encode each, 
+# take all categorical columns and hot-bit encode each, 
 # concatenate them to the numerical features,
 # and feed them to the voting ensemble
 pvote = @pipeline  (catf |> ohe) + (numf) |> vote
@@ -219,7 +219,7 @@ julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 #### 8. Another example of a pipeline expression with more expressions for Random Forest modeling
 ```julia
 # compute the pca, ica, fa of the numerical columns,
-# combine them with the hot-bit encoded categorial features
+# combine them with the hot-bit encoded categorical features
 # and feed all to the random forest classifier
 prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> rf
 pred = fit_transform!(prf,X,Y)

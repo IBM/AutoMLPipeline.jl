@@ -6,7 +6,7 @@ ENV["COLUMNS"]=1000
 Having a meta-ML package sounds ideal  but not practical 
 in terms of maintainability and flexibility. 
 The metapackage becomes a central point of failure
-and bottleneck. It doesn't subscribe to the KISS philosphy of
+and bottleneck. It doesn't subscribe to the KISS philosophy of
 Unix which encourages decentralization of implementation. As long
 as the input and output behavior of transformers and learners
 follow a standard format, they should work without  

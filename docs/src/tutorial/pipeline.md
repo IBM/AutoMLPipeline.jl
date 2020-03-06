@@ -102,7 +102,7 @@ to calling `fit!` and `transform` in sequence which is handy
 for examining the final output of the transformation prior to 
 feeding it to the model.
 
-Let us now transform the caterical features into one-hotbit-encoding (ohe)
+Let us now transform the categorical features into one-hot-bit-encoding (ohe)
 and examine the results:
 ```@example pipeline
 pop_ohe = @pipeline catf |> ohe

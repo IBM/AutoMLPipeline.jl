@@ -15,7 +15,7 @@ for machine learning prediction and classification.
 To illustrate, a typical machine learning workflow that extracts
 numerical features (numf) for ICA (independent component analysis) and 
 PCA (principal component analysis) transformations, respectively,
-concatentated with the hot-bit encoding (ohe) of categorical 
+concatenated with the hot-bit encoding (ohe) of categorical 
 features (catf) of a given data for RF modeling can be expressed 
 in AMLP as:
 
@@ -100,7 +100,7 @@ tree/graph search, and hyper-parameter search.
 - Pipeline API that allows high-level description of processing workflow
 - Common API wrappers for ML libs including Scikitlearn, DecisionTree, etc
 - Symbolic pipeline parsing for easy expression 
-  of complexed pipeline structures
+  of complex pipeline structures
 - Easily extensible architecture by overloading just two main interfaces: fit! and transform!
 - Meta-ensembles that allows composition of 
     ensembles of ensembles (recursively if needed) 

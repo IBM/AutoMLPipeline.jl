@@ -28,7 +28,7 @@ Let's examine the number of unique instances for each column:
 ```
 Except for Wife's age and Number of children, the other columns
 have less than five unique instances. Let's create a pipeline
-to filter those columns and convert them to hotbits and 
+to filter those columns and convert them to hot-bits and 
 concatenate them with the standardized scale of the numeric columns.
 ```@example learning
 std = SKPreprocessor("StandardScaler")
