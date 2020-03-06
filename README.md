@@ -28,6 +28,7 @@ You can visualize the pipeline by using AbstractTrees Julia package.
 ```julia
 # package installation 
 julia> using Pkg
+julia> Pkg.update()
 julia> Pkg.add("AbstractTrees") 
 julia> Pkg.add("AutoMLPipeline")
 
@@ -135,6 +136,7 @@ Below outlines some typical way to preprocess and model any dataset.
 ##### 1.1 Install CSV and DataFrames packages
 ```julia
 using Pkg
+Pkg.update()
 Pkg.add("CSV")
 Pkg.add("DataFrames")
 ```
