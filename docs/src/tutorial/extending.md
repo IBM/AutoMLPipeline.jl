@@ -107,7 +107,7 @@ fname = joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv")
 csvrdr = CSVReader(Dict(:fname=>fname))
 
 p1 = @pipeline csvrdr |> (catf + numf)
-df1 = fit_transform!(p1,DataFrame()) # empty argument because input coming from csvreader
+df1 = fit_transform!(p1) # empty argument because input coming from csvreader
 nothing #hide
 ```
 ```@repl csvreader
@@ -115,7 +115,7 @@ first(df1,5)
 ```
 ```@example csvreader
 p2 = @pipeline csvrdr |> (catf |> ohe) + (numf |> pca)
-df2 = fit_transform!(p2,DataFrame()) # empty argument because input coming from csvreader
+df2 = fit_transform!(p2) # empty argument because input coming from csvreader
 nothing #hide
 ```
 ```@repl csvreader
