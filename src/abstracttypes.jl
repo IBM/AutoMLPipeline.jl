@@ -37,7 +37,7 @@ end
 
 Dynamic dispatch that calls in sequence `fit!` and `transform!` functions.
 """
-function fit_transform!(mc::Machine, input::DataFrame, output::Vector=Vector())
+function fit_transform!(mc::Machine, input::DataFrame=DataFrame(), output::Vector=Vector())
 	fit!(mc,input,output)
 	transform!(mc,input)
 end
