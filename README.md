@@ -160,13 +160,13 @@ Note: You can get a listing of available `SKPreprocessors` and `SKLearners` by i
 
 #### 4. Categorical Feature Extraction Example 
 
-#####  - Filter categories
+##### - 4.1 Filter categories
 ```julia
 pcatf = @pipeline catf 
 tr = fit_transform!(pcatf,X,Y)
 head(tr)
 ```
-#####  - Filter categories and hot-encode them
+##### - 4.2 Filter categories and hot-encode them
 ```julia
 pohe = @pipeline catf |> ohe
 tr = fit_transform!(pohe,X,Y)
@@ -175,14 +175,14 @@ head(tr)
 
 #### 5. Numerical Feature Extraction Example 
 
-##### - Filter numeric features, compute ica and pca features, and combine both features
+##### - 5.1 Filter numeric features, compute ica and pca features, and combine both features
 ```julia
 pdec = @pipeline (numf |> pca) + (numf |> ica)
 tr = fit_transform!(pdec,X,Y)
 head(tr)
 ```
 
-##### - Filter numeric features, transform to robust and power transform scaling, combine both
+##### - 5.2 Filter numeric features, transform to robust and power transform scaling, combine both
 ```julia
 ppt = @pipeline (numf |> rb) + (numf |> pt)
 tr = fit_transform!(ppt,X,Y)
