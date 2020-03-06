@@ -95,12 +95,12 @@ julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; 
 
 julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)
 fold: 1, 0.6560529634300126
-fold: 2, 0.5360512129380054
+fold: 2, 0.5912080304603669
 fold: 3, 0.6570616883116883
-fold: 4, 0.6143994461751471
-fold: 5, 0.5857142857142857
+fold: 4, 0.6377981651376148
+fold: 5, 0.5731945348080676
 errors: 0
-(mean = 0.6098559193138279, std = 0.05102241738728067, folds = 5)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+(mean = 0.6230630764295501, std = 0.03861015569316706, folds = 5)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
 
 julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;
 
@@ -111,4 +111,92 @@ fold: 3, 0.5532181666202285
 fold: 4, 0.6253787878787879
 fold: 5, 0.6266891891891891
 errors: 0
-(mean = 0.6146771382399036, std = 0.039243450003049594, folds = 5)</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 6 March 2020 12:01">Friday 6 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.6146771382399036, std = 0.039243450003049594, folds = 5)</code></pre><p>Let&#39;s evaluate several learners which is a typical workflow in searching for the optimal model.</p><pre><code class="language-julia">using Random
+using DataFrames
+using AutoMLPipeline
+
+Random.seed!(1)
+jrf = RandomForest()
+ada = SKLearner(&quot;AdaBoostClassifier&quot;)
+sgd = SKLearner(&quot;SGDClassifier&quot;)
+tree = PrunedTree()
+std = SKPreprocessor(&quot;StandardScaler&quot;)
+disc = CatNumDiscriminator()
+lsvc = SKLearner(&quot;LinearSVC&quot;)
+
+learners = DataFrame()
+for learner in [jrf,ada,sgd,tree,lsvc]
+  pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt; learner
+  println(learner.name)
+  mean,sd,_ = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
+end;</code></pre><pre><code class="language-none">WARNING: using DataFrames.stack in module ex-pipeline conflicts with an existing identifier.
+rf_k2d
+fold: 1, 0.7014925373134329
+fold: 2, 0.6617647058823529
+fold: 3, 0.6666666666666666
+fold: 4, 0.6470588235294118
+fold: 5, 0.7313432835820896
+fold: 6, 0.746268656716418
+fold: 7, 0.6764705882352942
+fold: 8, 0.696969696969697
+fold: 9, 0.6617647058823529
+fold: 10, 0.6567164179104478
+errors: 0
+AdaBoostClassifier_1rk
+fold: 1, 0.7014925373134329
+fold: 2, 0.6911764705882353
+fold: 3, 0.7878787878787878
+fold: 4, 0.6617647058823529
+fold: 5, 0.7164179104477612
+fold: 6, 0.7611940298507462
+fold: 7, 0.6176470588235294
+fold: 8, 0.6060606060606061
+fold: 9, 0.7058823529411765
+fold: 10, 0.7313432835820896
+errors: 0
+SGDClassifier_2xI
+fold: 1, 0.6716417910447762
+fold: 2, 0.7058823529411765
+fold: 3, 0.696969696969697
+fold: 4, 0.6911764705882353
+fold: 5, 0.7313432835820896
+fold: 6, 0.7313432835820896
+fold: 7, 0.7352941176470589
+fold: 8, 0.6363636363636364
+fold: 9, 0.6764705882352942
+fold: 10, 0.6865671641791045
+errors: 0
+prunetree_pSa
+fold: 1, 0.5223880597014925
+fold: 2, 0.5882352941176471
+fold: 3, 0.6060606060606061
+fold: 4, 0.5882352941176471
+fold: 5, 0.5970149253731343
+fold: 6, 0.5970149253731343
+fold: 7, 0.5
+fold: 8, 0.5454545454545454
+fold: 9, 0.6617647058823529
+fold: 10, 0.582089552238806
+errors: 0
+LinearSVC_39A
+fold: 1, 0.7014925373134329
+fold: 2, 0.75
+fold: 3, 0.7424242424242424
+fold: 4, 0.7205882352941176
+fold: 5, 0.6417910447761194
+fold: 6, 0.7761194029850746
+fold: 7, 0.8235294117647058
+fold: 8, 0.7272727272727273
+fold: 9, 0.7352941176470589
+fold: 10, 0.6865671641791045
+errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+learners = 5×3 DataFrames.DataFrame
+│ Row │ name                   │ mean     │ sd        │
+│     │ String                 │ Float64  │ Float64   │
+├─────┼────────────────────────┼──────────┼───────────┤
+│ 1   │ rf_k2d                 │ 0.684652 │ 0.0334061 │
+│ 2   │ AdaBoostClassifier_1rk │ 0.698086 │ 0.0576059 │
+│ 3   │ SGDClassifier_2xI      │ 0.696305 │ 0.03124   │
+│ 4   │ prunetree_pSa          │ 0.578826 │ 0.0459255 │
+│ 5   │ LinearSVC_39A          │ 0.730508 │ 0.0494756 │</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 6 March 2020 12:28">Friday 6 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
