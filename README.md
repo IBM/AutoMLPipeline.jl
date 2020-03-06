@@ -268,11 +268,11 @@ learners = 5×3 DataFrame
 │ Row │ name                   │ mean     │ sd        │
 │     │ String                 │ Float64  │ Float64   │
 ├─────┼────────────────────────┼──────────┼───────────┤
-│ 1   │ rf_FoG                 │ 0.669615 │ 0.0327914 │
-│ 2   │ AdaBoostClassifier_sla │ 0.72741  │ 0.0460307 │
-│ 3   │ SGDClassifier_Vei      │ 0.703857 │ 0.0548356 │
-│ 4   │ prunetree_Bqd          │ 0.614631 │ 0.0609231 │
-│ 5   │ LinearSVC_KRY          │ 0.738434 │ 0.0446419 │
+│ 1   │ rf_k2d                 │ 0.684652 │ 0.0334061 │
+│ 2   │ AdaBoostClassifier_1rk │ 0.698086 │ 0.0576059 │
+│ 3   │ SGDClassifier_2xI      │ 0.715688 │ 0.0452629 │
+│ 4   │ prunetree_pSa          │ 0.578826 │ 0.0459255 │
+│ 5   │ LinearSVC_39A          │ 0.730508 │ 0.0494756 │
 ```
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
