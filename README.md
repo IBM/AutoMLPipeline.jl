@@ -81,17 +81,20 @@ prompt using Julia's package management which is triggered
 by pressing `]` at the julia prompt:
 ```julia
 julia> ]
-(v1.0) pkg> add AutoMLPipeline
+(v1.3) pkg> update
+(v1.3) pkg> add AutoMLPipeline
 ```
 or
 ```julia
 julia> using Pkg
+julia> pkg"update"
 julia> pkg"add AutoMLPipeline"
 ```
 or
 
 ```julia
 julia> using Pkg
+julia> Pkg.update()
 julia> Pkg.add("AutoMLPipeline")
 ```
 
