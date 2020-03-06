@@ -20,14 +20,16 @@ these transformers is used to train the Meta-Learner
 (RandomForest, PrunedTree, or Adaboost) using the
 remaining 30% of the data. 
 
-The StackEnsemble accepts the following arguments:
+The StackEnsemble accepts the following arguments
+wrapped in a `Dictionary` type argument:
 - `:name` -> alias name of ensemble
 - `:learners` -> a vector of learners
 - `:stacker` -> the meta-learner (RandomForest, or Adaboost, or PrunedTree)
 - `:stacker_training_portion` -> percentage of data for the meta-learner
 - `:keep_original_features` -> boolean (whether the original data is included together with the transformed data by the bottom-level learners)
 
-The StackEnsemble supports the following function signatures:
+While the init function of StackEnsemble expects an argument of
+Dictionary type, it supports the following convenient function signatures:
 - `StackEnsemble(Dict(:learners=>...,:stacker=>...))`
 - `StackEnsemble([learner1,learner2,...],Dict(:stacker=>...))`
 - `StackEnsemble([learner1,learner2,...])`
@@ -86,11 +88,14 @@ output with the greatest count. It's equivalent to majority
 voting where each learner has one vote based on its prediction
 output class.
 
-The VoteEnsemble accepts the following arguments:
+The VoteEnsemble accepts the following arguments
+wrapped inside a `Dictionary` type of argument:
 - `:name` -> alias name of ensemble
 - `:learners` -> a vector of learners
 
-The VoteEnsemble supports the following function signatures:
+While the init function of VoteEnsemble expects a Dictionary
+type of argument, it also supports the following convenient
+helper functions:
 - `VoteEnsemble(Dict(:learners=>...,:name=>...))`
 - `VoteEnsemble([learner1,learner2,...],Dict(:name=>...))`
 - `VoteEnsemble([learner1,learner2,...])`
@@ -117,7 +122,8 @@ as the final model. This ensemble can be used to automatically pick the
 most optimal learner in a group of learners included in each argument
 based on certain selection criteria.
 
-The BestLearner accepts the following arguments:
+The BestLearner accepts the following arguments
+wrapped in `Dictionary` type argument:
 - `:selection_function` ->  Function
 - `:score_type`         -> Real
 - `:partition_generator` -> Function
@@ -126,7 +132,8 @@ The BestLearner accepts the following arguments:
 - `:learner_options_grid` -> for hyper-parameter search
 
 
-The VoteEnsemble supports the following function signatures:
+The VoteEnsemble supports the following function signatures
+aside from Dictionary type argument:
 - `BestLearner(Dict(:learners=>...,:name=>...))`
 - `BestLearner([learner1,learner2,...],Dict(:name=>...))`
 - `BestLearner([learner1,learner2,...])`
