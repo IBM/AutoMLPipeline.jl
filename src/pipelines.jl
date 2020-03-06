@@ -38,8 +38,8 @@ mutable struct Pipeline <: Workflow
   end
 end
 
-function Pipeline(machs::Vector{T}) where {T<:Machine}
-  Pipeline(Dict(:machines => machs))
+function Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
+  Pipeline(Dict(:machines => machs, args...))
 end
 
 function Pipeline(machs...)
@@ -121,8 +121,8 @@ mutable struct ComboPipeline <: Workflow
   end
 end
 
-function ComboPipeline(machs::Vector{T}) where {T<:Machine}
-  ComboPipeline(Dict(:machines => machs))
+function ComboPipeline(machs::Vector{<:Machine},args::Dict=Dict()) 
+  ComboPipeline(Dict(:machines => machs, args...))
 end
 
 function ComboPipeline(machs...)

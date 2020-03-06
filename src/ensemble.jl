@@ -55,7 +55,7 @@ mutable struct VoteEnsemble <: Learner
 end
 
 function VoteEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
-  VoteEnsemble(Dict(:learners => learners, :impl_args => args))
+  VoteEnsemble(Dict(:learners => learners, args...))
 end
 
 function VoteEnsemble(learners...)
@@ -143,7 +143,7 @@ mutable struct StackEnsemble <: Learner
 end
 
 function StackEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
-  StackEnsemble(Dict(:learners => learners, :impl_args => args))
+  StackEnsemble(Dict(:learners => learners, args...))
 end
 
 function StackEnsemble(learners...)
@@ -317,7 +317,7 @@ mutable struct BestLearner <: Learner
 end
 
 function BestLearner(learners::Vector{<:Learner},args::Dict=Dict())
-  BestLearner(Dict(:learners => learners, :impl_args => args))
+  BestLearner(Dict(:learners => learners, args...))
 end
 
 function BestLearner(learners...)
