@@ -13,3 +13,23 @@ The expression, `a |> b`, is equivalent to `Pipeline(a,b)` function call while
 the expression, `a + b`, is equivalent to `ComboPipeline(a,b)`. The
 elements `a` and `b` can be transformers, filters, learners or 
 pipeline themselves.
+
+### Pipeline Structure
+The linear pipeline accepts the following arguments wrapped in a 
+`Dictionary` type argument:
+- `:name` -> alias name for the pipeline
+- `:machines` -> a Vector learners/transformers/pipelines
+- `:machine_args` -> arguments to elements of the pipeline
+
+For ease of usage, the following function calls are supported:
+- `Pipeline(Vector{<:Machine},args::Dict())` # using vectors of learners/transformers
+- `Pipeline(machs...)` # using ntuples of learners/transformers
+
+### ComboPipeline Structure
+ComboPipeline or feature union pipeline accepts similar arguments
+with the linear pipeline and follows similar convenient helper
+functions:
+- `ComboPipeline(Vector{<:Machine},args::Dict())` # using vectors of learners/transformers
+- `ComboPipeline(machs...)` # using ntuples of learners/transformers
+
+Note: Please refer to the `Pipeline Tutorial` for illustrations of their usage.
