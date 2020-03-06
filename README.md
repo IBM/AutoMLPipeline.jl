@@ -262,7 +262,7 @@ learners = 5×3 DataFrame
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
-### 11. Tree Visualization of the Pipeline Structure
+#### 11. Tree Visualization of the Pipeline Structure
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
 # package installation 
