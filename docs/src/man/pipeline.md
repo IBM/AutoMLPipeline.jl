@@ -22,14 +22,16 @@ The linear pipeline accepts the following arguments wrapped in a
 - `:machine_args` -> arguments to elements of the pipeline
 
 For ease of usage, the following function calls are supported:
-- `Pipeline(Vector{<:Machine},args::Dict())` # using vectors of learners/transformers
+- `Pipeline(args::Dict)` # init function
+- `Pipeline(Vector{<:Machine},args::Dict=Dict())` # using vectors of learners/transformers
 - `Pipeline(machs...)` # using ntuples of learners/transformers
 
 ### ComboPipeline Structure
 ComboPipeline or feature union pipeline accepts similar arguments
 with the linear pipeline and follows similar convenient helper
 functions:
-- `ComboPipeline(Vector{<:Machine},args::Dict())` # using vectors of learners/transformers
+- `ComboPipeline(args::Dict)` # init function
+- `ComboPipeline(Vector{<:Machine},args::Dict=Dict())` # using vectors of learners/transformers
 - `ComboPipeline(machs...)` # using ntuples of learners/transformers
 
 Note: Please refer to the `Pipeline Tutorial` for illustrations of their usage.
