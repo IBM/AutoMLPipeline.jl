@@ -31,7 +31,7 @@ sign of diabetes or not based on certain features:
 - Body mass index (weight in kg/(height in m)^2)
 - Diabetes pedigree function
 - Age (years)
-- Class variable (0 or 1) indicating diabetec or not
+- Class variable (0 or 1) indicating diabetic or not
 
 What is interesting with this dataset is that one or more numeric columns
 can be categorical and should be hot-bit encoded. One way to verify is 
@@ -44,14 +44,14 @@ columns with relatively smaller count:
 Among the input columns, `preg` has only 17 unique instances and it can
 be treated as a categorical variable. However, its description indicates
 that the feature refers to the number of times the patient is pregnant
-and can be considered numerical. With this dillema, we need to figure
+and can be considered numerical. With this dilemma, we need to figure
 out which representation provides better performance to our classifier.
 In order to test the two options, we can use the Feature Discriminator
 module to filter and transform the `preg` column to either numeric
 or categorical and choose the pipeline with the optimal performance.
 
 ### CatNumDiscriminator for Detecting Categorical Numeric Features
-*Transform numeric columns with small unique instances to catergories.*
+*Transform numeric columns with small unique instances to categories.*
 
 Let us use `CatNumDiscriminator` which expects one argument to indicate
 the maximum number of unique instances in order to consider a particular
@@ -164,10 +164,10 @@ crossvalidate(pl,X,Y,"accuracy_score",30)
 ```
 From this evaluation, `preg` column should be treated as numerical
 because the corresponding pipeline got better performance. One
-thing to note is the presence of errors in the crossvalidation
+thing to note is the presence of errors in the cross-validation
 performance for the pipeline that treats `preg` as categorical
 data. The subset of training data during the
 kfold validation may contain singularities and evaluation causes
-some errors due to hotbit encoding that increases data sparsity.
+some errors due to hot-bit encoding that increases data sparsity.
 The error, however, may be a bug which needs to be addressed in 
 the future.

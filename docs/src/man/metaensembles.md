@@ -4,7 +4,7 @@ AMPL supports three meta-ensemble methods, namely:
 StackEnsemble, VoteEnsemble, and BestLearner. They
 are considered as meta-ensembles because they can contain
 other learners including other ensembles as well as
-meta-ensembles. They support complex level of heirarchy
+meta-ensembles. They support complex level of hierarchy
 depending on the requirements. The most effective way to
 show their flexibility is to provide some real examples.
 
@@ -33,7 +33,7 @@ The StackEnsemble supports the following function signatures:
 - `StackEnsemble([learner1,learner2,...],Dict(:stacker=>...))`
 - `StackEnsemble([learner1,learner2,...])`
 
-To illusteate, let's create some bottom-level learners from Scikitlearn and Julia:
+To illustrate, let's create some bottom-level learners from Scikitlearn and Julia:
 ```@example ensemble
 using AutoMLPipeline
 
@@ -49,6 +49,9 @@ Let's load some dataset and create a pipeline with the `stackens`
 as the learner at the end of the pipeline.
 ```@example ensemble
 using CSV
+using Random
+Random.seed!(123);
+
 profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector;
@@ -66,8 +69,6 @@ pplstacks = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) +
 nothing #hide
 ```
 ```@repl ensemble
-using Random
-Random.seed!(123);
 crossvalidate(pplstacks,X,Y)
 ```
 It is worth noting that stack ensemble is dealing with mixture of libraries consisting of Julia's
@@ -77,7 +78,7 @@ Random Forest and Scikitlearn learners.
 
 Vote ensemble uses similar idea with the Stack Ensemble 
 but instead of stacking, it uses voting to get the final
-prediciton. The first stage involves the collection of 
+prediction. The first stage involves the collection of 
 bottom-level learners being trained to learn
 the mapping between input and output. Once they are trained
 in a classification problem, they are treated as transformers 
@@ -123,7 +124,7 @@ The BestLearner accepts the following arguments:
 - `:partition_generator` -> Function
 - `:learners`            -> Vector of learners
 - `:name`                -> alias name of learner
-- `:learner_options_grid` -> for hyperparameter search
+- `:learner_options_grid` -> for hyper-parameter search
 
 
 The VoteEnsemble supports the following function signatures:

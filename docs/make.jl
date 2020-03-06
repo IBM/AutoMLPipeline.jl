@@ -17,9 +17,9 @@ makedocs(
     ],
     "Manual" => Any[
       "Pipeline" => "man/pipeline.md",
-      "Ensembles" => "man/ensemble.md",
+      "Preprocessors" => "man/preprocessors.md",
       "Learners" => "man/learners.md",
-      "Preprocessing" => "man/preprocessing.md"
+      "Meta-Ensembles" => "man/metaensembles.md"
     ],
     "Library" => Any[
       "Types and Functions" => "lib/typesfunctions.md"
