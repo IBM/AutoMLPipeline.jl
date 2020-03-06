@@ -132,6 +132,13 @@ julia> Pkg.add("AutoMLPipeline")
 Below outlines some typical way to preprocess and model any dataset.
 
 #### 1. Load Data
+##### 1.1 Install CSV and DataFrames package
+```julia
+using Pkg
+Pkg.add("CSV")
+Pkg.add("DataFrames")
+```
+##### 1.2 Load Data, Extract Input (X) and Target (Y) 
 ```julia
 # Make sure that the input feature is a dataframe and the target output is a 1-D vector.
 using AutoMLPipeline
