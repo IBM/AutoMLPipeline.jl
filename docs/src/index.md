@@ -159,6 +159,13 @@ using AutoMLPipeline.BaseFilters
 using AutoMLPipeline.SKPreprocessors 
 using AutoMLPipeline.Utils`
 ```
+CSV and DataFrames will be needed in the succeeding examples
+and should be installed:
+```julia
+using Pkg
+Pkg.add("CSV")
+Pkg.add("DataFrames")
+```
 
 ## Tutorial Outline
 ```@contents
