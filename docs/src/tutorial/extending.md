@@ -1,4 +1,7 @@
 # Extending AutoMLPipeline 
+```@setup csvreader
+ENV["COLUMNS"]=1000
+```
 
 Having a meta-ML package sounds ideal  but not practical 
 in terms of maintainability and flexibility. 
@@ -114,7 +117,7 @@ nothing #hide
 first(df1,5)
 ```
 ```@example csvreader
-p2 = @pipeline csvrdr |> (catf |> ohe) + (numf |> pca)
+p2 = @pipeline csvrdr |> (numf |> pca) + (catf |> ohe)  
 df2 = fit_transform!(p2) # empty argument because input coming from csvreader
 nothing #hide
 ```
