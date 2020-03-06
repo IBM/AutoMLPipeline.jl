@@ -169,6 +169,34 @@ pop_rf = @pipeline ( (numf |> rb) + (catf |> ohe) + (numf |> pt)) |> jrf;
 tr_rf = crossvalidate(pop_rf,X,Y,"balanced_accuracy_score",5)
 ```
 
+Let's evaluate several learners which is a typical workflow
+in searching for the optimal model.
+```@example pipeline
+using Random
+using DataFrames
+using AutoMLPipeline
+
+Random.seed!(1)
+jrf = RandomForest()
+ada = SKLearner("AdaBoostClassifier")
+sgd = SKLearner("SGDClassifier")
+tree = PrunedTree()
+std = SKPreprocessor("StandardScaler")
+disc = CatNumDiscriminator()
+lsvc = SKLearner("LinearSVC")
+
+learners = DataFrame()
+for learner in [jrf,ada,sgd,tree,lsvc]
+  pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
+  println(learner.name)
+  mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",10)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
+end;
+nothing #hide
+```
+```@repl pipeline
+@show learners;
+```
 
 !!! note
 
