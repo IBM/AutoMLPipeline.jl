@@ -403,7 +403,7 @@ Usage questions can be posted in:
 [gitter-img]: https://badges.gitter.im/ppalmes/TSML.jl.svg
 
 [slack-img]: https://img.shields.io/badge/chat-on%20slack-yellow.svg
-[slack-url]: https://julialang.slack.com/automlpipeline
+[slack-url]: https://julialang.slack.com/#automlpipeline
 
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
