@@ -279,7 +279,7 @@ Remark: It is worth noting that Linear SVC seems to have superior performance th
 
 #### 11. Learners as Transformers
 It is also possible to use learners in the middle of expression to serve
-as filters and their outputs become input to the final learner as illustrated
+as transformers and their outputs become inputs to the final learner as illustrated
 below.
 ```julia
 expr = @pipeline ( 
