@@ -14,7 +14,7 @@ As there are loads of preprocessing techniques available, the user is encouraged
 to create their own wrappers of their favorite implementations 
 to allow them interoperability with the existing AMLP implementations.
 
-#### SKPreprocessor Structure
+### SKPreprocessor Structure
 
 ```
     SKPreprocessor(args=Dict(

@@ -173,7 +173,7 @@ Pages = [
   "tutorial/pipeline.md",
   "tutorial/preprocessing.md",
   "tutorial/learning.md",
-  "tutorial/crossvalidation.md"
+  "tutorial/extending.md"
 ]
 Depth = 3
 ```
@@ -182,9 +182,9 @@ Depth = 3
 ```@contents
 Pages = [
   "man/pipeline.md",
-  "man/ensemble.md",
+  "man/preprocessors.md",
   "man/learners.md",
-  "man/preprocessing.md"
+  "man/metaensembles.md"
 ]
 Depth = 3
 ```
