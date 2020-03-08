@@ -1,5 +1,3 @@
-# [Types and Functions](@id lib_decisiontree)
-
 ## Index
 ```@index
 Order   = [:module,:type,:function]
