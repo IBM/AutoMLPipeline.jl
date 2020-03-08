@@ -357,8 +357,10 @@ export fit!, transform!, MyFilter
 
 # define your filter structure
 mutable struct MyFilter <: Transformer
-  variables here....
-  function MyFilter()
+  name::String
+  model::Dict
+  args::Dict
+  function MyFilter(args::Dict())
       ....
   end
 end
