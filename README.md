@@ -182,14 +182,14 @@ tr = fit_transform!(pdec,X,Y)
 head(tr)
 ```
 
-##### - 5.2 Filter numeric features, transform to robust and power transform scaling, combine both
+##### - 5.2 Filter numeric features, transform to robust and power transform scaling, perform ica and pca, respectively, and combine both
 ```julia
-ppt = @pipeline (numf |> rb) + (numf |> pt)
+ppt = @pipeline (numf |> rb |> ica) + (numf |> pt |> pca)
 tr = fit_transform!(ppt,X,Y)
 head(tr)
 ```
 
-#### 6. A pipeline for classification using the Voting Ensemble learner
+#### 6. A Pipeline for the Voting Ensemble Learner
 ```julia
 # take all categorical columns and hot-bit encode each, 
 # concatenate them to the numerical features,
@@ -216,17 +216,17 @@ julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
-#### 8. A pipeline for Random Forest modeling
+#### 8. A Pipeline for the Random Forest (RF)
 ```julia
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorical features
 # and feed all to the random forest classifier
-prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> rf
+prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (numf |> rb |> fa) + (catf |> ohe) |> rf
 pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score")
 ```
-#### 9. A pipeline for the Linear Support Vector for Classification
+#### 9. A Pipeline for the Linear Support Vector for Classification (LSVC)
 ```julia
 plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
