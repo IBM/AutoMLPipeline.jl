@@ -12,7 +12,7 @@ export fit!, transform!
 export Pipeline, ComboPipeline, @pipeline, @pipelinex
 
 """
-    Pipeline(machs::Vector{T}) where {T<:Machine}
+    Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
 
 Linearpipeline which iteratively calls and passes the result
 of `fit_transform` to the succeeding elements in the pipeline. . 
@@ -42,7 +42,7 @@ function Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
   Pipeline(Dict(:machines => machs, args...))
 end
 
-function Pipeline(machs...)
+function Pipeline(machs::Vararg{Machine})
   combo=nothing
   if eltype(machs) <: Machine
     v=[x for x in machs] # convert tuples to vector
@@ -125,7 +125,7 @@ function ComboPipeline(machs::Vector{<:Machine},args::Dict=Dict())
   ComboPipeline(Dict(:machines => machs, args...))
 end
 
-function ComboPipeline(machs...)
+function ComboPipeline(machs::Vararg{Machine})
   combo=nothing
   if eltype(machs) <: Machine
     v=[eval(x) for x in machs] # convert tuples to vector
