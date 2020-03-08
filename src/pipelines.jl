@@ -14,8 +14,8 @@ export Pipeline, ComboPipeline, @pipeline, @pipelinex
 """
     Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
 
-Linearpipeline which iteratively calls and passes the result
-of `fit_transform` to the succeeding elements in the pipeline. . 
+Linear pipeline which iteratively calls and passes the result
+of `fit_transform` to the succeeding elements in the pipeline.
 
 Implements `fit!` and `transform!`.
 """
@@ -38,10 +38,21 @@ mutable struct Pipeline <: Workflow
   end
 end
 
+"""
+    Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
+
+Helper function for Pipeline structure.
+"""
 function Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
   Pipeline(Dict(:machines => machs, args...))
 end
 
+
+"""
+    Pipeline(machs::Vararg{Machine})
+
+Helper function for Pipeline structure.
+"""
 function Pipeline(machs::Vararg{Machine})
   combo=nothing
   if eltype(machs) <: Machine

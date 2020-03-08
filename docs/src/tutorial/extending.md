@@ -30,6 +30,35 @@ learners and transformers expect one input argument that both
 use to apply their learned parameters in transforming the input
 into either prediction, decomposition, normalization, scaling, etc.
 
+#### AMLP Abstract Types
+The AMLP abstract types are composed of the following:
+```
+abstract type Machine end
+abstract type Workflow    <:  Machine  end 
+abstract type Computer    <:  Machine  end 
+abstract type Learner     <:  Computer end
+abstract type Transformer <:  Computer end
+```
+At the top of the hierarchy is the `Machine` abstraction that supports
+two major interfaces: `fit!` and `transform!`.
+The abstract `Machine` has two major types: `Computer` and `Workflow`. 
+The `Computer` types perform computations suchs as filters, transformers, and filters while
+the `Workflow` controls the flow of information. A `Workflow` can be a
+sequential flow of information or a combination of information from two
+or more workflow. A `Workflow` that provides sequential flow is called
+`Pipeline` (or linear pipeline) while the one that combines information
+from different workflows is called `ComboPipeline`.
+
+The `Computer` type has two subtypes: `Learner` and `Transformer`. Their main
+difference is in the behavior of their `fit!` function. The `Learner`
+type learns its parameters by finding a mapping function between its 
+`input` and `output` arguments while the
+`Transformer` does not require these mapping function to perform its operation. 
+The `Transfomer` learns all its parameters by just processing its `input` features.
+Both `Transfomer` and `Learner` has similar behaviour in the `transform!` function. Both
+apply their learned parameters to transform their `input` into `output`.
+
+#### Extending AMLP by Adding a CSVReader Transformer
 Let's extend AMLP by adding CSV reading support embedded in the pipeline.
 Instead of passing the data in the pipeline argument, we create
 a csv transformer that passes the data to succeeding elements in the pipeline
