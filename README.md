@@ -102,7 +102,7 @@ julia> Pkg.add("AutoMLPipeline")
 Below outlines some typical way to preprocess and model any dataset.
 
 #### 1. Load Data
-##### 1.1 Install CSV and DataFrames packages
+##### 1.1 Install CSV and DataFrames Packages
 ```julia
 using Pkg
 Pkg.update()
@@ -121,7 +121,7 @@ head(x)=first(x,5)
 head(profbdata)
 ```
 
-#### 2. Load AutoMLPipeline package and submodules
+#### 2. Load AutoMLPipeline Package and Submodules
 ```julia
 using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
 using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
@@ -129,7 +129,7 @@ using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline
 using AutoMLPipeline.SKLearners
 ```
 
-#### 3. Load some of filters, transformers, learners 
+#### 3. Load Filters, Transformers, and Learners 
 ```julia
 #### Decomposition
 pca = SKPreprocessor("PCA"); fa = SKPreprocessor("FactorAnalysis"); ica = SKPreprocessor("FastICA")
@@ -182,14 +182,14 @@ tr = fit_transform!(pdec,X,Y)
 head(tr)
 ```
 
-##### - 5.2 Filter numeric features, transform to robust and power transform scaling, combine both
+##### - 5.2 Filter numeric features, transform to robust and power transform scaling, perform ica and pca, respectively, and combine both
 ```julia
-ppt = @pipeline (numf |> rb) + (numf |> pt)
+ppt = @pipeline (numf |> rb |> ica) + (numf |> pt |> pca)
 tr = fit_transform!(ppt,X,Y)
 head(tr)
 ```
 
-#### 6. An example of pipeline expression for classification using the Voting Ensemble learner
+#### 6. A Pipeline for the Voting Ensemble Learner
 ```julia
 # take all categorical columns and hot-bit encode each, 
 # concatenate them to the numerical features,
@@ -216,17 +216,17 @@ julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
-#### 8. Another example of a pipeline expression with more expressions for Random Forest modeling
+#### 8. A Pipeline for the Random Forest (RF)
 ```julia
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorical features
 # and feed all to the random forest classifier
-prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (catf |> ohe) + (numf |> rb |> fa) |> rf
+prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (numf |> rb |> fa) + (catf |> ohe) |> rf
 pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score")
 ```
-#### 9. An example of a pipeline for the Linear Support Vector for Classification
+#### 9. A Pipeline for the Linear Support Vector for Classification (LSVC)
 ```julia
 plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
@@ -277,14 +277,36 @@ learners = 5×3 DataFrame
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
-#### 11. Tree Visualization of the Pipeline Structure
+#### 11. Learners as Transformers
+It is also possible to use learners in the middle of expression to serve
+as transformers and their outputs become inputs to the final learner as illustrated
+below.
+```julia
+expr = @pipeline ( 
+                   ((numf |> pca) |> gb) + ((numf |> pca) |> rf) 
+                 ) |> (catf |> ohe) |> ada;
+                 
+crossvalidate(expr,X,Y,"accuracy_score")
+fold: 1, 0.6592592592592592
+fold: 2, 0.6343283582089553
+fold: 3, 0.6492537313432836
+fold: 4, 0.6567164179104478
+fold: 5, 0.5925925925925926
+errors: 0
+(mean = 0.6384300718629077, std = 0.0274011663285773, folds = 5)
+```
+It is important to take note that the expression `(catf |> ohe)` is necessary
+because the outputs of the two learners (`gb` and `rf`) are categorical 
+values that need to be hot-bit encoded before feeding to the final 
+`ada` learner.
+
+#### 12. Tree Visualization of the Pipeline Structure
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
 # package installation 
 julia> using Pkg
 julia> Pkg.update()
 julia> Pkg.add("AbstractTrees") 
-julia> Pkg.add("AutoMLPipeline")
 
 # load the packages
 julia> using AbstractTrees
@@ -312,28 +334,6 @@ julia> print_tree(stdout, expr)
 │     └─ :ica
 └─ :rf
 ```
-#### 12. Learners as Filters
-It is also possible to use learners in the middle of expression to serve
-as filters and their outputs become input to the final learner as illustrated
-below.
-```julia
-expr = @pipeline ( 
-                   ((numf |> pca) |> gb) + ((numf |> pca) |> rf) 
-                 ) |> (catf |> ohe) |> ada;
-                 
-crossvalidate(expr,X,Y,"accuracy_score")
-fold: 1, 0.6592592592592592
-fold: 2, 0.6343283582089553
-fold: 3, 0.6492537313432836
-fold: 4, 0.6567164179104478
-fold: 5, 0.5925925925925926
-errors: 0
-(mean = 0.6384300718629077, std = 0.0274011663285773, folds = 5)
-```
-It is important to take note that the expression `(catf |> ohe)` is necessary
-because the outputs of the two learners (`gb` and `rf`) are categorical 
-values that need to be hot-bit encoded before feeding to the final 
-`ada` learner.
 
 ### Extending AutoMLPipeline
 ```
@@ -357,8 +357,10 @@ export fit!, transform!, MyFilter
 
 # define your filter structure
 mutable struct MyFilter <: Transformer
-  variables here....
-  function MyFilter()
+  name::String
+  model::Dict
+  args::Dict
+  function MyFilter(args::Dict())
       ....
   end
 end
@@ -403,7 +405,7 @@ Usage questions can be posted in:
 [gitter-img]: https://badges.gitter.im/ppalmes/TSML.jl.svg
 
 [slack-img]: https://img.shields.io/badge/chat-on%20slack-yellow.svg
-[slack-url]: https://julialang.slack.com
+[slack-url]: https://julialang.slack.com/
 
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
