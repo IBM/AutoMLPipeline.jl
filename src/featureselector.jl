@@ -42,11 +42,11 @@ mutable struct FeatureSelector <: Transformer
     end
 end
 
-```
+"""
     FeatureSelector(cols::Vector{Int})
 
 Helper function for FeatureSelector.
-```
+"""
 function FeatureSelector(cols::Vector{Int})
     FeatureSelector(Dict(:columns => cols))
 end
@@ -195,11 +195,11 @@ mutable struct CatNumDiscriminator <: Transformer
     end
 end
 
-```
+"""
     CatNumDiscriminator(maxcat::Int)
 
 Helper function for CatNumDiscriminator.
-```
+"""
 function CatNumDiscriminator(maxcat::Int)
     CatNumDiscriminator(Dict(:maxcategories=>maxcat))
 end
