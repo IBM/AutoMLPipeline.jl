@@ -102,7 +102,7 @@ julia> Pkg.add("AutoMLPipeline")
 Below outlines some typical way to preprocess and model any dataset.
 
 #### 1. Load Data
-##### 1.1 Install CSV and DataFrames packages
+##### 1.1 Install CSV and DataFrames Packages
 ```julia
 using Pkg
 Pkg.update()
@@ -121,7 +121,7 @@ head(x)=first(x,5)
 head(profbdata)
 ```
 
-#### 2. Load AutoMLPipeline package and submodules
+#### 2. Load AutoMLPipeline Package and Submodules
 ```julia
 using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
 using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
@@ -129,7 +129,7 @@ using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline
 using AutoMLPipeline.SKLearners
 ```
 
-#### 3. Load some of filters, transformers, learners 
+#### 3. Load Filters, Transformers, and Learners 
 ```julia
 #### Decomposition
 pca = SKPreprocessor("PCA"); fa = SKPreprocessor("FactorAnalysis"); ica = SKPreprocessor("FastICA")
@@ -277,7 +277,7 @@ learners = 5×3 DataFrame
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
-#### 11. Learners as Filters
+#### 11. Learners as Transformers
 It is also possible to use learners in the middle of expression to serve
 as filters and their outputs become input to the final learner as illustrated
 below.
