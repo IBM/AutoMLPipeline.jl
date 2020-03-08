@@ -189,7 +189,7 @@ tr = fit_transform!(ppt,X,Y)
 head(tr)
 ```
 
-#### 6. An example of pipeline expression for classification using the Voting Ensemble learner
+#### 6. A pipeline for classification using the Voting Ensemble learner
 ```julia
 # take all categorical columns and hot-bit encode each, 
 # concatenate them to the numerical features,
@@ -216,7 +216,7 @@ julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
-#### 8. Another example of a pipeline expression with more expressions for Random Forest modeling
+#### 8. A pipeline for Random Forest modeling
 ```julia
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorical features
@@ -226,7 +226,7 @@ pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score")
 ```
-#### 9. An example of a pipeline for the Linear Support Vector for Classification
+#### 9. A pipeline for the Linear Support Vector for Classification
 ```julia
 plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
@@ -277,14 +277,36 @@ learners = 5×3 DataFrame
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
-#### 11. Tree Visualization of the Pipeline Structure
+#### 11. Learners as Filters
+It is also possible to use learners in the middle of expression to serve
+as filters and their outputs become input to the final learner as illustrated
+below.
+```julia
+expr = @pipeline ( 
+                   ((numf |> pca) |> gb) + ((numf |> pca) |> rf) 
+                 ) |> (catf |> ohe) |> ada;
+                 
+crossvalidate(expr,X,Y,"accuracy_score")
+fold: 1, 0.6592592592592592
+fold: 2, 0.6343283582089553
+fold: 3, 0.6492537313432836
+fold: 4, 0.6567164179104478
+fold: 5, 0.5925925925925926
+errors: 0
+(mean = 0.6384300718629077, std = 0.0274011663285773, folds = 5)
+```
+It is important to take note that the expression `(catf |> ohe)` is necessary
+because the outputs of the two learners (`gb` and `rf`) are categorical 
+values that need to be hot-bit encoded before feeding to the final 
+`ada` learner.
+
+#### 12. Tree Visualization of the Pipeline Structure
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
 # package installation 
 julia> using Pkg
 julia> Pkg.update()
 julia> Pkg.add("AbstractTrees") 
-julia> Pkg.add("AutoMLPipeline")
 
 # load the packages
 julia> using AbstractTrees
@@ -312,28 +334,6 @@ julia> print_tree(stdout, expr)
 │     └─ :ica
 └─ :rf
 ```
-#### 12. Learners as Filters
-It is also possible to use learners in the middle of expression to serve
-as filters and their outputs become input to the final learner as illustrated
-below.
-```julia
-expr = @pipeline ( 
-                   ((numf |> pca) |> gb) + ((numf |> pca) |> rf) 
-                 ) |> (catf |> ohe) |> ada;
-                 
-crossvalidate(expr,X,Y,"accuracy_score")
-fold: 1, 0.6592592592592592
-fold: 2, 0.6343283582089553
-fold: 3, 0.6492537313432836
-fold: 4, 0.6567164179104478
-fold: 5, 0.5925925925925926
-errors: 0
-(mean = 0.6384300718629077, std = 0.0274011663285773, folds = 5)
-```
-It is important to take note that the expression `(catf |> ohe)` is necessary
-because the outputs of the two learners (`gb` and `rf`) are categorical 
-values that need to be hot-bit encoded before feeding to the final 
-`ada` learner.
 
 ### Extending AutoMLPipeline
 ```
