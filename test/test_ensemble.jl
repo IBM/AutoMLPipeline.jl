@@ -5,6 +5,7 @@ using Random
 using AutoMLPipeline.AbsTypes
 using AutoMLPipeline.Utils
 using AutoMLPipeline.EnsembleMethods
+using AutoMLPipeline.DecisionTreeLearners
 using DataFrames
 
 function generateXY()
@@ -32,5 +33,26 @@ end
   Random.seed!(123)
   test_ensembles()
 end
+
+function test_vararg()
+  rf = RandomForest()
+  ada = Adaboost()
+  pt = PrunedTree()
   
+  X,Y = generateXY()
+  vote = VoteEnsemble(rf,ada,pt)
+  stack = StackEnsemble(rf,ada,pt)
+  best = BestLearner(rf,ada,pt)
+  v=fit_transform!(vote,X,Y) 
+  s=fit_transform!(stack,X,Y) 
+  p=fit_transform!(best,X,Y) 
+  @test score(:accuracy,v,Y) > 90.0
+  @test score(:accuracy,s,Y) > 90.0
+  @test score(:accuracy,p,Y) > 90.0
 end # module
+@testset "Vararg Ensemble Test" begin
+  Random.seed!(123)
+  test_vararg()
+end
+
+end

@@ -58,7 +58,7 @@ function VoteEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
   VoteEnsemble(Dict(:learners => learners, args...))
 end
 
-function VoteEnsemble(learners...)
+function VoteEnsemble(learners::Vararg{<:Learner})
   vlearner=nothing
   if eltype(learners) <: Learner
     v=[x for x in learners] # convert tuples to vector
@@ -85,7 +85,7 @@ function fit!(ve::VoteEnsemble, instances::DataFrame, labels::Vector)
 end
 
 """
-    transform!(ve::VoteEnsemble, instances::T) where {T<:Union{Vector,Matrix,DataFrame}}
+    transform!(ve::VoteEnsemble, instances::DataFrame)
 
 Prediction phase of the ensemble.
 """
@@ -146,7 +146,7 @@ function StackEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
   StackEnsemble(Dict(:learners => learners, args...))
 end
 
-function StackEnsemble(learners...)
+function StackEnsemble(learners::Vararg{<:Learner})
   vlearner=nothing
   if eltype(learners) <: Learner
     v=[x for x in learners] # convert tuples to vector
@@ -320,7 +320,7 @@ function BestLearner(learners::Vector{<:Learner},args::Dict=Dict())
   BestLearner(Dict(:learners => learners, args...))
 end
 
-function BestLearner(learners...)
+function BestLearner(learners::Vararg{Learner})
   vlearner=nothing
   if eltype(learners) <: Learner
     v=[x for x in learners] # convert tuples to vector
