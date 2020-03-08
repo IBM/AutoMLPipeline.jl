@@ -1,4 +1,4 @@
-# Pipeline
+# [Pipeline](@id PipelineUsage)
 *A tutorial for using the `@pipeline` expression*
 
 ### Dataset

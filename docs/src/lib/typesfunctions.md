@@ -2,36 +2,34 @@
 
 ## Index
 ```@index
+Order   = [:module,:type,:function]
 Modules = [
-   AutoMLPipeline,
-   AutoMLPipeline.AbsTypes,
-   AutoMLPipeline.Pipelines,
    AutoMLPipeline.BaseFilters,
-   AutoMLPipeline.FeatureSelectors,
-   AutoMLPipeline.EnsembleMethods,
-   AutoMLPipeline.SKPreprocessors,
-   AutoMLPipeline.SKLearners,
-   AutoMLPipeline.DecisionTreeLearners,
-   AutoMLPipeline.SKCrossValidators,
    AutoMLPipeline.CrossValidators,
+   AutoMLPipeline.DecisionTreeLearners,
+   AutoMLPipeline.EnsembleMethods,
+   AutoMLPipeline.FeatureSelectors,
+   AutoMLPipeline.Pipelines,
+   AutoMLPipeline.SKLearners,
+   AutoMLPipeline.SKPreprocessors,
+   AutoMLPipeline.SKCrossValidators,
    AutoMLPipeline.Utils
 ]
 ```
 
 ## Descriptions
 ```@autodocs
+Order   = [:type,:function]
 Modules = [
-   AutoMLPipeline,
-   AutoMLPipeline.AbsTypes,
-   AutoMLPipeline.Pipelines,
    AutoMLPipeline.BaseFilters,
-   AutoMLPipeline.FeatureSelectors,
-   AutoMLPipeline.EnsembleMethods,
-   AutoMLPipeline.SKPreprocessors,
-   AutoMLPipeline.SKLearners,
-   AutoMLPipeline.DecisionTreeLearners,
-   AutoMLPipeline.SKCrossValidators,
    AutoMLPipeline.CrossValidators,
+   AutoMLPipeline.DecisionTreeLearners,
+   AutoMLPipeline.EnsembleMethods,
+   AutoMLPipeline.FeatureSelectors,
+   AutoMLPipeline.Pipelines,
+   AutoMLPipeline.SKLearners,
+   AutoMLPipeline.SKPreprocessors,
+   AutoMLPipeline.SKCrossValidators,
    AutoMLPipeline.Utils
 ]
 ```

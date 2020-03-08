@@ -33,7 +33,7 @@ end
 
 # dynamic dispatch based Machine subtypes
 """
-    fit_transform!(mc::Machine, input::DataFrame, output::Vector=Vector())
+    fit_transform!(mc::Machine, input::DataFrame, output::Vector)
 
 Dynamic dispatch that calls in sequence `fit!` and `transform!` functions.
 """

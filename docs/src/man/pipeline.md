@@ -34,4 +34,4 @@ functions:
 - `ComboPipeline(Vector{<:Machine},args::Dict=Dict())` # using vectors of learners/transformers
 - `ComboPipeline(machs...)` # using ntuples of learners/transformers
 
-Note: Please refer to the `Pipeline Tutorial` for illustrations of their usage.
+Note: Please refer to the [Pipeline Tutorial](@ref PipelineUsage) for illustrations of their usage.
