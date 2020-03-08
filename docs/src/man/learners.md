@@ -15,7 +15,7 @@ for its initial release are based on Scikitlearn libraries.
     and learner's behaviour, please consult the Scikitlearn 
     documentation.
 
-#### SKLearner Structure
+### SKLearner Structure
 ```
     SKLearner(Dict(
        :name => "sklearner",
