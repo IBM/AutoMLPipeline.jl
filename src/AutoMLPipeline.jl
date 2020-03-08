@@ -14,11 +14,6 @@ include("basefilters.jl")
 using .BaseFilters
 export OneHotEncoder
 
-include("pipelines.jl")
-using .Pipelines
-export @pipeline
-export @pipelinex
-export Pipeline, ComboPipeline 
 
 include("featureselector.jl")
 using .FeatureSelectors
@@ -47,5 +42,11 @@ export crossvalidate
 include("skcrossvalidator.jl")
 using .SKCrossValidators
 export crossvalidate
+
+include("pipelines.jl")
+using .Pipelines
+export @pipeline
+export @pipelinex
+export Pipeline, ComboPipeline 
 
 end # module

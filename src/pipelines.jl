@@ -6,6 +6,7 @@ using Random
 using AutoMLPipeline.AbsTypes
 using AutoMLPipeline.BaseFilters
 using AutoMLPipeline.Utils
+using AutoMLPipeline.EnsembleMethods: BestLearner
 
 import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
@@ -189,6 +190,8 @@ function processexpr(args)
       args[ndx] = :Pipeline
     elseif args[ndx] == :+
       args[ndx] = :ComboPipeline
+    elseif args[ndx] == :|
+      args[ndx] = :VoteEnsemble
     end
   end
   return args
