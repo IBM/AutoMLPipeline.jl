@@ -195,6 +195,3 @@ Pages = [
   "lib/typesfunctions.md"
 ]
 ```
-
-```@index
-```

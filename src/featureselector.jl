@@ -18,7 +18,7 @@ export feature_test
     FeatureSelector(
        Dict(
          :name => "featureselector",
-	 :columns => [col1, col2, ...]
+         :columns => [col1, col2, ...]
        )
     )
 
