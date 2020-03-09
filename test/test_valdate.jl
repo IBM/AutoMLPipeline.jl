@@ -47,8 +47,8 @@ end
 
 function test_datevalgator()
     dtvl = DateValgator(Dict(:dateinterval=>Dates.Hour(1)))
-    fit!(dtvl,XX,YY)
-    res = transform!(dtvl,XX)
+    #fit!(dtvl,XX,YY)
+    res = fit_transform!(dtvl,XX)
     @test sum(ismissing.(res.Value)) == 4466
     @test round(sum(skipmissing(res.Value)),digits=2) == 6556.17
     @test sum(X1.Value .!== XX.Value) == 0
@@ -57,24 +57,21 @@ function test_datevalgator()
     dtvlmean = DateValgator(Dict(
 	  :dateinterval=>Dates.Hour(1),
 	  :aggregator => :mean))
-    fit!(dtvlmean,XX,YY)
-    res = transform!(dtvlmean,XX)
+    res = fit_transform!(dtvlmean,XX)
     @test sum(ismissing.(res.Value)) == 4466
     @test round(sum(skipmissing(res.Value)),digits=2) == 6557.97
 
     dtvlmax = DateValgator(Dict(
 	  :dateinterval=>Dates.Hour(1),
 	  :aggregator => :maximum))
-    fit!(dtvlmax,XX,YY)
-    res = transform!(dtvlmax,XX)
+    res = fit_transform!(dtvlmax,XX)
     @test sum(ismissing.(res.Value)) == 4466
     @test round(sum(skipmissing(res.Value)),digits=2) == 7599.95
 
     dtvlmin = DateValgator(Dict(
 	  :dateinterval=>Dates.Hour(1),
 	  :aggregator => :minimum))
-    fit!(dtvlmin,XX,YY)
-    res = transform!(dtvlmin,XX)
+    res = fit_transform!(dtvlmin,XX)
     @test sum(ismissing.(res.Value)) == 4466
     @test round(sum(skipmissing(res.Value)),digits=2) == 5516.92
 end
@@ -89,8 +86,7 @@ function test_datevalnner()
 	  :missdirection => :symmetric,
 	  :strict=>true,
 	  :aggregator => :mean))
-    fit!(dnnr,XX,YY)
-    res=transform!(dnnr,XX)
+    res=fit_transform!(dnnr,XX)
     @test sum(size(res) .== (17521,2)) == 2
     @test round(sum(res.Value),digits=2) == 8807.28
 
@@ -100,8 +96,7 @@ function test_datevalnner()
 	  :missdirection => :symmetric,
 	  :strict=>true,
 	  :aggregator => :maximum))
-    fit!(dnnr,XX,YY)
-    res=transform!(dnnr,XX)
+    res=fit_transform!(dnnr,XX)
     @test sum(size(res) .== (17521,2)) == 2
     @test round(sum(res.Value),digits=2) == 10339.47
     dnnr = DateValNNer(Dict(
@@ -110,8 +105,7 @@ function test_datevalnner()
 	  :missdirection => :symmetric,
 	  :strict=>true,
 	  :aggregator => :minimum))
-    fit!(dnnr,XX,YY)
-    res=transform!(dnnr,XX)
+    res=fit_transform!(dnnr,XX)
     @test sum(size(res) .== (17521,2)) == 2
     @test round(sum(res.Value),digits=2) == 7290.01
 
@@ -120,8 +114,7 @@ function test_datevalnner()
 	  :nnsize=>10,
 	  :missdirection => :forward,
 	  :strict=>true))
-    fit!(dnnr,XX,YY)
-    res=transform!(dnnr,XX)
+    res=fit_transform!(dnnr,XX)
     @test sum(size(res) .== (701,2)) == 2
     @test round(sum(res.Value),digits=2) == 350.57
 
