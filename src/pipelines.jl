@@ -190,8 +190,8 @@ function processexpr(args)
       args[ndx] = :Pipeline
     elseif args[ndx] == :+
       args[ndx] = :ComboPipeline
-    elseif args[ndx] == :|
-      args[ndx] = :VoteEnsemble
+    elseif args[ndx] == :*
+      args[ndx] = :BestLearner
     end
   end
   return args
