@@ -280,7 +280,7 @@ Remark: It is worth noting that Linear SVC seems to have superior performance th
 #### 11. Automatic Selection of Best Learner
 You can use `*` operation as a selector function which outputs the result of the best learner.
 If we use the same pre-processing pipelin in 10, we expect that the average performance of
-best learner which is lsvc will be around 73.0.
+best learner which is `lsvc` will be around 73.0.
 ```julia
 Random.seed!(1)
 pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * tree * lsvc)
