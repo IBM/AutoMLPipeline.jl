@@ -43,6 +43,14 @@ include("skcrossvalidator.jl")
 using .SKCrossValidators
 export crossvalidate
 
+include("valdatefilters.jl")
+using .ValDateFilters
+export Matrifier,Dateifier
+export DateValizer,DateValgator,DateValNNer,DateValMultiNNer
+export CSVDateValReader, CSVDateValWriter, DateValLinearImputer
+export BzCSVDateValReader
+
+
 include("pipelines.jl")
 using .Pipelines
 export @pipeline
