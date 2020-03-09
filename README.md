@@ -119,6 +119,9 @@ X = profbdata[:,2:end]
 Y = profbdata[:,1] |> Vector;
 head(x)=first(x,5)
 head(profbdata)
+```
+which outputs:
+```julia
 5×7 DataFrames.DataFrame
 │ Row │ Home.Away │ Favorite_Points │ Underdog_Points │ Pointspread │ Favorite_Name │ Underdog_name │ Year  │
 │     │ String    │ Int64           │ Int64           │ Float64     │ String        │ String        │ Int64 │
