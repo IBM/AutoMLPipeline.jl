@@ -1,20 +1,20 @@
 module ValDateFilters
 
-using TSML.TSMLTypes
-import TSML.TSMLTypes.fit! # to overload
-import TSML.TSMLTypes.transform! # to overload
-using TSML.Utils
-using TSML.Imputers
-
 using Dates
 using DataFrames
 using Statistics
 using CSV
 using CodecBzip2
-
 using MLDataUtils: slidingwindow
+using Impute: interp, locf, nocb
 
-export fit!,transform!
+using AutoMLPipeline.AbsTypes
+using AutoMLPipeline.BaseFilters
+using AutoMLPipeline.Utils
+
+import AutoMLPipeline.AbsTypes: fit!, transform!
+export fit!, transform!
+
 
 export Matrifier,Dateifier
 export DateValizer,DateValgator,DateValNNer,DateValMultiNNer
@@ -73,7 +73,7 @@ end
 
 
 """
-    fit!(mtr::Matrifier,xx::T,y::Vector=Vector()) where {T<:Union{Matrix,Vector,DataFrame}}
+    fit!(mtr::Matrifier,xx::DataFrame,y::Vector=[]) 
 
 Checks and validate inputs are in correct structure
 """
@@ -84,7 +84,7 @@ function fit!(mtr::Matrifier,xx::DataFrame,y::Vector=[])
 end
 
 """
-    transform!(mtr::Matrifier,xx::T) where {T<:Union{Matrix,Vector,DataFrame}}
+    transform!(mtr::Matrifier,xx::DataFrame)
 
 Applies the parameters of sliding windows to create the corresponding matrix
 """
@@ -158,7 +158,7 @@ mutable struct Dateifier <: Transformer
 end
 
 """
-    fit!(dtr::Dateifier,xx::T,y::Vector=[]) where {T<:Union{Matrix,Vector,DataFrame}}
+    fit!(dtr::Dateifier,xx::DataFrame,y::Vector=[])
 
 Computes range of dates to be used during transform.
 """
@@ -171,7 +171,7 @@ function fit!(dtr::Dateifier,xx::DataFrame,y::Vector=[])
 end
 
 """
-    transform!(dtr::Dateifier,xx::T) where {T<:Union{Matrix,Vector,DataFrame}}
+    transform!(dtr::Dateifier,xx::DataFrame)
 
 Transforms to day of the month, day of the week, etc
 """
@@ -245,7 +245,7 @@ function validdateval!(x::DataFrame)
 end
 
 """
-    fit!(dvmr::DateValgator,xx::T,y::Vector=[]) where {T<:Union{Matrix,DataFrame}}
+    fit!(dvmr::DateValgator,xx::DataFrame,y::Vector=[])
 
 Checks and validates arguments.
 """
@@ -258,7 +258,7 @@ function fit!(dvmr::DateValgator,xx::DataFrame,y::Vector=[])
 end
 
 """
-    transform!(dvmr::DateValgator,xx::T) where {T<:DataFrame}
+    transform!(dvmr::DateValgator,xx::DataFrame)
 
 Aggregates values grouped by date-time period using aggregate 
 function such as mean, median, maximum, minimum. Default is mean.
@@ -361,7 +361,7 @@ function fullaggregate!(dvzr::DateValizer,xx::DataFrame)
 end
 
 """
-    fit!(dvzr::DateValizer,xx::T,y::Vector=[]) where {T<:DataFrame}
+    fit!(dvzr::DateValizer,xx::DataFrame,y::Vector=[]) 
 
 Validates input and computes global medians grouped by time period.
 """
@@ -378,7 +378,7 @@ function fit!(dvzr::DateValizer,xx::DataFrame,y::Vector=[])
 end
 
 """
-    transform!(dvzr::DateValizer,xx::T) where {T<:DataFrame}
+    transform!(dvzr::DateValizer,xx::DataFrame) 
 
 Replaces `missing` with the corresponding global medians with respect to time period.
 """
@@ -468,7 +468,7 @@ mutable struct DateValNNer <: Transformer
 end
 
 """
-    fit!(dnnr::DateValNNer,xx::T,y::Vector=[]) where {T<:DataFrame}
+    fit!(dnnr::DateValNNer,xx::DataFrame,y::Vector=[])
 
 Validates and checks arguments for errors.
 """
@@ -481,7 +481,7 @@ function fit!(dnnr::DateValNNer,xx::DataFrame,y::Vector=[])
 end
 
 """
-    transform!(dnnr::DateValNNer,xx::T) where {T<:DataFrame}
+    transform!(dnnr::DateValNNer,xx::DataFrame)
 
 Replaces `missings` by nearest neighbor looping over the dataset until all missing values are gone.
 """
@@ -592,12 +592,19 @@ mutable struct CSVDateValReader <: Transformer
             :filename => "",
             :dateformat => ""
         )
-        new(nothing,mergedict(default_args,args))
+        margs = mergedict(default_args,args)
+        fname = margs[:filename]
+        if fname == ""
+          error("empty filename")
+        elseif !(isfile(margs[:filename]))
+          error("filename: ",fname," does not exist." )
+        end
+        new(nothing,margs)
     end
 end
 
 """
-    fit!(csvrdr::CSVDateValReader,x::T=[],y::Vector=[]) where {T<:Union{DataFrame,Vector,Matrix}}
+    fit!(csvrdr::CSVDateValReader,x::DataFrame=DataFrame(),y::Vector=[])
 
 Makes sure filename and dateformat are not empty strings.
 """
@@ -609,7 +616,7 @@ function fit!(csvrdr::CSVDateValReader,x::DataFrame=DataFrame(),y::Vector=[])
 end
 
 """
-    transform!(csvrdr::CSVDateValReader,x::T=[]) where {T<:Union{DataFrame,Vector,Matrix}}
+    transform!(csvrdr::CSVDateValReader,x::DataFrame=DataFrame())
 
 Uses CSV package to read the csv file and converts it to dataframe.
 """
@@ -665,12 +672,17 @@ mutable struct CSVDateValWriter <: Transformer
             :filename => "",
             :dateformat => ""
         )
-        new(nothing,mergedict(default_args,args))
+        margs = mergedict(default_args,args)
+        fname = margs[:filename]
+        if fname == ""
+          error("empty filename")
+        end
+        new(nothing,margs)
     end
 end
 
 """
-    fit!(csvwtr::CSVDateValWriter,x::T=[],y::Vector=[]) where {T<:Union{DataFrame,Vector,Matrix}}
+    fit!(csvwtr::CSVDateValWriter,x::DataFrame=DataFrame(),y::Vector=[])
 
 Makes sure filename and dateformat are not empty strings.
 """
@@ -682,7 +694,7 @@ function fit!(csvwtr::CSVDateValWriter,x::DataFrame=DataFrame(),y::Vector=[])
 end
 
 """
-    transform!(csvwtr::CSVDateValWriter,x::T) where {T<:Union{DataFrame,Vector,Matrix}}
+    transform!(csvwtr::CSVDateValWriter,x::DataFrame)
 
 Uses CSV package to write the dataframe into a csv file.
 """
@@ -733,12 +745,19 @@ mutable struct BzCSVDateValReader <: Transformer
             :filename => "",
             :dateformat => ""
         )
-        new(nothing,mergedict(default_args,args))
+        margs = mergedict(default_args,args)
+        fname = margs[:filename]
+        if fname == ""
+          error("empty filename")
+        elseif !(isfile(margs[:filename]))
+          error("filename: ",fname," does not exist." )
+        end
+        new(nothing,margs)
     end
 end
 
 """
-    fit!(bzcsvrdr::BzCSVDateValReader,x::T=[],y::Vector=[]) where {T<:Union{DataFrame,Vector,Matrix}}
+    fit!(bzcsvrdr::BzCSVDateValReader,x::DataFrame=DataFrame(),y::Vector=[])
 
 Makes sure filename and dateformat are not empty strings.
 """
@@ -750,7 +769,7 @@ function fit!(bzcsvrdr::BzCSVDateValReader,x::DataFrame=DataFrame(),y::Vector=[]
 end
 
 """
-    transform!(bzcsvrdr::BzCSVDateValReader,x::T=[]) where {T<:Union{DataFrame,Vector,Matrix}}
+    transform!(bzcsvrdr::BzCSVDateValReader,x::DataFrame=DataFrame())
 
 Uses CodecBzip2 package to read the csv file and converts it to dataframe.
 """
@@ -842,7 +861,7 @@ function multivalidateval(x::DataFrame)
 end
 
 """
-    fit!(dnnr::DateValMultiNNer,xx::T,y::Vector=[]) where {T<:DataFrame}
+    fit!(dnnr::DateValMultiNNer,xx::DataFrame,y::Vector=[])
 
 Validates and checks arguments for errors.
 """
@@ -858,7 +877,7 @@ function fit!(dnnr::DateValMultiNNer,xx::DataFrame,y::Vector=[])
 end
 
 """
-    transform!(dnnr::DateValMultiNNer,xx::T) where {T<:DataFrame}
+    transform!(dnnr::DateValMultiNNer,xx::DataFrame)
 
 Replaces `missings` by nearest neighbor or linear interpolation by looping over the dataset 
 for each column until all missing values are gone.
@@ -951,7 +970,7 @@ end
 
 
 """
-    fit!(dnnr::DateValLinearImputer,xx::T,y::Vector=[]) where {T<:DataFrame}
+    fit!(dnnr::DateValLinearImputer,xx::DataFrame,y::Vector=[])
 
 Validates and checks arguments for errors.
 """
@@ -962,7 +981,7 @@ function fit!(dnnr::DateValLinearImputer,xx::DataFrame,y::Vector=[])
 end
 
 """
-    transform!(dnnr::DateValLinearImputer,xx::T) where {T<:DataFrame}
+    transform!(dnnr::DateValLinearImputer,xx::DataFrame)
 
 Replaces `missings` by linear interpolation.
 """
