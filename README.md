@@ -277,7 +277,29 @@ learners = 5×3 DataFrame
 
 Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
-#### 11. Learners as Transformers
+#### 11. Automatic Selection of Best Learner
+You can use `*` operation as a selector function which outputs the result of the best learner.
+If we use the same pre-processing pipelin in 10, we expect that the average performance of
+best learner which is `lsvc` will be around 73.0.
+```julia
+Random.seed!(1)
+pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * tree * lsvc)
+crossvalidate(pcmc,X,Y,"accuracy_score",10)
+fold: 1, 0.7014925373134329
+fold: 2, 0.6764705882352942
+fold: 3, 0.7121212121212122
+fold: 4, 0.7794117647058824
+fold: 5, 0.7611940298507462
+fold: 6, 0.7014925373134329
+fold: 7, 0.7058823529411765
+fold: 8, 0.7424242424242424
+fold: 9, 0.7352941176470589
+fold: 10, 0.7611940298507462
+errors: 0
+(mean = 0.7276977412403225, std = 0.033181493759015454, folds = 10)
+```
+
+#### 12. Learners as Transformers
 It is also possible to use learners in the middle of expression to serve
 as transformers and their outputs become inputs to the final learner as illustrated
 below.
@@ -300,7 +322,9 @@ because the outputs of the two learners (`gb` and `rf`) are categorical
 values that need to be hot-bit encoded before feeding to the final 
 `ada` learner.
 
-#### 12. Tree Visualization of the Pipeline Structure
+
+
+#### 13. Tree Visualization of the Pipeline Structure
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
 # package installation 
