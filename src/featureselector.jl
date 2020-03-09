@@ -47,9 +47,14 @@ end
 
 Helper function for FeatureSelector.
 """
-function FeatureSelector(cols::Vector{Int})
-    FeatureSelector(Dict(:columns => cols))
-end
+FeatureSelector(cols::Vector{Int}) = FeatureSelector(Dict(:columns => cols))
+
+"""
+    FeatureSelector(cols::Vararg{Int})
+
+Helper function for FeatureSelector.
+"""
+FeatureSelector(cols::Vararg{Int}) = FeatureSelector([cols...])
 
 function fit!(ft::FeatureSelector, features::DataFrame, labels::Vector=[])
     if features == DataFrame()
