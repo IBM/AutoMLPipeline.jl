@@ -1,5 +1,7 @@
 module SKPreprocessors
 
+using PyCall
+
 # standard included modules
 using DataFrames
 using Random
@@ -10,7 +12,6 @@ import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
 export SKPreprocessor, skpreprocessors
 
-using PyCall
 
 function __init__()
   global DEC=pyimport_conda("sklearn.decomposition","scikit-learn") 
