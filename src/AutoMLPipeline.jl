@@ -50,6 +50,9 @@ export DateValizer,DateValgator,DateValNNer,DateValMultiNNer
 export CSVDateValReader, CSVDateValWriter, DateValLinearImputer
 export BzCSVDateValReader
 
+include("naremover.jl")
+using .NARemovers
+export NARemover
 
 include("pipelines.jl")
 using .Pipelines
