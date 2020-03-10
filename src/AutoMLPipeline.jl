@@ -14,7 +14,6 @@ include("basefilters.jl")
 using .BaseFilters
 export OneHotEncoder
 
-
 include("featureselector.jl")
 using .FeatureSelectors
 export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscriminator
@@ -42,13 +41,6 @@ export crossvalidate
 include("skcrossvalidator.jl")
 using .SKCrossValidators
 export crossvalidate
-
-include("valdatefilters.jl")
-using .ValDateFilters
-export Matrifier,Dateifier
-export DateValizer,DateValgator,DateValNNer,DateValMultiNNer
-export CSVDateValReader, CSVDateValWriter, DateValLinearImputer
-export BzCSVDateValReader
 
 include("naremover.jl")
 using .NARemovers

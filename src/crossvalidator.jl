@@ -25,7 +25,7 @@ Run K-fold crossvalidation where:
 - `X` and `Y` are input and target 
 """
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-		       pfunc::Function,nfolds=10) 
+		       pfunc::Function,nfolds::Int=10,verbose::Bool=true) 
   ## flatten arrays
   @assert size(X)[1] == length(Y)
   rowsize = size(X)[1]
@@ -46,14 +46,18 @@ function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
       res = pipe_accuracy(ppl,pfunc,trX,trY,tstX,tstY)
       push!(pacc,res)
       fold += 1
-      println("fold: ",fold,", ",res)
+      if verbose == true
+	println("fold: ",fold,", ",res)
+      end
     catch e
       #println(e)
       error += 1
     end
   end
-  println("errors: ",error)
-  (mean=mean(pacc),std=std(pacc),folds=nfolds)
+  if verbose == true
+    println("errors: ",error)
+  end
+  (mean=mean(pacc),std=std(pacc),folds=nfolds,errors=error)
 end
 
 function pipe_accuracy(plearner,perf::Function,trX::DataFrame,

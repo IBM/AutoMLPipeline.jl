@@ -46,13 +46,12 @@ function iris_test()
     res=fit_transform!(ppp,catnumdata)
     @test ncol(res) == 12
 end
-@testset "test feature selectors" begin
+@testset "Feature Selectors: Iris" begin
     Random.seed!(123)
     iris_test()
 end
 
 function diabetes_test()
-
     Random.seed!(123)
     diabetesdf = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/diabetes.csv"))
     X = diabetesdf[:,1:end-1]
@@ -70,27 +69,27 @@ function diabetes_test()
 
     disc = CatNumDiscriminator(0)
     pl = @pipeline disc |> ((numf |>  pca) + (catf |> ohe)) |> jrf
-    @test crossvalidate(pl,X,Y,"accuracy_score").mean > 0.60
+    @test crossvalidate(pl,X,Y,"accuracy_score",10,false).mean > 0.60
 
     pl = @pipeline disc |> ((numf |> rbs |>  pca) + (catf |> ohe)) |> lsvc
-    @test crossvalidate(pl,X,Y,"accuracy_score").mean > 0.60
+    @test crossvalidate(pl,X,Y,"accuracy_score",10,false).mean > 0.60
 
     pl = @pipeline disc |> ((numf |> rbs |>  ica) + (catf |> ohe)) |> rf
-    @test crossvalidate(pl,X,Y,"accuracy_score").mean > 0.60
+    @test crossvalidate(pl,X,Y,"accuracy_score",10,false).mean > 0.60
 
     disc = CatNumDiscriminator(20)
     pl = @pipeline disc |> ( (catf |> ohe)) |> jrf
-    @test crossvalidate(pl,X,Y,"accuracy_score",20).mean > 0.60
+    @test crossvalidate(pl,X,Y,"accuracy_score",20,false).mean > 0.60
 
     disc = CatNumDiscriminator(50)
     pl = @pipeline disc |> ((numf |> rbs |>  pca) + (catf |> ohe)) |> lsvc
-    @test crossvalidate(pl,X,Y,"accuracy_score",20).mean > 0.60
+    @test crossvalidate(pl,X,Y,"accuracy_score",20,false).mean > 0.60
 
     disc = CatNumDiscriminator(100)
     pl = @pipeline disc |> ((numf |> rbs |>  ica) + (catf |> ohe)) |> rf
-    @test crossvalidate(pl,X,Y,"accuracy_score",20).mean > 0.60
+    @test crossvalidate(pl,X,Y,"accuracy_score",20,false).mean > 0.60
 end
-@testset "test feature selectors" begin
+@testset "Feature Selectors: Diabetes" begin
     Random.seed!(123)
     diabetes_test()
 end
