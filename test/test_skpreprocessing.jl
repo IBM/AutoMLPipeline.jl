@@ -48,7 +48,7 @@ end
 @testset "scikit preprocessors fit test" begin
     Random.seed!(123)
     for cl in preprocessors
-	println(cl)
+	#println(cl)
 	fit_test(cl,X,Y)
     end
 end
@@ -56,7 +56,7 @@ end
 @testset "scikit preprocessors transform test" begin
     Random.seed!(123)
     for cl in preprocessors
-	println(cl)
+	#println(cl)
 	transform_test(cl,X,Y)
     end
 end

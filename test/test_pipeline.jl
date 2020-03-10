@@ -57,7 +57,7 @@ function test_pipeline()
   pcombo3 = @pipeline disc |> ((catf + numf) + (numf |> pca) + (numf |> ica) + (catf|>ohe)) |> rf
   (fit_transform!(pcombo3,X,Y)  .== Y) |> sum == 150
   pcombo4 = @pipeline (numf |> pca) + (numf |> ica) |> (ada * rf * pt)
-  @test crossvalidate(pcombo4,X,Y).mean >= 0.90
+  @test crossvalidate(pcombo4,X,Y,"accuracy_score",10,false).mean >= 0.90
 end
 @testset "Pipelines" begin
   Random.seed!(123)

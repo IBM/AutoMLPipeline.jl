@@ -66,19 +66,19 @@ following metric:
 - recall_score
 """
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String="balanced_accuracy_score",nfolds=10)
+                       sfunc::String="accuracy_score",nfolds=10,verbose::Bool=true)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(a,b) = pfunc(a,b)
-    crossvalidate(pl,X,Y,metric,nfolds)
+    crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String,averagetype::String,nfolds=10)
+                       sfunc::String,averagetype::String,nfolds=10,verbose::Bool=true)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(a,b) = pfunc(a,b,average=averagetype)
-    crossvalidate(pl,X,Y,metric,nfolds)
+    crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
 
 
