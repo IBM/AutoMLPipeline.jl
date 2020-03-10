@@ -17,6 +17,7 @@ include("test_skcrossvalidator.jl")
 include("test_featureselector.jl")
 include("test_valdate.jl")
 include("test_pipeline.jl")
+include("test_naremover.jl")
 
 #include("test_mlbase.jl")
 #include("test_tsclassifier.jl")
