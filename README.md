@@ -254,20 +254,6 @@ for learner in [jrf,ada,sgd,tree,lsvc]
 end;
 @show learners;
 ```
-which outputs:
-```julia
-learners = 5×3 DataFrame
-│ Row │ name                   │ mean     │ sd        │
-│     │ String                 │ Float64  │ Float64   │
-├─────┼────────────────────────┼──────────┼───────────┤
-│ 1   │ rf_k2d                 │ 0.684652 │ 0.0334061 │
-│ 2   │ AdaBoostClassifier_1rk │ 0.698086 │ 0.0576059 │
-│ 3   │ SGDClassifier_2xI      │ 0.715688 │ 0.0452629 │
-│ 4   │ prunetree_pSa          │ 0.578826 │ 0.0459255 │
-│ 5   │ LinearSVC_39A          │ 0.730508 │ 0.0494756 │
-```
-
-Remark: It is worth noting that Linear SVC seems to have superior performance than the rest for this dataset.
 
 #### 11. Automatic Selection of Best Learner
 You can use `*` operation as a selector function which outputs the result of the best learner.
@@ -277,18 +263,6 @@ best learner which is `lsvc` will be around 73.0.
 Random.seed!(1)
 pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * tree * lsvc)
 crossvalidate(pcmc,X,Y,"accuracy_score",10)
-fold: 1, 0.7014925373134329
-fold: 2, 0.6764705882352942
-fold: 3, 0.7121212121212122
-fold: 4, 0.7794117647058824
-fold: 5, 0.7611940298507462
-fold: 6, 0.7014925373134329
-fold: 7, 0.7058823529411765
-fold: 8, 0.7424242424242424
-fold: 9, 0.7352941176470589
-fold: 10, 0.7611940298507462
-errors: 0
-(mean = 0.7276977412403225, std = 0.033181493759015454, folds = 10)
 ```
 
 #### 12. Learners as Transformers
@@ -301,15 +275,9 @@ expr = @pipeline (
                  ) |> (catf |> ohe) |> ada;
                  
 crossvalidate(expr,X,Y,"accuracy_score")
-fold: 1, 0.6592592592592592
-fold: 2, 0.6343283582089553
-fold: 3, 0.6492537313432836
-fold: 4, 0.6567164179104478
-fold: 5, 0.5925925925925926
-errors: 0
-(mean = 0.6384300718629077, std = 0.0274011663285773, folds = 5, errors = 0)
 ```
-It is important to take note that the expression `(catf |> ohe)` is necessary
+
+Note: The expression `(catf |> ohe)` is necessary
 because the outputs of the two learners (`gb` and `rf`) are categorical 
 values that need to be hot-bit encoded before feeding to the final 
 `ada` learner.
