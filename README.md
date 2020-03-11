@@ -120,18 +120,6 @@ Y = profbdata[:,1] |> Vector;
 head(x)=first(x,5)
 head(profbdata)
 ```
-which outputs:
-```julia
-5×7 DataFrames.DataFrame
-│ Row │ Home.Away │ Favorite_Points │ Underdog_Points │ Pointspread │ Favorite_Name │ Underdog_name │ Year  │
-│     │ String    │ Int64           │ Int64           │ Float64     │ String        │ String        │ Int64 │
-├─────┼───────────┼─────────────────┼─────────────────┼─────────────┼───────────────┼───────────────┼───────┤
-│ 1   │ away      │ 27              │ 24              │ 4.0         │ BUF           │ MIA           │ 89    │
-│ 2   │ at_home   │ 17              │ 14              │ 3.0         │ CHI           │ CIN           │ 89    │
-│ 3   │ away      │ 51              │ 0               │ 2.5         │ CLE           │ PIT           │ 89    │
-│ 4   │ at_home   │ 28              │ 0               │ 5.5         │ NO            │ DAL           │ 89    │
-│ 5   │ at_home   │ 38              │ 7               │ 5.5         │ MIN           │ HOU           │ 89    │
-```
 
 #### 2. Load AutoMLPipeline Package and Submodules
 ```julia
@@ -170,15 +158,7 @@ Note: You can get a listing of available `SKPreprocessors` and `SKLearners` by i
 - `skpreprocessors()`
 - `sklearners()`
 
-#### 4. Categorical Feature Extraction Example 
-
-##### - 4.1 Filter categories
-```julia
-pcatf = @pipeline catf 
-tr = fit_transform!(pcatf,X,Y)
-head(tr)
-```
-##### - 4.2 Filter categories and hot-encode them
+#### 4. Filter categories and hot-encode them
 ```julia
 pohe = @pipeline catf |> ohe
 tr = fit_transform!(pohe,X,Y)
@@ -327,7 +307,7 @@ fold: 3, 0.6492537313432836
 fold: 4, 0.6567164179104478
 fold: 5, 0.5925925925925926
 errors: 0
-(mean = 0.6384300718629077, std = 0.0274011663285773, folds = 5)
+(mean = 0.6384300718629077, std = 0.0274011663285773, folds = 5, errors = 0)
 ```
 It is important to take note that the expression `(catf |> ohe)` is necessary
 because the outputs of the two learners (`gb` and `rf`) are categorical 
