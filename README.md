@@ -272,15 +272,19 @@ below.
 ```julia
 expr = @pipeline ( 
                    ((numf |> pca) |> gb) + ((numf |> pca) |> rf) 
-                 ) |> (catf |> ohe) |> ada;
+                 ) |> ohe |> ada;
                  
 crossvalidate(expr,X,Y,"accuracy_score")
 ```
+One can even include selector function as part of transformer preprocessing routine:
+```julia
+pjrf = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> ((jrf * ada ) + (sgd * tree * lsvc)) |> ohe |> ada
 
-Note: The expression `(catf |> ohe)` is necessary
-because the outputs of the two learners (`gb` and `rf`) are categorical 
-values that need to be hot-bit encoded before feeding to the final 
-`ada` learner.
+crossvalidate(expr,X,Y,"accuracy_score")
+```
+Note: The `ohe` is necessary in both examples
+because the outputs of the learners and selector function are categorical 
+values that need to be hot-bit encoded before feeding to the final `ada` learner.
 
 #### 13. Tree Visualization of the Pipeline Structure
 You can visualize the pipeline by using AbstractTrees Julia package. 
