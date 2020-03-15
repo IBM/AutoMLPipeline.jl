@@ -278,9 +278,10 @@ crossvalidate(expr,X,Y,"accuracy_score")
 ```
 One can even include selector function as part of transformer preprocessing routine:
 ```julia
-pjrf = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> ((jrf * ada ) + (sgd * tree * lsvc)) |> ohe |> ada
+pjrf = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> 
+                 ((jrf * ada ) + (sgd * tree * lsvc)) |> ohe |> ada
 
-crossvalidate(expr,X,Y,"accuracy_score")
+crossvalidate(pjrf,X,Y,"accuracy_score")
 ```
 Note: The `ohe` is necessary in both examples
 because the outputs of the learners and selector function are categorical 
