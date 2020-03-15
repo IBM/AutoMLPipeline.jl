@@ -114,7 +114,7 @@ nothing #hide
 crossvalidate(pplvote,X,Y)
 ```
 
-### BestLearner
+### [BestLearner](@id bestlearner)
 
 The BestLearner ensemble does not perform any 2-stage mapping. What it does is
 to cross-validate each learner performance and use the most optimal learner
@@ -132,7 +132,7 @@ wrapped in `Dictionary` type argument:
 - `:learner_options_grid` -> for hyper-parameter search
 
 
-The VoteEnsemble supports the following function signatures
+The BestLearner supports the following function signatures
 aside from Dictionary type argument:
 - `BestLearner(Dict(:learners=>...,:name=>...))`
 - `BestLearner([learner1,learner2,...],Dict(:name=>...))`

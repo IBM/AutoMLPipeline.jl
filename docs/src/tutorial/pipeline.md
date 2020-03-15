@@ -212,13 +212,38 @@ It is also possible to use learners in the middle of
 expression to serve as filters and their outputs become 
 input to the final learner as illustrated below.
 ```@repl pipeline
+Random.seed!(1);
 expr = @pipeline ( 
                    ((numf |> pca) |> gb) + ((numf |> pca) |> jrf) 
-                 ) |> (catf |> ohe) |> ada;
+                 ) |> ohe |> ada;
                  
 crossvalidate(expr,X,Y,"accuracy_score",5)
 ```
-It is important to take note that the expression `(catf |> ohe)`
+It is important to take note that `ohe`
 is necessary because the outputs of the two learners (`gb` and `jrf`) 
 are categorical values that need to be hot-bit encoded before 
 feeding them to the final `ada` learner.
+
+
+### Advanced Expressions using Selector Pipeline
+You can use `*` operation as a selector 
+function which outputs the result of the best learner.
+Instead of looping over the different learners to identify
+the best learner, you can use the selector function 
+to automatically determine the best learner and output its 
+prediction. 
+```@repl pipeline
+Random.seed!(1);
+pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> 
+                 (jrf * ada * sgd * tree * lsvc);
+crossvalidate(pcmc,X,Y,"accuracy_score",10)
+```
+Here is another example using the Selector Pipeline as a preprocessor
+in the feature extraction stage of the pipeline:
+```@repl pipeline
+Random.seed!(1);
+pjrf = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |>
+                 ((jrf * ada ) + (sgd * tree * lsvc)) |> ohe |> ada;
+
+crossvalidate(pjrf,X,Y,"accuracy_score")
+```
