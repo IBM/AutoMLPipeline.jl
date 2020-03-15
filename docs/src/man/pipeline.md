@@ -1,12 +1,13 @@
 # Pipeline
-There are two types of Pipelines: `Pipeline` and `ComboPipeline`.
+There are three types of Pipelines: `Pipeline`, `ComboPipeline`, and `Selector Pipeline`.
 The `Pipeline` (linear pipeline)  performs 
 sequential evaluation of `fit_transform!` operation
 to each of its elements passing the output of previous element as 
-input to the next element iteratively. On the other hand,
-`ComboPipeline` (feature union pipeline)
+input to the next element iteratively. `ComboPipeline` (feature union pipeline)
 performs dataframe concatenation of the final 
-outputs of its elements.
+outputs of its elements. `Selector Pipeline` acts as
+a selector function which outputs the results of the best
+learner using its internal cross-validation process.
 
 The `Pipeline` uses `|>` symbolic expression while `ComboPipeline` uses `+`. 
 The expression, `a |> b`, is equivalent to `Pipeline(a,b)` function call while
@@ -32,6 +33,10 @@ with the the linear pipeline and follows similar helper functions:
 - `ComboPipeline(args::Dict)` -> default init function
 - `ComboPipeline(Vector{<:Machine},args::Dict=Dict())` -> for passing vectors of learners/transformers
 - `ComboPipeline(machs::Varargs{Machine})` -> for passing learners/transformers as arguments
+
+### Selector Pipeline Structure
+`Selector Pipeline` is based on the `BestLearner` ensemble. Detailed explanation can be found in: 
+[BestLearner](@ref bestlearner)
 
 ### Macro Functions
 There are two macro functions available: `@pipeline` and `@pipelinex`. The `@pipeline` macro
