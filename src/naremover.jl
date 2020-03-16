@@ -16,7 +16,7 @@ export NARemover
     NARemover(
        Dict(
          :name => "nadetect",
-         :acceptance => 0.30 # tolerable NAs percentage
+         :acceptance => 0.10 # tolerable NAs percentage
        )
     )
 
@@ -33,7 +33,7 @@ mutable struct NARemover <: Transformer
     function NARemover(args::Dict = Dict())
 	default_args = Dict(
 			    :name => "nadetect",
-			    :acceptance => 0.30
+			    :acceptance => 0.10
 			    )
 	cargs=nested_dict_merge(default_args,args)
 	cargs[:name] = cargs[:name]*"_"*randstring(3)
@@ -42,7 +42,7 @@ mutable struct NARemover <: Transformer
 end
 
 """
-    NARemover(acceptance::Float64=0.70)
+    NARemover(acceptance::Float64)
 
 Helper function for NARemover.
 """
