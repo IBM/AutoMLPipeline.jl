@@ -271,7 +271,7 @@ as transformers and their outputs become inputs to the final learner as illustra
 below.
 ```julia
 expr = @pipeline ( 
-                   ((numf |> pca) |> gb) + ((numf |> pca) |> rf) 
+                   ((numf |> rb)+(catf |> ohe) |> gb) + ((numf |> rb)+(catf |> ohe) |> rf) 
                  ) |> ohe |> ada;
                  
 crossvalidate(expr,X,Y,"accuracy_score")
