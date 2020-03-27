@@ -12,8 +12,11 @@ using AutoMLPipeline.FeatureSelectors
 using Statistics
 using DataFrames
 
+Random.seed!(1)
+
 const IRIS = getiris()
-const X = IRIS[:,1:4] |> DataFrame
+extra = rand(150,3) |> DataFrame
+const X = hcat(IRIS[:,1:4],extra) |> DataFrame
 const Y = IRIS[:,5] |> Vector
 
 # "KernelCenterer","MissingIndicator","KBinsDiscretizer","OneHotEncoder", 
@@ -83,7 +86,7 @@ function skptest()
 
     minmax = SKPreprocessor("MinMaxScaler")
     fit!(minmax,features)
-    @test mean(transform!(minmax,features) |> Matrix) ≈ 0.4486931104833648
+    @test mean(transform!(minmax,features) |> Matrix) > 0.30
 
     vote = VoteEnsemble()
     stack = StackEnsemble()
@@ -98,11 +101,12 @@ function skptest()
     ))
     fit!(mpipeline,features,labels)
     pred = transform!(mpipeline,features)
-    @test score(:accuracy,pred,labels) > 95.0
+    @test score(:accuracy,pred,labels) > 50.0
 
     fpipe = @pipeline ((cat + num) + (num + pca))  |> stack
     fit!(fpipe,features,labels)
-    (transform!(fpipe,features) .== labels) |> sum == nrow(features)
+    @test ((transform!(fpipe,features) .== labels) |> sum ) / nrow(features) > 0.50
+
 end
 @testset "scikit preprocessor fit/transform test with real data" begin
     Random.seed!(123)
