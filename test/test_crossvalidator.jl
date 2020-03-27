@@ -11,7 +11,7 @@ using AutoMLPipeline.SKPreprocessors
 using AutoMLPipeline.Utils
 
 function test_crossvalidator()
-  const racc = 50.0
+  racc = 50.0
   Random.seed!(123)
   acc(X,Y) = score(:accuracy,X,Y)
   data=getiris()
