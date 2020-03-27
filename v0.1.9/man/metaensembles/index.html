@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Meta-Ensembles · AutoMLPipeline Documentation</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AutoMLPipeline Documentation</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../../tutorial/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../tutorial/preprocessing/">Preprocessing</a></li><li><a class="tocitem" href="../../tutorial/learning/">Training and Validation</a></li><li><a class="tocitem" href="../../tutorial/extending/">Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../pipeline/">Pipeline</a></li><li><a class="tocitem" href="../preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../learners/">Learners</a></li><li class="is-active"><a class="tocitem" href>Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Meta-Ensembles</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Meta-Ensembles</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/man/metaensembles.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Ensemble-Methods-1"><a class="docs-heading-anchor" href="#Ensemble-Methods-1">Ensemble Methods</a><a class="docs-heading-anchor-permalink" href="#Ensemble-Methods-1" title="Permalink"></a></h1><p>AMPL supports three types of meta-ensembles, namely:  StackEnsemble, VoteEnsemble, and BestLearner. They are considered as meta-ensembles because they can contain other learners including other ensembles as well as meta-ensembles. They support complex level of hierarchy depending on the requirements. The most effective way to show their flexibility is to provide some real examples.</p><h3 id="StackEnsemble-1"><a class="docs-heading-anchor" href="#StackEnsemble-1">StackEnsemble</a><a class="docs-heading-anchor-permalink" href="#StackEnsemble-1" title="Permalink"></a></h3><p>Stack ensemble uses the idea of stacking to train  learners into two stages. The first stage trains bottom-level learners for the mapping  between the input and output. The default is to use 70% of the data. Once the bottom-level learners finish the training,  the algorithm proceeds to stage 2 which treats the trained learners as transformers. The output from  these transformers is used to train the Meta-Learner (RandomForest, PrunedTree, or Adaboost) using the remaining 30% of the data. </p><p>The StackEnsemble accepts the following arguments wrapped in a <code>Dictionary</code> type argument:</p><ul><li><code>:name</code> -&gt; alias name of ensemble</li><li><code>:learners</code> -&gt; a vector of learners</li><li><code>:stacker</code> -&gt; the meta-learner (RandomForest, or Adaboost, or PrunedTree)</li><li><code>:stacker_training_portion</code> -&gt; percentage of data for the meta-learner</li><li><code>:keep_original_features</code> -&gt; boolean (whether the original data is included together with the transformed data by the bottom-level learners)</li></ul><p>While the init function of StackEnsemble expects an argument of Dictionary type, it supports the following convenient function signatures:</p><ul><li><code>StackEnsemble(Dict(:learners=&gt;...,:stacker=&gt;...))</code></li><li><code>StackEnsemble([learner1,learner2,...],Dict(:stacker=&gt;...))</code></li><li><code>StackEnsemble([learner1,learner2,...])</code></li></ul><p>To illustrate, let&#39;s create some bottom-level learners from Scikitlearn and Julia:</p><pre><code class="language-julia">using AutoMLPipeline
+
+gauss = SKLearner(&quot;GaussianProcessClassifier&quot;)
+svc = SKLearner(&quot;LinearSVC&quot;)
+ridge = SKLearner(&quot;RidgeClassifier&quot;)
+jrf = RandomForest() # julia&#39;s rf
+rfstacker = RandomForest()
+stackens = StackEnsemble([gauss,svc,ridge,jrf],Dict(:stacker=&gt;rfstacker))</code></pre><p>Let&#39;s load some dataset and create a pipeline with the <code>stackens</code> as the learner at the end of the pipeline.</p><pre><code class="language-julia">using CSV
+using Random
+Random.seed!(123);
+
+profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/profb.csv&quot;))
+X = profbdata[:,2:end]
+Y = profbdata[:,1] |&gt; Vector;
+
+ohe = OneHotEncoder()
+catf = CatFeatureSelector();
+numf = NumFeatureSelector()
+rb = SKPreprocessor(&quot;RobustScaler&quot;);
+pt = SKPreprocessor(&quot;PowerTransformer&quot;);
+pca = SKPreprocessor(&quot;PCA&quot;);
+fa = SKPreprocessor(&quot;FactorAnalysis&quot;);
+ica = SKPreprocessor(&quot;FastICA&quot;)
+pplstacks = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
+                       (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; stackens</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplstacks,X,Y)
+fold: 1, 0.7164179104477612
+fold: 2, 0.6764705882352942
+fold: 3, 0.7121212121212122
+fold: 4, 0.6470588235294118
+fold: 5, 0.8507462686567164
+fold: 6, 0.6865671641791045
+fold: 7, 0.7205882352941176
+fold: 8, 0.6666666666666666
+fold: 9, 0.7205882352941176
+fold: 10, 0.7164179104477612
+errors: 0
+(mean = 0.7113643014872164, std = 0.0553922255071007, folds = 10, errors = 0)</code></pre><p>It is worth noting that stack ensemble is dealing with mixture of libraries consisting of Julia&#39;s Random Forest and Scikitlearn learners.</p><h3 id="VoteEnsemble-1"><a class="docs-heading-anchor" href="#VoteEnsemble-1">VoteEnsemble</a><a class="docs-heading-anchor-permalink" href="#VoteEnsemble-1" title="Permalink"></a></h3><p>Vote ensemble uses similar idea with the Stack Ensemble  but instead of stacking, it uses voting to get the final prediction. The first stage involves the collection of  bottom-level learners being trained to learn the mapping between input and output. Once they are trained in a classification problem, they are treated as transformers  wherein the final output of the ensemble is based on the  output with the greatest count. It&#39;s equivalent to majority  voting where each learner has one vote based on its prediction output class.</p><p>The VoteEnsemble accepts the following arguments wrapped inside a <code>Dictionary</code> type of argument:</p><ul><li><code>:name</code> -&gt; alias name of ensemble</li><li><code>:learners</code> -&gt; a vector of learners</li></ul><p>While the init function of VoteEnsemble expects a Dictionary type of argument, it also supports the following convenient helper functions:</p><ul><li><code>VoteEnsemble(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline but substitute the stack ensemble with the vote ensemble:</p><pre><code class="language-julia">Random.seed!(123);
+
+votingens = VoteEnsemble([gauss,svc,ridge,jrf]);
+pplvote = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
+                     (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; votingens;</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplvote,X,Y)
+fold: 1, 0.7014925373134329
+fold: 2, 0.6176470588235294
+fold: 3, 0.6515151515151515
+fold: 4, 0.7352941176470589
+fold: 5, 0.7014925373134329
+fold: 6, 0.6716417910447762
+fold: 7, 0.6764705882352942
+fold: 8, 0.7121212121212122
+fold: 9, 0.7205882352941176
+fold: 10, 0.6865671641791045
+errors: 0
+(mean = 0.687483039348711, std = 0.03484128460517446, folds = 10, errors = 0)</code></pre><h3 id="bestlearner-1"><a class="docs-heading-anchor" href="#bestlearner-1">BestLearner</a><a class="docs-heading-anchor-permalink" href="#bestlearner-1" title="Permalink"></a></h3><p>The BestLearner ensemble does not perform any 2-stage mapping. What it does is to cross-validate each learner performance and use the most optimal learner as the final model. This ensemble can be used to automatically pick the  most optimal learner in a group of learners included in each argument based on certain selection criteria.</p><p>The BestLearner accepts the following arguments wrapped in <code>Dictionary</code> type argument:</p><ul><li><code>:selection_function</code> -&gt;  Function</li><li><code>:score_type</code>         -&gt; Real</li><li><code>:partition_generator</code> -&gt; Function</li><li><code>:learners</code>            -&gt; Vector of learners</li><li><code>:name</code>                -&gt; alias name of learner</li><li><code>:learner_options_grid</code> -&gt; for hyper-parameter search</li></ul><p>The BestLearner supports the following function signatures aside from Dictionary type argument:</p><ul><li><code>BestLearner(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>BestLearner([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>BestLearner([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline as above but substitute the vote ensemble with the BestLearner ensemble:</p><pre><code class="language-julia">Random.seed!(123);
+
+bestens = BestLearner([gauss,svc,ridge,jrf]);
+pplbest = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
+                     (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; bestens;</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplbest,X,Y)
+fold: 1, 0.7313432835820896
+fold: 2, 0.7058823529411765
+fold: 3, 0.6515151515151515
+fold: 4, 0.7352941176470589
+fold: 5, 0.7313432835820896
+fold: 6, 0.7611940298507462
+fold: 7, 0.8235294117647058
+fold: 8, 0.7272727272727273
+fold: 9, 0.7205882352941176
+fold: 10, 0.7611940298507462
+errors: 0
+(mean = 0.734915662330061, std = 0.04387030972240127, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learners/">« Learners</a><a class="docs-footer-nextpage" href="../../lib/typesfunctions/">Types and Functions »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 27 March 2020 11:24">Friday 27 March 2020</span>. Using Julia version 1.4.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
