@@ -95,12 +95,12 @@ julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; 
 
 julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)
 fold: 1, 0.6560529634300126
-fold: 2, 0.5360512129380054
+fold: 2, 0.5541310541310541
 fold: 3, 0.6570616883116883
-fold: 4, 0.6037735849056604
+fold: 4, 0.6377981651376148
 fold: 5, 0.5375500667556742
 errors: 0
-(mean = 0.5980979032682081, std = 0.059965745626862764, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+(mean = 0.6085187875532088, std = 0.05802537789730996, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
 
 julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;
 
@@ -156,16 +156,16 @@ fold: 9, 0.7058823529411765
 fold: 10, 0.7313432835820896
 errors: 0
 SGDClassifier_2xI
-fold: 1, 0.7164179104477612
-fold: 2, 0.7794117647058824
-fold: 3, 0.6818181818181818
-fold: 4, 0.6764705882352942
-fold: 5, 0.8059701492537313
-fold: 6, 0.6417910447761194
-fold: 7, 0.75
-fold: 8, 0.7272727272727273
+fold: 1, 0.7014925373134329
+fold: 2, 0.7205882352941176
+fold: 3, 0.7878787878787878
+fold: 4, 0.6911764705882353
+fold: 5, 0.746268656716418
+fold: 6, 0.6865671641791045
+fold: 7, 0.6470588235294118
+fold: 8, 0.6818181818181818
 fold: 9, 0.7058823529411765
-fold: 10, 0.746268656716418
+fold: 10, 0.7313432835820896
 errors: 0
 prunetree_pSa
 fold: 1, 0.5223880597014925
@@ -197,7 +197,7 @@ learners = 5×3 DataFrames.DataFrame
 ├─────┼────────────────────────┼──────────┼───────────┤
 │ 1   │ rf_k2d                 │ 0.684652 │ 0.0334061 │
 │ 2   │ AdaBoostClassifier_1rk │ 0.698086 │ 0.0576059 │
-│ 3   │ SGDClassifier_2xI      │ 0.72313  │ 0.0496062 │
+│ 3   │ SGDClassifier_2xI      │ 0.710007 │ 0.039011  │
 │ 4   │ prunetree_pSa          │ 0.578826 │ 0.0459255 │
 │ 5   │ LinearSVC_39A          │ 0.730508 │ 0.0494756 │</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters-1"><a class="docs-heading-anchor" href="#Learners-as-Filters-1">Learners as Filters</a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters-1" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
@@ -210,9 +210,9 @@ fold: 1, 0.6148148148148148
 fold: 2, 0.6268656716417911
 fold: 3, 0.7014925373134329
 fold: 4, 0.6119402985074627
-fold: 5, 0.6148148148148148
+fold: 5, 0.6074074074074074
 errors: 0
-(mean = 0.6339856274184632, std = 0.03817366006945078, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline-1"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline-1">Advanced Expressions using Selector Pipeline</a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline-1" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+(mean = 0.6325041459369818, std = 0.03923270663159739, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline-1"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline-1">Advanced Expressions using Selector Pipeline</a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline-1" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
 julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
                         (jrf * ada * sgd * tree * lsvc);
@@ -246,4 +246,4 @@ fold: 8, 0.7575757575757576
 fold: 9, 0.7352941176470589
 fold: 10, 0.7014925373134329
 errors: 0
-(mean = 0.7321553994732222, std = 0.028720293154914468, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 2 April 2020 22:27">Thursday 2 April 2020</span>. Using Julia version 1.4.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7321553994732222, std = 0.028720293154914468, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 2 April 2020 22:58">Thursday 2 April 2020</span>. Using Julia version 1.4.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
