@@ -37,7 +37,7 @@ function find_catnum_columns(finstances::DataFrame, maxuniqcat::Int=0)
     col_eltype = infer_eltype(vdat)
     # nominal if column type is not real or only small number of unique instances 
     # otherwise, real
-    if  !<:(col_eltype, :Real)
+    if  !<:(col_eltype, Real)
       push!(nominal_columns, column)
     elseif nrow(unique(vdat)) <= maxuniqcat
       push!(nominal_columns, column)
