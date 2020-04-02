@@ -27,7 +27,9 @@ do all their elements correspond to Real. Also, columns
 with size of unique instances are less than `maxuniqcat` are
 considered categorical.
 """
-function find_catnum_columns(instances::DataFrame, maxuniqcat::Int=0)
+function find_catnum_columns(finstances::DataFrame, maxuniqcat::Int=0)
+  # assume complete cases and remove fields with Union{Missing,Type}
+  instances = identity.(finstances)
   nominal_columns = Int[]
   real_columns = Int[]
   for column in 1:size(instances, 2)
@@ -35,7 +37,7 @@ function find_catnum_columns(instances::DataFrame, maxuniqcat::Int=0)
     col_eltype = infer_eltype(vdat)
     # nominal if column type is not real or only small number of unique instances 
     # otherwise, real
-    if  !<:(col_eltype, Union{Missing,<:Real})
+    if  !<:(col_eltype, :Real)
       push!(nominal_columns, column)
     elseif nrow(unique(vdat)) <= maxuniqcat
       push!(nominal_columns, column)
