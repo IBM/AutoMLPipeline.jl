@@ -1,7 +1,7 @@
 name = "AutoMLPipeline"
 uuid = "08437348-eef5-4817-bc1b-d4e9459680d6"
 authors = ["Paulito Palmes <ppalmes@gmail.com>"]
-version = "0.1.10"
+version = "0.1.11"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
