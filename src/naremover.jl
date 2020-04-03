@@ -21,7 +21,9 @@ export NARemover
     )
 
 Removes columns with NAs greater than acceptance rate.
-Remove remaining NAs by rows and return the Dataframe.
+This assumes that it processes columns of features. 
+The output column should not be part of input to avoid
+it being excluded if it fails the acceptance critera.
 
 Implements `fit!` and `transform!`.
 """
@@ -55,6 +57,7 @@ function fit!(nad::NARemover, features::DataFrame, labels::Vector=[])
     nad.model = nad.args
 end
 
+
 function transform!(nad::NARemover, nfeatures::DataFrame)
     features = deepcopy(nfeatures) 
     if features == DataFrame()
@@ -69,11 +72,7 @@ function transform!(nad::NARemover, nfeatures::DataFrame)
 	end
     end
     xtr =  features[:,colnames]
-    if xtr != DataFrame()
-	return xtr[completecases(xtr),:]
-    else
-	return DataFrame()
-    end
+    return xtr
 end
 
 end
