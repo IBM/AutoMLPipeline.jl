@@ -21,26 +21,26 @@ julia&gt; Y = iris[:,end] |&gt; Vector;
 julia&gt; rf = SKLearner(&quot;RandomForestClassifier&quot;,Dict(:n_estimators=&gt;30,:random_state=&gt;0));
 
 julia&gt; crossvalidate(rf,X,Y,&quot;accuracy_score&quot;,3)
-fold: 1, 0.9803921568627451
-fold: 2, 0.9375
-fold: 3, 0.9019607843137255
+fold: 1, 0.9607843137254902
+fold: 2, 0.9166666666666666
+fold: 3, 0.9607843137254902
 errors: 0
-(mean = 0.9399509803921569, std = 0.03927308911510307, folds = 3, errors = 0)
+(mean = 0.9460784313725491, std = 0.025471335405424705, folds = 3, errors = 0)
 
 julia&gt; ada = SKLearner(&quot;AdaBoostClassifier&quot;,Dict(:n_estimators=&gt;20,:random_state=&gt;0));
 
 julia&gt; crossvalidate(ada,X,Y,&quot;accuracy_score&quot;,3)
 fold: 1, 0.9215686274509803
-fold: 2, 0.9583333333333334
+fold: 2, 0.9375
 fold: 3, 0.9803921568627451
 errors: 0
-(mean = 0.9534313725490197, std = 0.02971655797299546, folds = 3, errors = 0)
+(mean = 0.9464869281045751, std = 0.030424095067590574, folds = 3, errors = 0)
 
 julia&gt; svc = SKLearner(&quot;SVC&quot;,Dict(:kernel=&gt;&quot;rbf&quot;,:random_state=&gt;0,:gamma=&gt;&quot;auto&quot;));
 
 julia&gt; crossvalidate(svc,X,Y,&quot;accuracy_score&quot;,3)
 fold: 1, 0.9607843137254902
 fold: 2, 0.9583333333333334
-fold: 3, 0.9411764705882353
+fold: 3, 0.9803921568627451
 errors: 0
-(mean = 0.9534313725490197, std = 0.01068357584201148, folds = 3, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessors/">« Preprocessors</a><a class="docs-footer-nextpage" href="../metaensembles/">Meta-Ensembles »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 17 April 2020 09:08">Friday 17 April 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.9665032679738562, std = 0.012090399172343702, folds = 3, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessors/">« Preprocessors</a><a class="docs-footer-nextpage" href="../metaensembles/">Meta-Ensembles »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 17 April 2020 09:19">Friday 17 April 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
