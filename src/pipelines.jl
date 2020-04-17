@@ -10,7 +10,7 @@ using AutoMLPipeline.EnsembleMethods: BestLearner
 
 import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
-export Pipeline, ComboPipeline, @pipeline, @pipelinex
+export Pipeline, ComboPipeline, @pipeline, @pipelinex,processexpr!,sympipeline
 
 """
     Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
@@ -182,10 +182,10 @@ function transform!(pipe::ComboPipeline, features::DataFrame=DataFrame())
   return new_instances
 end
 
-function processexpr(args)
+function processexpr!(args::AbstractVector)
   for ndx in eachindex(args)
     if typeof(args[ndx]) == Expr
-      processexpr(args[ndx].args)
+      processexpr!(args[ndx].args)
     elseif args[ndx] == :(|>)
       args[ndx] = :Pipeline
     elseif args[ndx] == :+
@@ -194,21 +194,32 @@ function processexpr(args)
       args[ndx] = :BestLearner
     end
   end
-  return args
+  return nothing
 end
 
+# check if quoted expression 
 macro pipeline(expr)
   lexpr = :($(esc(expr)))
-  res = processexpr(lexpr.args)
-  lexpr.args = res
+  if expr isa Expr && expr.head === :quote
+    lexpr = :($(esc(expr.args[1])))
+  end
+  processexpr!(lexpr.args)
+  #lexpr.args = res
   lexpr
 end
 
 macro pipelinex(expr)
   lexpr = :($(esc(expr)))
-  res = processexpr(lexpr.args)
-  :($res[1])
+  if expr isa Expr && expr.head === :quote
+    lexpr = :($(esc(expr.args[1])))
+  end
+  processexpr!(lexpr.args)
+  :($(lexpr.args[1]))
 end
 
+function sympipeline(expr)
+  processexpr!(expr.args)
+  expr
+end
 
 end
