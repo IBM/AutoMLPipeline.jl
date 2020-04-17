@@ -72,6 +72,14 @@ function skptest()
     fit!(pca,features)
     @test transform!(pca,features) |> x->size(x,2) == 3
 
+    pca = SKPreprocessor("PCA",Dict(:autocomponent=>true))
+    fit!(pca,features)
+    @test transform!(pca,features) |> x->size(x,2) == 3
+
+    pca = SKPreprocessor("PCA",Dict(:impl_args=> Dict(:n_components=>3)))
+    fit!(pca,features)
+    @test transform!(pca,features) |> x->size(x,2) == 3
+
     svd = SKPreprocessor(Dict(:preprocessor=>"TruncatedSVD",:impl_args=>Dict(:n_components=>2)))
     fit!(svd,features)
     @test transform!(svd,features) |> x->size(x,2) == 2

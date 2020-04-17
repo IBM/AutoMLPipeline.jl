@@ -107,7 +107,8 @@ mutable struct SKPreprocessor <: Transformer
     default_args=Dict(
                       :name => "skprep",
                       :preprocessor => "PCA",
-                      :impl_args => Dict()
+                      :impl_args => Dict(),
+                      :autocomponent=>false
                      )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
@@ -141,6 +142,15 @@ end
 function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])
   features = x |> Array
   impl_args = copy(skp.args[:impl_args])
+  autocomp = skp.args[:autocomponent]
+  if autocomp == true
+    cols = ncol(x)
+    ncomponents = 1
+    if cols > 0
+      ncomponents = round(sqrt(cols),digits=0) |> Integer
+      push!(impl_args,:n_components => ncomponents)
+    end
+  end
   preprocessor = skp.args[:preprocessor]
   py_preprocessor = preprocessor_dict[preprocessor]
 
