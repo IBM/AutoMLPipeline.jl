@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Extending AutoMLPipeline · AutoMLPipeline Documentation</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AutoMLPipeline Documentation</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../pipeline/">Pipeline</a></li><li><a class="tocitem" href="../preprocessing/">Preprocessing</a></li><li><a class="tocitem" href="../learning/">Training and Validation</a></li><li class="is-active"><a class="tocitem" href>Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../man/preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../../man/learners/">Learners</a></li><li><a class="tocitem" href="../../man/metaensembles/">Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Extending AutoMLPipeline</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Extending AutoMLPipeline</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/tutorial/extending.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Extending-AutoMLPipeline-1"><a class="docs-heading-anchor" href="#Extending-AutoMLPipeline-1">Extending AutoMLPipeline</a><a class="docs-heading-anchor-permalink" href="#Extending-AutoMLPipeline-1" title="Permalink"></a></h1><p>Having a meta-ML package sounds ideal  but not practical  in terms of maintainability and flexibility.  The metapackage becomes a central point of failure and bottleneck. It doesn&#39;t subscribe to the KISS philosophy of Unix which encourages decentralization of implementation. As long as the input and output behavior of transformers and learners follow a standard format, they should work without   dependency or communication. By using a consistent input/output interfaces, the passing of information among the elements in the pipeline will not bring any surprises to the receivers and transmitters of information down the line.</p><p>Because AMPL&#39;s symbolic pipeline is based on the idea of Linux pipeline and filters, there is a deliberate effort to follow as much as possible the KISS philosophy by just using two interfaces to be overloaded (<code>fit!</code> and <code>transform!</code>):  input features should be a DataFrame type while the target output should be a Vector type. Transformers <code>fit!</code> function expects only one input argument and ignores the target  argument. On the other hand, the <code>fit!</code> function of any learner  requires both input and target arguments to carry out the  supervised learning phase. For the <code>transform!</code> function, both learners and transformers expect one input argument that both use to apply their learned parameters in transforming the input into either prediction, decomposition, normalization, scaling, etc.</p><h4 id="AMLP-Abstract-Types-1"><a class="docs-heading-anchor" href="#AMLP-Abstract-Types-1">AMLP Abstract Types</a><a class="docs-heading-anchor-permalink" href="#AMLP-Abstract-Types-1" title="Permalink"></a></h4><p>The AMLP abstract types are composed of the following:</p><pre><code class="language-none">abstract type Machine end
+abstract type Workflow    &lt;:  Machine  end 
+abstract type Computer    &lt;:  Machine  end 
+abstract type Learner     &lt;:  Computer end
+abstract type Transformer &lt;:  Computer end</code></pre><p>At the top of the hierarchy is the <code>Machine</code> abstraction that supports two major interfaces: <code>fit!</code> and <code>transform!</code>. The abstract <code>Machine</code> has two major types: <code>Computer</code> and <code>Workflow</code>.  The <code>Computer</code> types perform computations suchs as filters, transformers, and filters while the <code>Workflow</code> controls the flow of information. A <code>Workflow</code> can be a sequential flow of information or a combination of information from two or more workflow. A <code>Workflow</code> that provides sequential flow is called <code>Pipeline</code> (or linear pipeline) while the one that combines information from different workflows is called <code>ComboPipeline</code>.</p><p>The <code>Computer</code> type has two subtypes: <code>Learner</code> and <code>Transformer</code>. Their main difference is in the behavior of their <code>fit!</code> function. The <code>Learner</code> type learns its parameters by finding a mapping function between its  <code>input</code> and <code>output</code> arguments while the <code>Transformer</code> does not require these mapping function to perform its operation.  The <code>Transfomer</code> learns all its parameters by just processing its <code>input</code> features. Both <code>Transfomer</code> and <code>Learner</code> has similar behaviour in the <code>transform!</code> function. Both apply their learned parameters to transform their <code>input</code> into <code>output</code>.</p><h4 id="Extending-AMLP-by-Adding-a-CSVReader-Transformer-1"><a class="docs-heading-anchor" href="#Extending-AMLP-by-Adding-a-CSVReader-Transformer-1">Extending AMLP by Adding a CSVReader Transformer</a><a class="docs-heading-anchor-permalink" href="#Extending-AMLP-by-Adding-a-CSVReader-Transformer-1" title="Permalink"></a></h4><p>Let&#39;s extend AMLP by adding CSV reading support embedded in the pipeline. Instead of passing the data in the pipeline argument, we create a csv transformer that passes the data to succeeding elements in the pipeline from a csv file.</p><pre><code class="language-julia">module FileReaders
+
+using CSV
+using DataFrames
+
+using AutoMLPipeline
+using AutoMLPipeline.AbsTypes # abstract types (Learners and Transformers)
+
+import AutoMLPipeline.fit!
+import AutoMLPipeline.transform!
+
+export fit!, transform!
+export CSVReader
+
+# define a user-defined structure for type dispatch
+mutable struct CSVReader &lt;: Transformer
+   name::String
+   model::Dict
+   args::Dict
+
+   function CSVReader(args = Dict(:fname=&gt;&quot;&quot;))
+      fname = args[:fname]
+      fname != &quot;&quot; || error(&quot;missing filename.&quot;)
+      isfile(fname) || error(&quot;file does not exist.&quot;)
+      new(fname,Dict(),args)
+   end
+end
+
+CSVReader(fname::String) = CSVReader(Dict(:fname=&gt;fname))
+
+# Define fit! which does error checking. You can also make
+# it do nothing and let the transform! function does the
+# the checking and loading. The fit! function is only defined
+# here to make sure there is a fit! dispatch for CSVReader
+# type which is needed in the pipeline call iteration.
+function fit!(csvreader::CSVReader, df::DataFrame=DataFrame(), target::Vector=Vector())
+   fname = csvreader.name
+   isfile(fname) || error(&quot;file does not exist.&quot;)
+   csvreader.model = csvreader.args
+end
+
+# define transform which opens the file and returns a dataframe
+function transform!(csvreader::CSVReader, df::DataFrame=DataFrame())
+   fname = csvreader.name
+   df = CSV.read(fname) |&gt; DataFrame
+   df != DataFrame() || error(&quot;empty dataframe.&quot;)
+   return df
+end
+end</code></pre><p>Let&#39;s now load the FileReaders module together with the other AutoMLPipeline modules and create a pipeline that includes the csv reader we just created.</p><pre><code class="language-julia">using DataFrames
+
+using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
+using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
+using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline.Utils
+using AutoMLPipeline.SKLearners
+
+using .FileReaders # load from the Main module
+
+#### Column selector
+catf = CatFeatureSelector()
+numf = NumFeatureSelector()
+pca = SKPreprocessor(&quot;PCA&quot;)
+ohe = OneHotEncoder()
+
+fname = joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/profb.csv&quot;)
+csvrdr = CSVReader(Dict(:fname=&gt;fname))
+
+p1 = @pipeline csvrdr |&gt; (catf + numf)
+df1 = fit_transform!(p1) # empty argument because input coming from csvreader</code></pre><pre><code class="language-julia-repl">julia&gt; first(df1,5)
+5×7 DataFrames.DataFrame
+│ Row │ Home.Away │ Favorite_Name │ Underdog_name │ Favorite_Points │ Underdog_Points │ Pointspread │ Year  │
+│     │ String    │ String        │ String        │ Int64           │ Int64           │ Float64     │ Int64 │
+├─────┼───────────┼───────────────┼───────────────┼─────────────────┼─────────────────┼─────────────┼───────┤
+│ 1   │ away      │ BUF           │ MIA           │ 27              │ 24              │ 4.0         │ 89    │
+│ 2   │ at_home   │ CHI           │ CIN           │ 17              │ 14              │ 3.0         │ 89    │
+│ 3   │ away      │ CLE           │ PIT           │ 51              │ 0               │ 2.5         │ 89    │
+│ 4   │ at_home   │ NO            │ DAL           │ 28              │ 0               │ 5.5         │ 89    │
+│ 5   │ at_home   │ MIN           │ HOU           │ 38              │ 7               │ 5.5         │ 89    │</code></pre><pre><code class="language-julia">p2 = @pipeline csvrdr |&gt; (numf |&gt; pca) + (catf |&gt; ohe)
+df2 = fit_transform!(p2) # empty argument because input coming from csvreader</code></pre><pre><code class="language-julia-repl">julia&gt; first(df2,5)
+5×62 DataFrames.DataFrame
+│ Row │ x1       │ x2       │ x3       │ x4       │ x1_1    │ x2_1    │ x3_1    │ x4_1    │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │ x18     │ x19     │ x20     │ x21     │ x22     │ x23     │ x24     │ x25     │ x26     │ x27     │ x28     │ x29     │ x30     │ x31     │ x32     │ x33     │ x34     │ x35     │ x36     │ x37     │ x38     │ x39     │ x40     │ x41     │ x42     │ x43     │ x44     │ x45     │ x46     │ x47     │ x48     │ x49     │ x50     │ x51     │ x52     │ x53     │ x54     │ x55     │ x56     │ x57     │ x58     │
+│     │ Float64  │ Float64  │ Float64  │ Float64  │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
+├─────┼──────────┼──────────┼──────────┼──────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+│ 1   │ 2.47477  │ 7.87074  │ -1.10495 │ 0.902431 │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 2   │ -5.47113 │ -3.82946 │ -2.08342 │ 1.00524  │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 3   │ 30.4068  │ -10.8073 │ -6.12339 │ 0.883938 │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 4   │ 8.18372  │ -15.507  │ -1.43203 │ 1.08255  │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 5   │ 16.6176  │ -6.68636 │ -1.66597 │ 0.978243 │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><p>With the CSVReader extension, csv files can now be directly processed or loaded inside the pipeline and can be used with other existing filters and transformers.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learning/">« Training and Validation</a><a class="docs-footer-nextpage" href="../../man/pipeline/">Pipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 18 April 2020 23:24">Saturday 18 April 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
