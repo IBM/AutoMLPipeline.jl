@@ -10,7 +10,7 @@ using AutoMLPipeline.AbsTypes: Machine, Transformer, Learner, Workflow, Computer
 
 import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!,transform!
-export OneHotEncoder
+export OneHotEncoder, Imputer
 
 
 """
