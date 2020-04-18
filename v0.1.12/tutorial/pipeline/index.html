@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Pipeline · AutoMLPipeline Documentation</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AutoMLPipeline Documentation</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li class="is-active"><a class="tocitem" href>Pipeline</a></li><li><a class="tocitem" href="../preprocessing/">Preprocessing</a></li><li><a class="tocitem" href="../learning/">Training and Validation</a></li><li><a class="tocitem" href="../extending/">Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../man/preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../../man/learners/">Learners</a></li><li><a class="tocitem" href="../../man/metaensembles/">Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Pipeline</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Pipeline</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/tutorial/pipeline.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="PipelineUsage-1"><a class="docs-heading-anchor" href="#PipelineUsage-1">Pipeline</a><a class="docs-heading-anchor-permalink" href="#PipelineUsage-1" title="Permalink"></a></h1><p><em>A tutorial for using the <code>@pipeline</code> expression</em></p><h3 id="Dataset-1"><a class="docs-heading-anchor" href="#Dataset-1">Dataset</a><a class="docs-heading-anchor-permalink" href="#Dataset-1" title="Permalink"></a></h3><p>Let us start the tutorial by loading the dataset.</p><pre><code class="language-julia">using AutoMLPipeline
+using CSV
+profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/profb.csv&quot;))
+X = profbdata[:,2:end]
+Y = profbdata[:,1] |&gt; Vector</code></pre><p>We can check the data by showing the first 5 rows:</p><pre><code class="language-julia-repl">julia&gt; show5(df)=first(df,5); # show first 5 rows
+
+julia&gt; show5(profbdata)
+5×7 DataFrames.DataFrame
+│ Row │ Home.Away │ Favorite_Points │ Underdog_Points │ Pointspread │ Favorite_Name │ Underdog_name │ Year  │
+│     │ String    │ Int64           │ Int64           │ Float64     │ String        │ String        │ Int64 │
+├─────┼───────────┼─────────────────┼─────────────────┼─────────────┼───────────────┼───────────────┼───────┤
+│ 1   │ away      │ 27              │ 24              │ 4.0         │ BUF           │ MIA           │ 89    │
+│ 2   │ at_home   │ 17              │ 14              │ 3.0         │ CHI           │ CIN           │ 89    │
+│ 3   │ away      │ 51              │ 0               │ 2.5         │ CLE           │ PIT           │ 89    │
+│ 4   │ at_home   │ 28              │ 0               │ 5.5         │ NO            │ DAL           │ 89    │
+│ 5   │ at_home   │ 38              │ 7               │ 5.5         │ MIN           │ HOU           │ 89    │</code></pre><p>This dataset is a collection of pro football scores with the following variables and their descriptions:</p><ul><li>Home/Away = Favored team is at home or away</li><li>Favorite Points = Points scored by the favored team</li><li>Underdog Points = Points scored by the underdog team</li><li>Pointspread = Oddsmaker&#39;s points to handicap the favored team</li><li>Favorite Name = Code for favored team&#39;s name</li><li>Underdog name = Code for underdog&#39;s name</li><li>Year = 89, 90, or 91</li></ul><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>For the purpose of this tutorial, we will use the first column, Home vs Away, as the target variable to be predicted using the other columns as input features. For this target output, we are trying to ask whether the model can learn the patterns from its input features to predict whether the game was played at home or away. Since the input features have both categorical and numerical features, the dataset is a good basis to describe  how to extract these two types of features, preprocessed them, and learn the mapping using a one-liner pipeline expression.</p></div></div><h3 id="AutoMLPipeline-Modules-and-Instances-1"><a class="docs-heading-anchor" href="#AutoMLPipeline-Modules-and-Instances-1">AutoMLPipeline Modules and Instances</a><a class="docs-heading-anchor-permalink" href="#AutoMLPipeline-Modules-and-Instances-1" title="Permalink"></a></h3><p>Before continuing further with the tutorial, let us load the  necessary modules of AutoMLPipeline:</p><pre><code class="language-julia">using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
+using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
+using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
+using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
+using AutoMLPipeline.Utils, AutoMLPipeline.SKLearners</code></pre><p>Let us also create some instances of filters, transformers, and models that we can use to preprocess and model the dataset.</p><pre><code class="language-julia">#### Decomposition
+pca = SKPreprocessor(&quot;PCA&quot;); fa = SKPreprocessor(&quot;FactorAnalysis&quot;);
+ica = SKPreprocessor(&quot;FastICA&quot;)
+
+#### Scaler
+rb = SKPreprocessor(&quot;RobustScaler&quot;); pt = SKPreprocessor(&quot;PowerTransformer&quot;)
+norm = SKPreprocessor(&quot;Normalizer&quot;); mx = SKPreprocessor(&quot;MinMaxScaler&quot;)
+
+#### categorical preprocessing
+ohe = OneHotEncoder()
+
+#### Column selector
+disc = CatNumDiscriminator()
+catf = CatFeatureSelector(); numf = NumFeatureSelector()
+
+#### Learners
+rf = SKLearner(&quot;RandomForestClassifier&quot;); gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
+lsvc = SKLearner(&quot;LinearSVC&quot;); svc = SKLearner(&quot;SVC&quot;)
+mlp = SKLearner(&quot;MLPClassifier&quot;); ada = SKLearner(&quot;AdaBoostClassifier&quot;)
+jrf = RandomForest(); vote = VoteEnsemble(); stack = StackEnsemble()
+best = BestLearner()</code></pre><h3 id="Processing-Categorical-Features-1"><a class="docs-heading-anchor" href="#Processing-Categorical-Features-1">Processing Categorical Features</a><a class="docs-heading-anchor-permalink" href="#Processing-Categorical-Features-1" title="Permalink"></a></h3><p>For the first illustration, let us extract categorical features of  the data and output some of them using the pipeline expression  and its interface:</p><pre><code class="language-julia">pop_cat = @pipeline catf
+tr_cat = fit_transform!(pop_cat,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_cat)
+5×2 DataFrames.DataFrame
+│ Row │ Favorite_Name │ Underdog_name │
+│     │ String        │ String        │
+├─────┼───────────────┼───────────────┤
+│ 1   │ BUF           │ MIA           │
+│ 2   │ CHI           │ CIN           │
+│ 3   │ CLE           │ PIT           │
+│ 4   │ NO            │ DAL           │
+│ 5   │ MIN           │ HOU           │</code></pre><p>One may notice that instead of using <code>fit!</code> and <code>transform</code>,  the example uses <code>fit_transform!</code> instead. The latter is equivalent to calling <code>fit!</code> and <code>transform</code> in sequence which is handy for examining the final output of the transformation prior to  feeding it to the model.</p><p>Let us now transform the categorical features into one-hot-bit-encoding (ohe) and examine the results:</p><pre><code class="language-julia">pop_ohe = @pipeline catf |&gt; ohe
+tr_ohe = fit_transform!(pop_ohe,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_ohe)
+5×56 DataFrames.DataFrame
+│ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │ x18     │ x19     │ x20     │ x21     │ x22     │ x23     │ x24     │ x25     │ x26     │ x27     │ x28     │ x29     │ x30     │ x31     │ x32     │ x33     │ x34     │ x35     │ x36     │ x37     │ x38     │ x39     │ x40     │ x41     │ x42     │ x43     │ x44     │ x45     │ x46     │ x47     │ x48     │ x49     │ x50     │ x51     │ x52     │ x53     │ x54     │ x55     │ x56     │
+│     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
+├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+│ 1   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 2   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 3   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 4   │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 5   │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><h3 id="Processing-Numerical-Features-1"><a class="docs-heading-anchor" href="#Processing-Numerical-Features-1">Processing Numerical Features</a><a class="docs-heading-anchor-permalink" href="#Processing-Numerical-Features-1" title="Permalink"></a></h3><p>Let us have an example of extracting the numerical features of the data using different combinations of filters/transformers:</p><pre><code class="language-julia">pop_rb = @pipeline (numf |&gt; rb)
+tr_rb = fit_transform!(pop_rb,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_rb)
+5×4 DataFrames.DataFrame
+│ Row │ x1        │ x2        │ x3      │ x4      │
+│     │ Float64   │ Float64   │ Float64 │ Float64 │
+├─────┼───────────┼───────────┼─────────┼─────────┤
+│ 1   │ 0.307692  │ 0.576923  │ -0.25   │ -0.5    │
+│ 2   │ -0.461538 │ -0.192308 │ -0.5    │ -0.5    │
+│ 3   │ 2.15385   │ -1.26923  │ -0.625  │ -0.5    │
+│ 4   │ 0.384615  │ -1.26923  │ 0.125   │ -0.5    │
+│ 5   │ 1.15385   │ -0.730769 │ 0.125   │ -0.5    │</code></pre><h3 id="Concatenating-Extracted-Categorical-and-Numerical-Features-1"><a class="docs-heading-anchor" href="#Concatenating-Extracted-Categorical-and-Numerical-Features-1">Concatenating Extracted Categorical and Numerical Features</a><a class="docs-heading-anchor-permalink" href="#Concatenating-Extracted-Categorical-and-Numerical-Features-1" title="Permalink"></a></h3><p>For typical modeling workflow, input features are combinations of categorical features transformer to one-bit encoding together with numerical features normalized or scaled or transformed by decomposition. </p><p>Here is an example of a typical input feature:</p><pre><code class="language-julia">pop_com = @pipeline (numf |&gt; norm) + (catf |&gt; ohe)
+tr_com = fit_transform!(pop_com,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_com)
+5×60 DataFrames.DataFrame
+│ Row │ x1       │ x2        │ x3        │ x4       │ x1_1    │ x2_1    │ x3_1    │ x4_1    │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │ x18     │ x19     │ x20     │ x21     │ x22     │ x23     │ x24     │ x25     │ x26     │ x27     │ x28     │ x29     │ x30     │ x31     │ x32     │ x33     │ x34     │ x35     │ x36     │ x37     │ x38     │ x39     │ x40     │ x41     │ x42     │ x43     │ x44     │ x45     │ x46     │ x47     │ x48     │ x49     │ x50     │ x51     │ x52     │ x53     │ x54     │ x55     │ x56     │
+│     │ Float64  │ Float64   │ Float64   │ Float64  │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
+├─────┼──────────┼───────────┼───────────┼──────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+│ 1   │ 0.280854 │ 0.249648  │ 0.041608  │ 0.925778 │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 2   │ 0.18532  │ 0.152616  │ 0.0327035 │ 0.970204 │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 3   │ 0.497041 │ 0.0       │ 0.0243647 │ 0.867385 │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 4   │ 0.299585 │ 0.0       │ 0.0588471 │ 0.952253 │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 5   │ 0.391021 │ 0.0720301 │ 0.0565951 │ 0.915812 │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><p>The column size from 6 grew to 60 after the hot-bit encoding was applied because of the large number of unique instances for the categorical columns. </p><h3 id="Performance-Evaluation-of-the-Pipeline-1"><a class="docs-heading-anchor" href="#Performance-Evaluation-of-the-Pipeline-1">Performance Evaluation of the Pipeline</a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation-of-the-Pipeline-1" title="Permalink"></a></h3><p>We can add a model at the end of the pipeline and evaluate the performance of the entire pipeline by cross-validation.</p><p>Let us use a linear SVC model and evaluate using 5-fold cross-validation.</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+
+julia&gt; pop_lsvc = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; lsvc;
+
+julia&gt; tr_lsvc = crossvalidate(pop_lsvc,X,Y,&quot;balanced_accuracy_score&quot;,5)
+fold: 1, 0.7525788834951457
+fold: 2, 0.6715838509316769
+fold: 3, 0.6743197278911565
+fold: 4, 0.7431469298245614
+fold: 5, 0.6573426573426573
+errors: 0
+(mean = 0.6997944098970397, std = 0.04447636448854861, folds = 5, errors = 0)</code></pre><p>What about using Gradient Boosting model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+
+julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; gb;
+
+julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)
+fold: 1, 0.6560529634300126
+fold: 2, 0.5912080304603669
+fold: 3, 0.6570616883116883
+fold: 4, 0.6495726495726495
+fold: 5, 0.5857142857142857
+errors: 0
+(mean = 0.6279219234978006, std = 0.036189189925560146, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+
+julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;
+
+julia&gt; tr_rf = crossvalidate(pop_rf,X,Y,&quot;balanced_accuracy_score&quot;,5)
+fold: 1, 0.6602564102564104
+fold: 2, 0.607843137254902
+fold: 3, 0.5532181666202285
+fold: 4, 0.6253787878787879
+fold: 5, 0.6266891891891891
+errors: 0
+(mean = 0.6146771382399036, std = 0.039243450003049594, folds = 5, errors = 0)</code></pre><p>Let&#39;s evaluate several learners which is a typical workflow in searching for the optimal model.</p><pre><code class="language-julia">using Random
+using DataFrames
+using AutoMLPipeline
+
+Random.seed!(1)
+jrf = RandomForest()
+ada = SKLearner(&quot;AdaBoostClassifier&quot;)
+sgd = SKLearner(&quot;SGDClassifier&quot;)
+tree = PrunedTree()
+std = SKPreprocessor(&quot;StandardScaler&quot;)
+disc = CatNumDiscriminator()
+lsvc = SKLearner(&quot;LinearSVC&quot;)
+
+learners = DataFrame()
+for learner in [jrf,ada,sgd,tree,lsvc]
+  pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt; learner
+  println(learner.name)
+  mean,sd,_ = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)
+  global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
+end;</code></pre><pre><code class="language-none">WARNING: using DataFrames.stack in module ex-pipeline conflicts with an existing identifier.
+rf_k2d
+fold: 1, 0.7014925373134329
+fold: 2, 0.6617647058823529
+fold: 3, 0.6666666666666666
+fold: 4, 0.6470588235294118
+fold: 5, 0.7313432835820896
+fold: 6, 0.746268656716418
+fold: 7, 0.6764705882352942
+fold: 8, 0.696969696969697
+fold: 9, 0.6617647058823529
+fold: 10, 0.6567164179104478
+errors: 0
+AdaBoostClassifier_1rk
+fold: 1, 0.7014925373134329
+fold: 2, 0.6911764705882353
+fold: 3, 0.7878787878787878
+fold: 4, 0.6617647058823529
+fold: 5, 0.7164179104477612
+fold: 6, 0.7611940298507462
+fold: 7, 0.6176470588235294
+fold: 8, 0.6060606060606061
+fold: 9, 0.7058823529411765
+fold: 10, 0.7313432835820896
+errors: 0
+SGDClassifier_2xI
+fold: 1, 0.6119402985074627
+fold: 2, 0.7794117647058824
+fold: 3, 0.7575757575757576
+fold: 4, 0.6911764705882353
+fold: 5, 0.7014925373134329
+fold: 6, 0.6716417910447762
+fold: 7, 0.6911764705882353
+fold: 8, 0.7575757575757576
+fold: 9, 0.7647058823529411
+fold: 10, 0.7014925373134329
+errors: 0
+prunetree_pSa
+fold: 1, 0.5223880597014925
+fold: 2, 0.5882352941176471
+fold: 3, 0.6060606060606061
+fold: 4, 0.5882352941176471
+fold: 5, 0.5970149253731343
+fold: 6, 0.5970149253731343
+fold: 7, 0.5
+fold: 8, 0.5454545454545454
+fold: 9, 0.6617647058823529
+fold: 10, 0.582089552238806
+errors: 0
+LinearSVC_39A
+fold: 1, 0.7014925373134329
+fold: 2, 0.75
+fold: 3, 0.7424242424242424
+fold: 4, 0.7205882352941176
+fold: 5, 0.6417910447761194
+fold: 6, 0.7761194029850746
+fold: 7, 0.8235294117647058
+fold: 8, 0.7272727272727273
+fold: 9, 0.7352941176470589
+fold: 10, 0.6865671641791045
+errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+learners = 5×3 DataFrames.DataFrame
+│ Row │ name                   │ mean     │ sd        │
+│     │ String                 │ Float64  │ Float64   │
+├─────┼────────────────────────┼──────────┼───────────┤
+│ 1   │ rf_k2d                 │ 0.684652 │ 0.0334061 │
+│ 2   │ AdaBoostClassifier_1rk │ 0.698086 │ 0.0576059 │
+│ 3   │ SGDClassifier_2xI      │ 0.712819 │ 0.051853  │
+│ 4   │ prunetree_pSa          │ 0.578826 │ 0.0459255 │
+│ 5   │ LinearSVC_39A          │ 0.730508 │ 0.0494756 │</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters-1"><a class="docs-heading-anchor" href="#Learners-as-Filters-1">Learners as Filters</a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters-1" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+
+julia&gt; expr = @pipeline (
+                          ((numf |&gt; pca) |&gt; gb) + ((numf |&gt; pca) |&gt; jrf)
+                        ) |&gt; ohe |&gt; ada;
+
+julia&gt; crossvalidate(expr,X,Y,&quot;accuracy_score&quot;,5)
+fold: 1, 0.6148148148148148
+fold: 2, 0.6567164179104478
+fold: 3, 0.7014925373134329
+fold: 4, 0.6119402985074627
+fold: 5, 0.6074074074074074
+errors: 0
+(mean = 0.6384742951907132, std = 0.040413640611012644, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline-1"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline-1">Advanced Expressions using Selector Pipeline</a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline-1" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+
+julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
+                        (jrf * ada * sgd * tree * lsvc);
+
+julia&gt; crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)
+fold: 1, 0.7014925373134329
+fold: 2, 0.6764705882352942
+fold: 3, 0.7121212121212122
+fold: 4, 0.7794117647058824
+fold: 5, 0.7611940298507462
+fold: 6, 0.7014925373134329
+fold: 7, 0.7058823529411765
+fold: 8, 0.7424242424242424
+fold: 9, 0.7352941176470589
+fold: 10, 0.7611940298507462
+errors: 0
+(mean = 0.7276977412403225, std = 0.033181493759015454, folds = 10, errors = 0)</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+
+julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
+                        ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;
+
+julia&gt; crossvalidate(pjrf,X,Y,&quot;accuracy_score&quot;)
+fold: 1, 0.7761194029850746
+fold: 2, 0.75
+fold: 3, 0.7424242424242424
+fold: 4, 0.7205882352941176
+fold: 5, 0.7014925373134329
+fold: 6, 0.6865671641791045
+fold: 7, 0.75
+fold: 8, 0.7575757575757576
+fold: 9, 0.7352941176470589
+fold: 10, 0.7014925373134329
+errors: 0
+(mean = 0.7321553994732222, std = 0.028720293154914468, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 18 April 2020 23:24">Saturday 18 April 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
