@@ -9,10 +9,15 @@ export Machine, Computer, Workflow, Learner, Transformer
 
 include("utils.jl")
 using .Utils
+export getiris, getprofb
+
+include("baselines.jl")
+using .Baselines
+export Baseline, Identity
 
 include("basefilters.jl")
 using .BaseFilters
-export OneHotEncoder
+export OneHotEncoder, Imputer
 
 include("featureselector.jl")
 using .FeatureSelectors
