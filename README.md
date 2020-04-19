@@ -114,7 +114,7 @@ Pkg.add("DataFrames")
 # Make sure that the input feature is a dataframe and the target output is a 1-D vector.
 using AutoMLPipeline
 using CSV
-profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
+profbdata = getprofb()
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector;
 head(x)=first(x,5)
@@ -232,6 +232,7 @@ code and feel free to extend or adapt the package to your problem. Please
 feel free to submit PRs to improve the package features. 
 
 #### 10. Performance Comparison of Several Learners
+#### - 10.1 Sequential Processing
 ```julia
 using Random
 using DataFrames
@@ -253,6 +254,35 @@ for learner in [jrf,ada,sgd,tree,lsvc]
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
 end;
 @show learners;
+```
+
+#### - 10.2 Parallel Processing
+```julia
+using Random
+using DataFrames
+using Distributed
+
+nprocs() == 1 && addprocs()
+@everywhere using DataFrames
+@everywhere using AutoMLPipeline
+
+Random.seed!(1)
+jrf = RandomForest()
+ada = SKLearner("AdaBoostClassifier")
+sgd = SKLearner("SGDClassifier")
+tree = PrunedTree()
+std = SKPreprocessor("StandardScaler")
+disc = CatNumDiscriminator()
+lsvc = SKLearner("LinearSVC")
+
+learners = @distributed (vcat) for learner in [jrf,ada,sgd,tree,lsvc]
+  pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
+  println(learner.name)
+  mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",10)
+  DataFrame(name=learner.name,mean=mean,sd=sd)
+end
+@show learners;
+
 ```
 
 #### 11. Automatic Selection of Best Learner
