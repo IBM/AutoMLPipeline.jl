@@ -58,6 +58,34 @@ end
 end
 
 function test_sympipeline()
+  pcombo5 = @pipeline :((numf |> pca) + (numf |> ica) |> (ada * rf * pt))
+  @test crossvalidate(pcombo5,X,Y,"accuracy_score",10,false).mean >= 0.90
+  expr = :((numf |> pca) + (numf |> ica) |> (ada * rf * pt))
+  processexpr!(expr.args)
+  @test crossvalidate(eval(expr),X,Y,"accuracy_score",10,false).mean >= 0.90
+  expr = :((numf |> pca) + (numf |> ica) |> (ada * rf * pt))
+  pcombo6 = sympipeline(expr) |> eval
+  @test crossvalidate(pcombo6,X,Y,"accuracy_score",10,false).mean >= 0.90
+  pcombo7 = (@pipelinez expr) |> eval
+  @test crossvalidate(pcombo7,X,Y,"accuracy_score",10,false).mean >= 0.90
+end
+@testset "Symbolic Pipeline: Global Scope" begin
+  Random.seed!(123)
+  test_sympipeline()
+end
+
+
+function test_pipeline()
+  ohe = OneHotEncoder()
+  pca = SKPreprocessor("PCA")
+  ica = SKPreprocessor("FastICA")
+  fa = SKPreprocessor("FactorAnalysis")
+  disc = CatNumDiscriminator()
+  catf = CatFeatureSelector()
+  numf = NumFeatureSelector()
+  rf = RandomForest()
+  ada = Adaboost()
+  pt = PrunedTree()
   # test symbolic pipeline expression 
   pcombo2 = @pipeline (pca |> ica) + ica + pca
   @test fit_transform!(pcombo2,features) |> Matrix |> size |> collect |> sum == 162
@@ -67,18 +95,10 @@ function test_sympipeline()
   (fit_transform!(pcombo3,X,Y)  .== Y) |> sum == 150
   pcombo4 = @pipeline (numf |> pca) + (numf |> ica) |> (ada * rf * pt)
   @test crossvalidate(pcombo4,X,Y,"accuracy_score",10,false).mean >= 0.90
-  pcombo5 = @pipeline :((numf |> pca) + (numf |> ica) |> (ada * rf * pt))
-  @test crossvalidate(pcombo5,X,Y,"accuracy_score",10,false).mean >= 0.90
-  expr = :((numf |> pca) + (numf |> ica) |> (ada * rf * pt))
-  processexpr!(expr.args)
-  @test crossvalidate(eval(expr),X,Y,"accuracy_score",10,false).mean >= 0.90
-  expr = :((numf |> pca) + (numf |> ica) |> (ada * rf * pt))
-  pcombo6 = sympipeline(expr) |> eval
-  @test crossvalidate(pcombo6,X,Y,"accuracy_score",10,false).mean >= 0.90
 end
-@testset "Symbolic Pipelines" begin
+@testset "Symbolic Pipeline: Local Scope" begin
   Random.seed!(123)
-  test_sympipeline()
+  test_pipeline()
 end
 
 end
