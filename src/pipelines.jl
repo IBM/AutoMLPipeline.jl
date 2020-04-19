@@ -10,7 +10,9 @@ using AutoMLPipeline.EnsembleMethods: BestLearner
 
 import AutoMLPipeline.AbsTypes: fit!, transform!
 export fit!, transform!
-export Pipeline, ComboPipeline, @pipeline, @pipelinex,processexpr!,sympipeline
+export Pipeline, ComboPipeline 
+export @pipeline, @pipelinex, @pipelinez
+export processexpr!,sympipeline
 
 """
     Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
@@ -199,16 +201,27 @@ end
 
 # check if quoted expression 
 macro pipeline(expr)
-  lexpr = :($(esc(expr)))
+  @assert expr isa Expr
+  lexpr = copy(:($(esc(expr))))
   if expr isa Expr && expr.head === :quote
     lexpr = :($(esc(expr.args[1])))
   end
   processexpr!(lexpr.args)
-  #lexpr.args = res
   lexpr
 end
 
+# unwrap symbol
+macro pipelinez(sexpr)
+  @assert sexpr isa Symbol
+  quote
+	 lexpr = copy($(esc(sexpr)))
+	 processexpr!(lexpr.args)	
+	 lexpr
+  end 
+end
+
 macro pipelinex(expr)
+  @assert expr isa Expr
   lexpr = :($(esc(expr)))
   if expr isa Expr && expr.head === :quote
     lexpr = :($(esc(expr.args[1])))
@@ -217,7 +230,8 @@ macro pipelinex(expr)
   :($(lexpr.args[1]))
 end
 
-function sympipeline(expr)
+function sympipeline(pexpr)
+  expr = copy(pexpr)
   processexpr!(expr.args)
   expr
 end
