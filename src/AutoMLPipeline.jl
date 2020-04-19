@@ -53,8 +53,7 @@ export NARemover
 
 include("pipelines.jl")
 using .Pipelines
-export @pipeline
-export @pipelinex
+export @pipeline, @pipelinex, @pipelinez
 export Pipeline, ComboPipeline 
 
 end # module
