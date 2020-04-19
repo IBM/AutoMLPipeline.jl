@@ -167,14 +167,14 @@ head(tr)
 
 #### 5. Numerical Feature Extraction Example 
 
-##### - 5.1 Filter numeric features, compute ica and pca features, and combine both features
+##### 5.1 Filter numeric features, compute ica and pca features, and combine both features
 ```julia
 pdec = @pipeline (numf |> pca) + (numf |> ica)
 tr = fit_transform!(pdec,X,Y)
 head(tr)
 ```
 
-##### - 5.2 Filter numeric features, transform to robust and power transform scaling, perform ica and pca, respectively, and combine both
+##### 5.2 Filter numeric features, transform to robust and power transform scaling, perform ica and pca, respectively, and combine both
 ```julia
 ppt = @pipeline (numf |> rb |> ica) + (numf |> pt |> pca)
 tr = fit_transform!(ppt,X,Y)
@@ -232,7 +232,7 @@ code and feel free to extend or adapt the package to your problem. Please
 feel free to submit PRs to improve the package features. 
 
 #### 10. Performance Comparison of Several Learners
-#### - 10.1 Sequential Processing
+##### 10.1 Sequential Processing
 ```julia
 using Random
 using DataFrames
@@ -256,7 +256,7 @@ end;
 @show learners;
 ```
 
-#### - 10.2 Parallel Processing
+##### 10.2 Parallel Processing
 ```julia
 using Random
 using DataFrames
