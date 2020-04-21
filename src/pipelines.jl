@@ -227,7 +227,6 @@ macro pipelinex(expr)
   end
   args=processexpr!(lexpr.args)
   lexpr.args=args
-  lexpr
   :($(lexpr.args[1]))
 end
 
