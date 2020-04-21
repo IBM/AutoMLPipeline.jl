@@ -221,13 +221,7 @@ macro pipelinez(sexpr)
 end
 
 macro pipelinex(expr)
-  @assert expr isa Expr
-  lexpr = :($(esc(expr)))
-  if expr isa Expr && expr.head === :quote
-    lexpr = :($(esc(expr.args[1])))
-  end
-  processexpr!(lexpr.args)
-  :($(lexpr.args[1]))
+  @macroexpand @pipeline expr
 end
 
 function sympipeline(pexpr)
