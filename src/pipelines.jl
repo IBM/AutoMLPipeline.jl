@@ -201,8 +201,8 @@ end
 
 # check if quoted expression 
 macro pipeline(expr)
-  @assert expr isa Expr
   lexpr = copy(:($(esc(expr))))
+  @assert lexpr isa Expr
   if expr isa Expr && expr.head === :quote
     lexpr = :($(esc(expr.args[1])))
   end
