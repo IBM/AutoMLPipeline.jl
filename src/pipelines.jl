@@ -221,7 +221,8 @@ macro pipelinez(sexpr)
 end
 
 macro pipelinex(expr)
-  @macroexpand @pipeline expr
+  lexpr = copy(:($(esc(expr))))
+  @macroexpand @pipeline lexpr
 end
 
 function sympipeline(pexpr)
