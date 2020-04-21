@@ -196,7 +196,7 @@ function processexpr!(args::AbstractVector)
       args[ndx] = :BestLearner
     end
   end
-  return nothing
+  return args
 end
 
 # check if quoted expression 
@@ -205,7 +205,8 @@ macro pipeline(expr)
   if expr isa Expr && expr.head === :quote
     lexpr = :($(esc(expr.args[1])))
   end
-  processexpr!(lexpr.args)
+  args=processexpr!(lexpr.args)
+  lexpr.args=args
   lexpr
 end
 
@@ -220,7 +221,14 @@ macro pipelinez(sexpr)
 end
 
 macro pipelinex(expr)
-  @macroexpand @pipeline lexpr
+  lexpr = copy(:($(esc(expr))))
+  if expr isa Expr && expr.head === :quote
+    lexpr = :($(esc(expr.args[1])))
+  end
+  args=processexpr!(lexpr.args)
+  lexpr.args=args
+  lexpr
+  :($(lexpr.args[1]))
 end
 
 function sympipeline(pexpr)
