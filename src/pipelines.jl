@@ -202,7 +202,6 @@ end
 # check if quoted expression 
 macro pipeline(expr)
   lexpr = copy(:($(esc(expr))))
-  @assert lexpr isa Expr
   if expr isa Expr && expr.head === :quote
     lexpr = :($(esc(expr.args[1])))
   end
@@ -221,7 +220,6 @@ macro pipelinez(sexpr)
 end
 
 macro pipelinex(expr)
-  lexpr = copy(:($(esc(expr))))
   @macroexpand @pipeline lexpr
 end
 
