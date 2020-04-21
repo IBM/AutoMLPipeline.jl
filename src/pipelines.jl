@@ -225,9 +225,8 @@ macro pipelinex(expr)
   if expr isa Expr && expr.head === :quote
     lexpr = :($(esc(expr.args[1])))
   end
-  args=processexpr!(lexpr.args)
-  lexpr.args=args
-  :($(lexpr.args[1]))
+  res=processexpr!(lexpr.args)
+  :($res[1])
 end
 
 function sympipeline(pexpr)
