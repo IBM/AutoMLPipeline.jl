@@ -26,18 +26,18 @@ respca = fit_transform!(pca,X)</code></pre><pre><code class="language-julia-repl
 │ 5   │ -2.72872 │ 0.326755  │ 0.0900792  │ 0.0612586   │</code></pre><p>Let&#39;s try ICA with 3 components decomposition and whitening:</p><pre><code class="language-julia">ica = SKPreprocessor(&quot;FastICA&quot;,Dict(:n_components=&gt;3,:whiten=&gt;true))
 resica = fit_transform!(ica,X)</code></pre><pre><code class="language-julia-repl">julia&gt; first(resica,5)
 5×4 DataFrames.DataFrame
-│ Row │ x1         │ x2         │ x3          │ x4         │
-│     │ Float64    │ Float64    │ Float64     │ Float64    │
-├─────┼────────────┼────────────┼─────────────┼────────────┤
-│ 1   │ 0.030469   │ -0.113743  │ 0.00148633  │ -0.0213835 │
-│ 2   │ -0.0796493 │ -0.108532  │ -0.00686604 │ -0.0308431 │
-│ 3   │ -0.0284675 │ -0.110049  │ -0.0131399  │ 0.0295787  │
-│ 4   │ -0.0304745 │ -0.0983943 │ 0.025695    │ 0.0720318  │
-│ 5   │ 0.0602346  │ -0.112133  │ 0.00796101  │ 0.0161003  │</code></pre><p>To get a listing of available preprocessors, use the <code>skpreprocessors()</code> function:</p><pre><code class="language-julia-repl">julia&gt; skpreprocessors()
+│ Row │ x1        │ x2          │ x3         │ x4         │
+│     │ Float64   │ Float64     │ Float64    │ Float64    │
+├─────┼───────────┼─────────────┼────────────┼────────────┤
+│ 1   │ 0.113743  │ 0.00149592  │ 0.0213872  │ -0.0304671 │
+│ 2   │ 0.10853   │ -0.00687187 │ 0.030846   │ 0.07965    │
+│ 3   │ 0.11005   │ -0.0131463  │ -0.0295741 │ 0.0284664  │
+│ 4   │ 0.0983956 │ 0.0256823   │ -0.0720329 │ 0.0304784  │
+│ 5   │ 0.112134  │ 0.00796991  │ -0.0160971 │ -0.0602323 │</code></pre><p>To get a listing of available preprocessors, use the <code>skpreprocessors()</code> function:</p><pre><code class="language-julia-repl">julia&gt; skpreprocessors()
 syntax: SKPreprocessor(name::String, args::Dict=Dict())
 where *name* can be one of:
 
 Binarizer chi2 dict_learning dict_learning_online DictionaryLearning f_classif f_regression FactorAnalysis FastICA fastica FunctionTransformer GenericUnivariateSelect IncrementalPCA KBinsDiscretizer KernelCenterer KernelPCA LabelBinarizer LabelEncoder LatentDirichletAllocation MaxAbsScaler MiniBatchDictionaryLearning MiniBatchSparsePCA MinMaxScaler MissingIndicator MultiLabelBinarizer mutual_info_classif mutual_info_regression NMF non_negative_factorization Normalizer OneHotEncoder OrdinalEncoder PCA PolynomialFeatures PowerTransformer QuantileTransformer RFE RFECV RobustScaler SelectFdr SelectFpr SelectFromModel SelectFwe SelectKBest SelectPercentile SimpleImputer sparse_encode SparseCoder SparsePCA StandardScaler TruncatedSVD VarianceThreshold 
 
 and *args* are the corresponding preprocessor&#39;s initial parameters.
-Note: Please consult Scikitlearn&#39;s online help for more details about the preprocessor&#39;s arguments.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learners/">Learners »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 7 May 2020 23:40">Thursday 7 May 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Note: Please consult Scikitlearn&#39;s online help for more details about the preprocessor&#39;s arguments.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learners/">Learners »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 7 May 2020 23:51">Thursday 7 May 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
