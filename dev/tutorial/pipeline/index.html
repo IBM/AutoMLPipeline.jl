@@ -95,12 +95,12 @@ julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; 
 
 julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)
 fold: 1, 0.6328217237308147
-fold: 2, 0.5912080304603669
+fold: 2, 0.5640366972477064
 fold: 3, 0.6570616883116883
 fold: 4, 0.6037735849056604
-fold: 5, 0.5731945348080676
+fold: 5, 0.5857142857142857
 errors: 0
-(mean = 0.6116119124433196, std = 0.033426003740604254, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+(mean = 0.6086815959820311, std = 0.03697340935798493, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
 
 julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;
 
@@ -156,16 +156,16 @@ fold: 9, 0.7058823529411765
 fold: 10, 0.7313432835820896
 errors: 0
 SGDClassifier_2xI
-fold: 1, 0.6417910447761194
-fold: 2, 0.7058823529411765
-fold: 3, 0.7575757575757576
-fold: 4, 0.6617647058823529
-fold: 5, 0.8059701492537313
+fold: 1, 0.746268656716418
+fold: 2, 0.75
+fold: 3, 0.5757575757575758
+fold: 4, 0.6470588235294118
+fold: 5, 0.7910447761194029
 fold: 6, 0.7313432835820896
-fold: 7, 0.7205882352941176
-fold: 8, 0.6666666666666666
+fold: 7, 0.7352941176470589
+fold: 8, 0.6818181818181818
 fold: 9, 0.6764705882352942
-fold: 10, 0.7611940298507462
+fold: 10, 0.746268656716418
 errors: 0
 prunetree_pSa
 fold: 1, 0.5223880597014925
@@ -197,7 +197,7 @@ learners = 5×3 DataFrames.DataFrame
 ├─────┼────────────────────────┼──────────┼───────────┤
 │ 1   │ rf_k2d                 │ 0.684652 │ 0.0334061 │
 │ 2   │ AdaBoostClassifier_1rk │ 0.698086 │ 0.0576059 │
-│ 3   │ SGDClassifier_2xI      │ 0.712925 │ 0.0522544 │
+│ 3   │ SGDClassifier_2xI      │ 0.708132 │ 0.0630349 │
 │ 4   │ prunetree_pSa          │ 0.578826 │ 0.0459255 │
 │ 5   │ LinearSVC_39A          │ 0.730508 │ 0.0494756 │</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters-1"><a class="docs-heading-anchor" href="#Learners-as-Filters-1">Learners as Filters</a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters-1" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
@@ -209,10 +209,10 @@ julia&gt; crossvalidate(expr,X,Y,&quot;accuracy_score&quot;,5)
 fold: 1, 0.6148148148148148
 fold: 2, 0.6268656716417911
 fold: 3, 0.7014925373134329
-fold: 4, 0.6119402985074627
+fold: 4, 0.6044776119402985
 fold: 5, 0.6148148148148148
 errors: 0
-(mean = 0.6339856274184632, std = 0.03817366006945078, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline-1"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline-1">Advanced Expressions using Selector Pipeline</a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline-1" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+(mean = 0.6324930901050304, std = 0.03937798053766023, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline-1"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline-1">Advanced Expressions using Selector Pipeline</a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline-1" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
 julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
                         (jrf * ada * sgd * tree * lsvc);
@@ -235,15 +235,15 @@ julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt
                         ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;
 
 julia&gt; crossvalidate(pjrf,X,Y,&quot;accuracy_score&quot;)
-fold: 1, 0.7761194029850746
+fold: 1, 0.7611940298507462
 fold: 2, 0.75
 fold: 3, 0.7424242424242424
 fold: 4, 0.7205882352941176
 fold: 5, 0.7014925373134329
 fold: 6, 0.6865671641791045
-fold: 7, 0.6617647058823529
+fold: 7, 0.75
 fold: 8, 0.7575757575757576
 fold: 9, 0.7352941176470589
-fold: 10, 0.7014925373134329
+fold: 10, 0.6865671641791045
 errors: 0
-(mean = 0.7233318700614575, std = 0.03540491242371542, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 21 April 2020 21:10">Tuesday 21 April 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7291703248463565, std = 0.028641607216837443, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 7 May 2020 23:40">Thursday 7 May 2020</span>. Using Julia version 1.4.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
