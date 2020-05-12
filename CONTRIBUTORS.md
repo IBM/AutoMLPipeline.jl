@@ -1,3 +1,6 @@
+Copyright for portions of project AutoMLPipeline.jl are held by Samuel Jenkins, 2014 as part of project Orchestra.jl.
+
+All other copyright for project AutoMLPipeline.jl are held by IBM.
 
 This is an open source project sponsored and copyrighted by IBM. 
 
