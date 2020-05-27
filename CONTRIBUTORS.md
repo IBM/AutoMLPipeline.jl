@@ -12,3 +12,9 @@ We use GitHub issue tracker for any issue/bug reporting and discussion.
 
 ## Contributors
 - [Paulito Palmes, IBM Research](https://github.com/ppalmes): data structures/types, algorithms, pipeline, and general workflow
+
+## Collaborators
+- [Akihiro Kishimoto, IBM Research](https://researcher.watson.ibm.com/researcher/view.php?person=ie-AKIHIROK)
+- [Radu Marinescu, IBM Research](https://researcher.watson.ibm.com/researcher/view.php?person=ie-radu.marinescu)
+- [Parikshit Ram, IBM Research](https://rithram.github.io/)
+- [Elizabeth Daly, IBM Research](https://researcher.watson.ibm.com/researcher/view.php?person=ie-elizabeth.daly)
