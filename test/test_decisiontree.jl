@@ -4,7 +4,7 @@ using Test
 using AutoMLPipeline.DecisionTreeLearners
 using AutoMLPipeline.Utils
 using Random
-using DataFrames
+using DataFrames: nrow, DataFrame
 
 function generateXY()
     Random.seed!(123)
