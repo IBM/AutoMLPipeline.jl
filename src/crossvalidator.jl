@@ -6,10 +6,10 @@ using MLBase: StratifiedKfold, LOOCV,
               RandomSub, StratifiedRandomSub
 
 # standard included modules
-using DataFrames
 using Random
-using AutoMLPipeline.AbsTypes
+using AutoMLPipeline
 using AutoMLPipeline.Utils
+using DataFrames: DataFrame
 
 export crossvalidate, holdoutcrossvalidate
 
