@@ -2,7 +2,7 @@ module TestBaseline
 
 using Random
 using Test
-using DataFrames
+using DataFrames: nrow
 
 using AutoMLPipeline
 using AutoMLPipeline.Pipelines
