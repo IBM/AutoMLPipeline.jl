@@ -2,16 +2,9 @@ module TestSKL
 
 using Random
 using Test
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.SKLearners
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.Pipelines
-using AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.FeatureSelectors
+using AutoMLPipeline
 using Statistics
-using DataFrames
+using DataFrames: DataFrame
 
 const IRIS = getiris()
 const X = IRIS[:,1:3] |> DataFrame

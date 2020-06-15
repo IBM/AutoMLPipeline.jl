@@ -10,7 +10,7 @@ using AutoMLPipeline.Pipelines
 using AutoMLPipeline.EnsembleMethods
 using AutoMLPipeline.FeatureSelectors
 using Statistics
-using DataFrames
+using DataFrames: DataFrame, nrow
 
 Random.seed!(1)
 
