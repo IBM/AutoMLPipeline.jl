@@ -66,7 +66,7 @@ function transform!(nad::NARemover, nfeatures::DataFrame)
   sz = nrow(features)
   tol = nad.model[:acceptance]
   colnames = []
-  for (colname,dat) in eachcol(features,true)
+  for (colname,dat) in collect(pairs(eachcol(features)))
 	 if sum(ismissing.(dat)) < tol*sz
 		push!(colnames,colname)
 	 end
