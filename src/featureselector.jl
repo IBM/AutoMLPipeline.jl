@@ -226,7 +226,7 @@ function transform!(ft::CatNumDiscriminator, features::DataFrame)
     nfeatures = features |> deepcopy
     catcols = ft.model[:nominal_columns]
     if catcols != [] 
-	nfeatures[!,catcols] .= nfeatures[!,catcols] .|> string
+		nfeatures[!,catcols] = nfeatures[!,catcols] .|> string
     end
     return nfeatures
 end
