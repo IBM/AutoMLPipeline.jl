@@ -68,7 +68,7 @@ from a csv file.
 module FileReaders
 
 using CSV 
-using DataFrames
+using DataFrames: DataFrame, nrow,ncol
 
 using AutoMLPipeline
 using AutoMLPipeline.AbsTypes # abstract types (Learners and Transformers)
@@ -120,7 +120,8 @@ Let's now load the FileReaders module together with the other AutoMLPipeline
 modules and create a pipeline that includes the csv reader we just created.
 
 ```@example csvreader
-using DataFrames
+using DataFrames: DataFrame, nrow,ncol
+
 
 using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
 using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines

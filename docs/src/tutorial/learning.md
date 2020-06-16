@@ -61,7 +61,8 @@ tree = PrunedTree()
 nothing #hide
 ```
 ```@example learning
-using DataFrames
+using DataFrames: DataFrame, nrow,ncol
+
 learners = DataFrame() 
 for learner in [jrf,ada,sgd,tree]
   pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
