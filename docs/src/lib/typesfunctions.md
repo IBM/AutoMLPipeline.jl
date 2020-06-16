@@ -3,8 +3,7 @@
 Order   = [:module,:type,:function]
 Modules = [
    AutoMLPipeline.AbsTypes,
-	AutoMLPipeline.Baselines.Identity,
-	AutoMLPipeline.Baselines.Baseline,
+	AutoMLPipeline.Baselines,
    AutoMLPipeline.BaseFilters,
    AutoMLPipeline.Pipelines,
 	AutoMLPipeline.NARemovers.NARemover,
@@ -24,8 +23,7 @@ Modules = [
 Order   = [:type,:function]
 Modules = [
    AutoMLPipeline.AbsTypes,
-	AutoMLPipeline.Baselines.Identity,
-	AutoMLPipeline.Baselines.Baseline,
+	AutoMLPipeline.Baselines,
    AutoMLPipeline.BaseFilters,
    AutoMLPipeline.Pipelines,
 	AutoMLPipeline.NARemovers.NARemover,
