@@ -7,6 +7,7 @@ os:
 julia:
   - 1.0
   - 1.4
+  - 1.5
   - nightly
 addons:
   apt:
@@ -14,7 +15,7 @@ addons:
       - python3-numpy
       - python3-scipy
 env:
-  - PYTHON=Conda
+  - PYTHON=Conda LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
 notifications:
   email: false
 

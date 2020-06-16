@@ -13,12 +13,12 @@ export NARemover
 
 
 """
-NARemover(
-Dict(
-:name => "nadetect",
-:acceptance => 0.10 # tolerable NAs percentage
-)
-)
+    NARemover(
+      Dict(
+        :name => "nadetect",
+        :acceptance => 0.10 # tolerable NAs percentage
+      )
+    )
 
 Removes columns with NAs greater than acceptance rate.
 This assumes that it processes columns of features. 
@@ -50,6 +50,17 @@ Helper function for NARemover.
 """
 NARemover(acceptance::Float64) = NARemover(Dict(:acceptance => acceptance))
 
+
+"""
+    fit!(nad::NARemover,features::DataFrame,labels::Vector=[])
+
+Checks and exit of df is empty
+
+# Arguments
+- `nad::NARemover`: custom type
+- `features::DataFrame`: input
+- `labels::Vector=[]`: 
+"""
 function fit!(nad::NARemover, features::DataFrame, labels::Vector=[])
   if features == DataFrame()
 	 error("empty dataframe")
@@ -58,6 +69,15 @@ function fit!(nad::NARemover, features::DataFrame, labels::Vector=[])
 end
 
 
+"""
+    transform!(nad::NARemover,nfeatures::DataFrame)
+
+Removes columns with NAs greater than acceptance rate.
+
+# Arguments
+- `nad::NARemover`: custom type
+- `nfeatures::DataFrame`: input
+"""
 function transform!(nad::NARemover, nfeatures::DataFrame)
   features = deepcopy(nfeatures) 
   if features == DataFrame()
@@ -66,7 +86,7 @@ function transform!(nad::NARemover, nfeatures::DataFrame)
   sz = nrow(features)
   tol = nad.model[:acceptance]
   colnames = []
-  for (colname,dat) in eachcol(features,true)
+  for (colname,dat) in collect(pairs(eachcol(features)))
 	 if sum(ismissing.(dat)) < tol*sz
 		push!(colnames,colname)
 	 end
