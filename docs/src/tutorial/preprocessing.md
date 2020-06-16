@@ -95,7 +95,8 @@ to convert columns of features with small unique instances into categorical
 and hot-bit encode them as shown below. Let us use 5 as the cut-off and any
 columns with less than 5 unique instances is converted to hot-bits.
 ```@repl preprocessing
-using DataFrames
+using DataFrames: DataFrame, nrow,ncol
+
 df = rand(1:3,100,3) |> DataFrame;
 show5(df)
 disc = CatNumDiscriminator(5);
