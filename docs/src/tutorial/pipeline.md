@@ -173,7 +173,8 @@ Let's evaluate several learners which is a typical workflow
 in searching for the optimal model.
 ```@example pipeline
 using Random
-using DataFrames
+using DataFrames: DataFrame, nrow,ncol
+
 using AutoMLPipeline
 
 Random.seed!(1)
