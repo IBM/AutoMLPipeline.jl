@@ -11,11 +11,11 @@ abstract type Workflow <: Machine end # types: Linear vs Combine
 abstract type Learner <: Computer end
 abstract type Transformer <: Computer end
 
-# multiple dispatch for fit
 """
     fit!(mc::Machine, input::DataFrame, output::Vector)
 
 Generic trait to be overloaded by different subtypes of Machine.
+Multiple dispatch for fit!.
 """
 function fit!(mc::Machine, input::DataFrame, output::Vector)
 	error(typeof(mc),"not implemented")
@@ -26,12 +26,13 @@ end
     transform!(mc::Machine, input::DataFrame)
 
 Generic trait to be overloaded by different subtypes of Machine.
+Multiple dispatch for transform!.
 """
 function transform!(mc::Machine, input::DataFrame)
 	error(typeof(mc),"not implemented")
 end
 
-# dynamic dispatch based Machine subtypes
+
 """
     fit_transform!(mc::Machine, input::DataFrame, output::Vector)
 
