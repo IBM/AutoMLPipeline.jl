@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Preprocessing · AutoMLPipeline Documentation</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AutoMLPipeline Documentation</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../pipeline/">Pipeline</a></li><li class="is-active"><a class="tocitem" href>Preprocessing</a></li><li><a class="tocitem" href="../learning/">Training and Validation</a></li><li><a class="tocitem" href="../extending/">Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../man/preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../../man/learners/">Learners</a></li><li><a class="tocitem" href="../../man/metaensembles/">Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Preprocessing</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Preprocessing</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/tutorial/preprocessing.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Preprocessing-1"><a class="docs-heading-anchor" href="#Preprocessing-1">Preprocessing</a><a class="docs-heading-anchor-permalink" href="#Preprocessing-1" title="Permalink"></a></h1><p>Let us start by loading the <code>diabetes</code> dataset:</p><pre><code class="language-julia">using AutoMLPipeline
+using CSV
+diabetesdf = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/diabetes.csv&quot;))
+X = diabetesdf[:,1:end-1]
+Y = diabetesdf[:,end] |&gt; Vector</code></pre><p>We can check the data by showing the first 5 rows:</p><pre><code class="language-julia-repl">julia&gt; show5(df)=first(df,5); # show first 5 rows
+
+julia&gt; show5(diabetesdf)
+5×9 DataFrames.DataFrame
+│ Row │ preg  │ plas  │ pres  │ skin  │ insu  │ mass    │ pedi    │ age   │ class           │
+│     │ Int64 │ Int64 │ Int64 │ Int64 │ Int64 │ Float64 │ Float64 │ Int64 │ String          │
+├─────┼───────┼───────┼───────┼───────┼───────┼─────────┼─────────┼───────┼─────────────────┤
+│ 1   │ 6     │ 148   │ 72    │ 35    │ 0     │ 33.6    │ 0.627   │ 50    │ tested_positive │
+│ 2   │ 1     │ 85    │ 66    │ 29    │ 0     │ 26.6    │ 0.351   │ 31    │ tested_negative │
+│ 3   │ 8     │ 183   │ 64    │ 0     │ 0     │ 23.3    │ 0.672   │ 32    │ tested_positive │
+│ 4   │ 1     │ 89    │ 66    │ 23    │ 94    │ 28.1    │ 0.167   │ 21    │ tested_negative │
+│ 5   │ 0     │ 137   │ 40    │ 35    │ 168   │ 43.1    │ 2.288   │ 33    │ tested_positive │</code></pre><p>This <a href="https://archive.ics.uci.edu/ml/datasets/diabetes">UCI dataset</a>  is a collection of diagnostic tests among the Pima Indians  to investigate whether the patient shows  sign of diabetes or not based on certain features:</p><ul><li>Number of times pregnant</li><li>Plasma glucose concentration a 2 hours in an oral glucose tolerance test</li><li>Diastolic blood pressure (mm Hg)</li><li>Triceps skin fold thickness (mm)</li><li>2-Hour serum insulin (mu U/ml)</li><li>Body mass index (weight in kg/(height in m)^2)</li><li>Diabetes pedigree function</li><li>Age (years)</li><li>Class variable (0 or 1) indicating diabetic or not</li></ul><p>What is interesting with this dataset is that one or more numeric columns can be categorical and should be hot-bit encoded. One way to verify is  to compute the number of unique instances for each column and look for  columns with relatively smaller count:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in eachcol(diabetesdf,true)] |&gt; collect
+┌ Warning: `eachcol(df::AbstractDataFrame, names::Bool)` is deprecated, use `if names
+│     collect(pairs(eachcol(df)))
+│ else
+│     eachcol(df)
+│ end` instead.
+│   caller = top-level scope at none:3
+└ @ Core none:3
+9-element Array{Pair{Symbol,Int64},1}:
+  :preg =&gt; 17
+  :plas =&gt; 136
+  :pres =&gt; 47
+  :skin =&gt; 51
+  :insu =&gt; 186
+  :mass =&gt; 248
+  :pedi =&gt; 517
+   :age =&gt; 52
+ :class =&gt; 2</code></pre><p>Among the input columns, <code>preg</code> has only 17 unique instances and it can be treated as a categorical variable. However, its description indicates that the feature refers to the number of times the patient is pregnant and can be considered numerical. With this dilemma, we need to figure out which representation provides better performance to our classifier. In order to test the two options, we can use the Feature Discriminator module to filter and transform the <code>preg</code> column to either numeric or categorical and choose the pipeline with the optimal performance.</p><h3 id="CatNumDiscriminator-for-Detecting-Categorical-Numeric-Features-1"><a class="docs-heading-anchor" href="#CatNumDiscriminator-for-Detecting-Categorical-Numeric-Features-1">CatNumDiscriminator for Detecting Categorical Numeric Features</a><a class="docs-heading-anchor-permalink" href="#CatNumDiscriminator-for-Detecting-Categorical-Numeric-Features-1" title="Permalink"></a></h3><p><em>Transform numeric columns with small unique instances to categories.</em></p><p>Let us use <code>CatNumDiscriminator</code> which expects one argument to indicate the maximum number of unique instances in order to consider a particular column as categorical. For the sake of this discussion, let us use its  default value which is 24.</p><pre><code class="language-julia">using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
+using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
+using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
+using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
+using AutoMLPipeline.Utils, AutoMLPipeline.SKLearners
+
+disc = CatNumDiscriminator(24)
+@pipeline disc
+tr_disc = fit_transform!(disc,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_disc)
+5×8 DataFrames.DataFrame
+│ Row │ preg   │ plas  │ pres  │ skin  │ insu  │ mass    │ pedi    │ age   │
+│     │ String │ Int64 │ Int64 │ Int64 │ Int64 │ Float64 │ Float64 │ Int64 │
+├─────┼────────┼───────┼───────┼───────┼───────┼─────────┼─────────┼───────┤
+│ 1   │ 6      │ 148   │ 72    │ 35    │ 0     │ 33.6    │ 0.627   │ 50    │
+│ 2   │ 1      │ 85    │ 66    │ 29    │ 0     │ 26.6    │ 0.351   │ 31    │
+│ 3   │ 8      │ 183   │ 64    │ 0     │ 0     │ 23.3    │ 0.672   │ 32    │
+│ 4   │ 1      │ 89    │ 66    │ 23    │ 94    │ 28.1    │ 0.167   │ 21    │
+│ 5   │ 0      │ 137   │ 40    │ 35    │ 168   │ 43.1    │ 2.288   │ 33    │</code></pre><p>You may notice that the <code>preg</code> column is converted by the <code>CatNumDiscriminator</code> into <code>String</code> type which can be fed to hot-bit encoder to preprocess  categorical data:</p><pre><code class="language-julia">disc = CatNumDiscriminator(24)
+catf = CatFeatureSelector()
+ohe = OneHotEncoder()
+pohe = @pipeline disc |&gt; catf |&gt; ohe
+tr_pohe = fit_transform!(pohe,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_pohe)
+5×17 DataFrames.DataFrame
+│ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │
+│     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
+├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+│ 1   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 2   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 3   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 4   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 5   │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><p>We have now converted all categorical data into hot-bit encoded values.</p><p>For a typical scenario, one can consider columns with around 3-10  unique numeric instances to be categorical.  Using <code>CatNumDiscriminator</code>, it is trivial to convert columns of features with small unique instances into categorical and hot-bit encode them as shown below. Let us use 5 as the cut-off and any columns with less than 5 unique instances is converted to hot-bits.</p><pre><code class="language-julia-repl">julia&gt; using DataFrames: DataFrame, nrow,ncol
+
+julia&gt; df = rand(1:3,100,3) |&gt; DataFrame;
+
+julia&gt; show5(df)
+5×3 DataFrames.DataFrame
+│ Row │ x1    │ x2    │ x3    │
+│     │ Int64 │ Int64 │ Int64 │
+├─────┼───────┼───────┼───────┤
+│ 1   │ 1     │ 3     │ 3     │
+│ 2   │ 2     │ 3     │ 1     │
+│ 3   │ 3     │ 2     │ 2     │
+│ 4   │ 2     │ 3     │ 2     │
+│ 5   │ 1     │ 2     │ 3     │
+
+julia&gt; disc = CatNumDiscriminator(5);
+
+julia&gt; pohe = @pipeline disc |&gt; catf |&gt; ohe;
+
+julia&gt; tr_pohe = fit_transform!(pohe,df);
+
+julia&gt; show5(tr_pohe)
+5×9 DataFrames.DataFrame
+│ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │
+│     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
+├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+│ 1   │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │
+│ 2   │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │
+│ 3   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │
+│ 4   │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │
+│ 5   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │</code></pre><h3 id="Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns-1"><a class="docs-heading-anchor" href="#Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns-1">Concatenating Hot-Bits with PCA of Numeric Columns</a><a class="docs-heading-anchor-permalink" href="#Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns-1" title="Permalink"></a></h3><p>Going back to the original <code>diabetes</code> dataset, we can now use the  <code>CatNumDiscriminator</code> to differentiate between categorical  columns and numerical columns and preprocess them based on their  types (String vs Number). Below is the pipeline to convert <code>preg</code> column to hot-bits and use PCA for the numerical features:</p><pre><code class="language-julia">pca = SKPreprocessor(&quot;PCA&quot;)
+disc = CatNumDiscriminator(24)
+ohe = OneHotEncoder()
+catf = CatFeatureSelector()
+numf = NumFeatureSelector()
+pl = @pipeline disc |&gt; ((numf |&gt; pca) + (catf |&gt; ohe))
+res_pl = fit_transform!(pl,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(res_pl)
+5×24 DataFrames.DataFrame
+│ Row │ x1       │ x2       │ x3         │ x4       │ x5       │ x6       │ x7         │ x1_1    │ x2_1    │ x3_1    │ x4_1    │ x5_1    │ x6_1    │ x7_1    │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │
+│     │ Float64  │ Float64  │ Float64    │ Float64  │ Float64  │ Float64  │ Float64    │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
+├─────┼──────────┼──────────┼────────────┼──────────┼──────────┼──────────┼────────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+│ 1   │ -75.7103 │ -35.9097 │ -7.24498   │ 15.8651  │ 16.3111  │ 3.44999  │ 0.0983858  │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 2   │ -82.3643 │ 28.8482  │ -5.54565   │ 8.92881  │ 3.75463  │ 5.57591  │ -0.0757265 │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 3   │ -74.6222 │ -67.8436 │ 19.4901    │ -5.61152 │ -10.7677 │ 7.1707   │ 0.245201   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 4   │ 11.0716  │ 34.84    │ -0.0969794 │ 1.16049  │ -7.43015 │ 2.58333  │ -0.267739  │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 5   │ 89.7362  │ -2.84072 │ 25.1258    │ 18.9669  │ 8.76339  │ -9.50796 │ 1.69639    │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><h3 id="Performance-Evaluation-1"><a class="docs-heading-anchor" href="#Performance-Evaluation-1">Performance Evaluation</a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation-1" title="Permalink"></a></h3><p>Let us compare the RF cross-validation result between two options:</p><ul><li><code>preg</code> column should be categorical vs</li><li><code>preg</code> column is numerical</li></ul><p>in predicting diabetes where numerical values are scaled by robust scaler and decomposed by PCA.</p><h5 id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate-1"><a class="docs-heading-anchor" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate-1">Option 1: Assume All Numeric Columns as not Categorical and Evaluate</a><a class="docs-heading-anchor-permalink" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate-1" title="Permalink"></a></h5><pre><code class="language-julia">pca = SKPreprocessor(&quot;PCA&quot;)
+dt = SKLearner(&quot;DecisionTreeClassifier&quot;)
+rf = SKLearner(&quot;RandomForestClassifier&quot;)
+rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+jrf = RandomForest()
+lsvc = SKLearner(&quot;LinearSVC&quot;)
+ohe = OneHotEncoder()
+catf = CatFeatureSelector()
+numf = NumFeatureSelector()
+disc = CatNumDiscriminator(0) # disable turning numeric to categorical features
+pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)
+fold: 1, 0.8076923076923077
+fold: 2, 0.8
+fold: 3, 0.7692307692307693
+fold: 4, 0.8461538461538461
+fold: 5, 0.76
+fold: 6, 0.8076923076923077
+fold: 7, 0.6923076923076923
+fold: 8, 0.6666666666666666
+fold: 9, 0.7692307692307693
+fold: 10, 0.7307692307692307
+fold: 11, 0.84
+fold: 12, 0.7692307692307693
+fold: 13, 0.6923076923076923
+fold: 14, 0.72
+fold: 15, 0.8846153846153846
+fold: 16, 0.8076923076923077
+fold: 17, 0.68
+fold: 18, 0.7307692307692307
+fold: 19, 0.7307692307692307
+fold: 20, 0.72
+fold: 21, 0.7307692307692307
+fold: 22, 0.7692307692307693
+fold: 23, 0.8333333333333334
+fold: 24, 0.8461538461538461
+fold: 25, 0.6538461538461539
+fold: 26, 0.84
+fold: 27, 0.7307692307692307
+fold: 28, 0.6538461538461539
+fold: 29, 0.64
+fold: 30, 0.8076923076923077
+errors: 0
+(mean = 0.7576923076923076, std = 0.06646650902153918, folds = 30, errors = 0)</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1" title="Permalink"></a></h5><pre><code class="language-julia">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
+pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)
+fold: 1, 0.9615384615384616
+fold: 2, 0.72
+fold: 3, 0.6538461538461539
+fold: 4, 0.6153846153846154
+fold: 5, 0.76
+fold: 6, 0.8461538461538461
+fold: 7, 0.6923076923076923
+fold: 8, 0.7916666666666666
+fold: 9, 0.7307692307692307
+fold: 10, 0.6538461538461539
+fold: 11, 0.72
+fold: 12, 0.7307692307692307
+fold: 13, 0.7692307692307693
+fold: 14, 0.8
+fold: 15, 0.8461538461538461
+fold: 16, 0.8461538461538461
+fold: 17, 0.8
+fold: 18, 0.68
+fold: 19, 0.7692307692307693
+fold: 20, 0.8846153846153846
+fold: 21, 0.5833333333333334
+fold: 22, 0.7307692307692307
+fold: 23, 0.6923076923076923
+fold: 24, 0.64
+fold: 25, 0.7692307692307693
+fold: 26, 0.6923076923076923
+fold: 27, 0.68
+fold: 28, 0.6538461538461539
+errors: 2
+(mean = 0.7397664835164838, std = 0.08693339976838549, folds = 30, errors = 2)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 18 June 2020 02:20">Thursday 18 June 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
