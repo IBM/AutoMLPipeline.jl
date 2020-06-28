@@ -38,7 +38,7 @@ can be categorical and should be hot-bit encoded. One way to verify is
 to compute the number of unique instances for each column and look for 
 columns with relatively smaller count:
 ```@repl preprocessing
-[n=>length(unique(x)) for (n,x) in eachcol(diabetesdf,true)] |> collect
+[n=>length(unique(x)) for (n,x) in pairs(eachcol(diabetesdf))] |> collect
 ```
 
 Among the input columns, `preg` has only 17 unique instances and it can
