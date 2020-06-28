@@ -4,8 +4,9 @@ using CSV
 cmcdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/cmc.csv&quot;));
 X = cmcdata[:,1:end-1]
 Y = cmcdata[:,end] .|&gt; string
-show5(df) = first(df,5)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(cmcdata)
-5×10 DataFrames.DataFrame
+show5(df) = first(df,5)</code></pre><pre><code class="language-none">┌ Warning: `CSV.read(input; kw...)` is deprecated in favor of `DataFrame!(CSV.File(input; kw...))`
+└ @ CSV ~/.julia/packages/CSV/OM6FO/src/CSV.jl:40</code></pre><pre><code class="language-julia-repl">julia&gt; show5(cmcdata)
+5×10 DataFrame
 │ Row │ Wifes_age │ Wifes_education │ Husbands_education │ Number_of_children_ever_born │ Wifes_religion │ Wifes_now_working.3F │ Husbands_occupation │ Standard.of.living_index │ Media_exposure │ Contraceptive_method_used │
 │     │ Int64     │ Int64           │ Int64              │ Int64                        │ Int64          │ Int64                │ Int64               │ Int64                    │ Int64          │ Int64                     │
 ├─────┼───────────┼─────────────────┼────────────────────┼──────────────────────────────┼────────────────┼──────────────────────┼─────────────────────┼──────────────────────────┼────────────────┼───────────────────────────┤
@@ -39,7 +40,7 @@ numf = NumFeatureSelector()
 disc = CatNumDiscriminator(5) # unique instances &lt;= 5 are categories
 pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std))
 dfcmc = fit_transform!(pcmc,X)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(dfcmc)
-5×24 DataFrames.DataFrame
+5×24 DataFrame
 │ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │ x18     │ x19     │ x20     │ x21     │ x22     │ x1_1     │ x2_1      │
 │     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64  │ Float64   │
 ├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────┼───────────┤
@@ -89,11 +90,11 @@ fold: 4, 0.5544217687074829
 fold: 5, 0.5491525423728814
 errors: 0
 SGDClassifier_ZHI
-fold: 1, 0.4542372881355932
-fold: 2, 0.42517006802721086
-fold: 3, 0.5322033898305085
-fold: 4, 0.48639455782312924
-fold: 5, 0.43389830508474575
+fold: 1, 0.3728813559322034
+fold: 2, 0.46938775510204084
+fold: 3, 0.4711864406779661
+fold: 4, 0.46258503401360546
+fold: 5, 0.49491525423728816
 errors: 0
 prunetree_byh
 fold: 1, 0.43050847457627117
@@ -102,13 +103,13 @@ fold: 3, 0.5152542372881356
 fold: 4, 0.46258503401360546
 fold: 5, 0.5559322033898305
 errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
-learners = 4×4 DataFrames.DataFrame
+learners = 4×4 DataFrame
 │ Row │ name                   │ mean     │ sd        │ kfold │
 │     │ String                 │ Float64  │ Float64   │ Int64 │
 ├─────┼────────────────────────┼──────────┼───────────┼───────┤
 │ 1   │ rf_ahT                 │ 0.50306  │ 0.0263242 │ 5     │
 │ 2   │ AdaBoostClassifier_DWP │ 0.549867 │ 0.0321786 │ 5     │
-│ 3   │ SGDClassifier_ZHI      │ 0.466381 │ 0.0436866 │ 5     │
+│ 3   │ SGDClassifier_ZHI      │ 0.454191 │ 0.0470637 │ 5     │
 │ 4   │ prunetree_byh          │ 0.486734 │ 0.04911   │ 5     │</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
@@ -132,11 +133,11 @@ fold: 4, 0.5306122448979592
 fold: 5, 0.49830508474576274
 errors: 0
 SGDClassifier_ZHI
-fold: 1, 0.49491525423728816
-fold: 2, 0.5034013605442177
-fold: 3, 0.511864406779661
-fold: 4, 0.5170068027210885
-fold: 5, 0.47796610169491527
+fold: 1, 0.4440677966101695
+fold: 2, 0.48639455782312924
+fold: 3, 0.4033898305084746
+fold: 4, 0.43197278911564624
+fold: 5, 0.5050847457627119
 errors: 0
 prunetree_byh
 fold: 1, 0.46440677966101696
@@ -150,14 +151,14 @@ fold: 1, 0.5661016949152542
 fold: 2, 0.54421768707483
 fold: 3, 0.6033898305084746
 fold: 4, 0.5340136054421769
-fold: 5, 0.5559322033898305
+fold: 5, 0.5525423728813559
 errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
-learners = 5×4 DataFrames.DataFrame
+learners = 5×4 DataFrame
 │ Row │ name                           │ mean     │ sd        │ kfold │
 │     │ String                         │ Float64  │ Float64   │ Int64 │
 ├─────┼────────────────────────────────┼──────────┼───────────┼───────┤
 │ 1   │ rf_ahT                         │ 0.520002 │ 0.0205963 │ 5     │
 │ 2   │ AdaBoostClassifier_DWP         │ 0.537009 │ 0.0239272 │ 5     │
-│ 3   │ SGDClassifier_ZHI              │ 0.501031 │ 0.0153916 │ 5     │
+│ 3   │ SGDClassifier_ZHI              │ 0.454182 │ 0.0412436 │ 5     │
 │ 4   │ prunetree_byh                  │ 0.459587 │ 0.0308869 │ 5     │
-│ 5   │ GradientBoostingClassifier_Eif │ 0.560731 │ 0.0267309 │ 5     │</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 16 June 2020 15:51">Tuesday 16 June 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+│ 5   │ GradientBoostingClassifier_Eif │ 0.560053 │ 0.0269253 │ 5     │</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 28 June 2020 18:18">Sunday 28 June 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
