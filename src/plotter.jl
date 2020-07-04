@@ -17,8 +17,8 @@ export Plotter
     Plotter(
       Dict(
         :name => "plotter",
-        :dimension => dim,
-        :axes => [x, y, ...]
+        :axes => [x, y, ...],
+        :type => lines, bar, scatter
       )
     )
 Asks for the dimensions and some other arguments
@@ -42,10 +42,10 @@ mutable struct Plotter <: Transformer
 end
 
 """
-Plotter(dimension::Int)
+Plotter(type::String)
 Helper function for Plotter.
 """
-Plotter(dimension::Int) = Plotter(Dict(:dim => dimension))
+Plotter(type::String) = Plotter(Dict(:type => type))
 
 
 """
@@ -53,43 +53,61 @@ Plotter(dimension::Int) = Plotter(Dict(:dim => dimension))
 Checks and outputs an empty layout if there are no arguments or dimensions.
 # Arguments
 - `plot::Plotter`: custom type
-- `dim::Int`: input
-- `features::DataFrame`: input
+- `type::String`: input
+- `axes::DataFrame`: input
 - `labels::Vector=[]`: 
 """
-function fit!(plot::Plotter, features::DataFrame, labels::Vector=[])
-  if xfeature == DataFrame() || yfeature == DataFrame()
-         return Scene()
+function fit!(plot::Plotter, type::String, axes::DataFrame, labels::Vector=[])
+  if axes == DataFrame()  
+    return Scene()
+  end
+  if isempty(type)
+    error("No plot type is chosen")
   end
   plot.model = plot.args
 end
 
 
 """
-    transform!(plot::Plotter, dim::Int, nfeatures::DataFrame, color::String)
+    transform!(plot::Plotter, type::String, axes::DataFrame, color::String)
 .
 # Arguments
 - `plot::Plotter`: custom type
-- `dim::Int`: input
-- `nfeatures::DataFrame`: input
+- `type::String`: input
+- `axes::DataFrame`: input
 - `color::String`: input
 """
-function transform!(plot::Plotter, dim::Int, nfeatures::DataFrame, color::String)
-  features = deepcopy(nfeatures) 
+function transform!(plot::Plotter, type::String, axes::DataFrame, color::String)
+  features = deepcopy(axes) 
   if features == DataFrame()
 	 return Scene()
   end
-  r = nrow(features)
   x = features[:,1]
   y = features[:,2]
   z = features[:,3]
-  if dim == 2
-     scene = Scene(x, y, color:color)
-  end
-  if dim == 3
-     scene = Scene(x, y, z, color:color)
-  end
+# if required you can add title and axis names
+  if ncol(features) == 2
+    if type == "scatter"
+      colors = nrow(features)
+      scene = scatter(x, y, color=colors)
+    end
+    if type == "lines"
+      scene = lines(x, y, color=color)
+    end
+    if type == "bar"
+      scene = barplot(x, y, color=color)
+    end
+  if ncol(features) == 3
+    if type == "scatter"
+      colors = nrow(features)
+      scene = scatter(x, y, z, color=colors)
+    end
+    if type == "lines"
+      scene = lines(x, y, z, color=color)
+    end
+    if type == "bar"
+      scene = barplot(x, y, z, color=color)
+    end
   return scene
 end
-
 end
