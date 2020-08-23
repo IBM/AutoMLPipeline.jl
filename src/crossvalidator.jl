@@ -2,7 +2,7 @@ module CrossValidators
 
 using Statistics: mean, std
 
-using MLBase: StratifiedKfold, LOOCV,
+using MLBase: StratifiedKfold, LOOCV, Kfold,
               RandomSub, StratifiedRandomSub
 
 # standard included modules
@@ -11,11 +11,7 @@ using AutoMLPipeline
 using AutoMLPipeline.Utils
 using DataFrames: DataFrame
 
-export crossvalidate, holdoutcrossvalidate
-
-function holdoutcrossvalidate(pl::Machine,X::DataFrame,Y::Vector,metric::Function,ntimes=10)
-  @assert size(X)[1] == length(Y)
-end
+export crossvalidate
 
 """
     crossvalidate(pl::Machine,X::DataFrame,Y::Vector,pfunc::Function,kfolds=10) 
@@ -29,7 +25,7 @@ function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
   ## flatten arrays
   @assert size(X)[1] == length(Y)
   rowsize = size(X)[1]
-  folds = StratifiedKfold(Y,nfolds) |> collect
+  folds = Kfold(length(Y),nfolds) |> collect
   pacc = Float64[]
   fold = 0
   error = 0
