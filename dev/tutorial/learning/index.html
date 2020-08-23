@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Training and Validation · AutoMLPipeline Documentation</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AutoMLPipeline Documentation</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../pipeline/">Pipeline</a></li><li><a class="tocitem" href="../preprocessing/">Preprocessing</a></li><li class="is-active"><a class="tocitem" href>Training and Validation</a></li><li><a class="tocitem" href="../extending/">Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../man/preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../../man/learners/">Learners</a></li><li><a class="tocitem" href="../../man/metaensembles/">Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Training and Validation</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Training and Validation</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/tutorial/learning.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Training-and-Validation-1"><a class="docs-heading-anchor" href="#Training-and-Validation-1">Training and Validation</a><a class="docs-heading-anchor-permalink" href="#Training-and-Validation-1" title="Permalink"></a></h1><p>Let us continue our discussion by using another dataset. This time,  let&#39;s use CMC dataset that are mostly categorical.  <a href="https://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice">CMC</a> is about asking women of their contraceptive choice. The dataset is composed of the following features:</p><pre><code class="language-julia">using AutoMLPipeline
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Training and Validation · AutoMLPipeline Documentation</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AutoMLPipeline Documentation</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li><a class="tocitem" href="../pipeline/">Pipeline</a></li><li><a class="tocitem" href="../preprocessing/">Preprocessing</a></li><li class="is-active"><a class="tocitem" href>Training and Validation</a></li><li><a class="tocitem" href="../extending/">Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../man/preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../../man/learners/">Learners</a></li><li><a class="tocitem" href="../../man/metaensembles/">Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Training and Validation</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Training and Validation</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/tutorial/learning.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Training-and-Validation"><a class="docs-heading-anchor" href="#Training-and-Validation">Training and Validation</a><a id="Training-and-Validation-1"></a><a class="docs-heading-anchor-permalink" href="#Training-and-Validation" title="Permalink"></a></h1><p>Let us continue our discussion by using another dataset. This time,  let&#39;s use CMC dataset that are mostly categorical.  <a href="https://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice">CMC</a> is about asking women of their contraceptive choice. The dataset is composed of the following features:</p><pre><code class="language-julia">using AutoMLPipeline
 using CSV
 cmcdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/cmc.csv&quot;));
 X = cmcdata[:,1:end-1]
 Y = cmcdata[:,end] .|&gt; string
-show5(df) = first(df,5)</code></pre><pre><code class="language-none">┌ Warning: `CSV.read(input; kw...)` is deprecated in favor of `DataFrame!(CSV.File(input; kw...))`
-└ @ CSV ~/.julia/packages/CSV/OM6FO/src/CSV.jl:40</code></pre><pre><code class="language-julia-repl">julia&gt; show5(cmcdata)
+show5(df) = first(df,5)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(cmcdata)
 5×10 DataFrame
 │ Row │ Wifes_age │ Wifes_education │ Husbands_education │ Number_of_children_ever_born │ Wifes_religion │ Wifes_now_working.3F │ Husbands_occupation │ Standard.of.living_index │ Media_exposure │ Contraceptive_method_used │
 │     │ Int64     │ Int64           │ Int64              │ Int64                        │ Int64          │ Int64                │ Int64               │ Int64                    │ Int64          │ Int64                     │
@@ -15,13 +14,6 @@ show5(df) = first(df,5)</code></pre><pre><code class="language-none">┌ Warning
 │ 3   │ 43        │ 2               │ 3                  │ 7                            │ 1              │ 1                    │ 3                   │ 4                        │ 0              │ 1                         │
 │ 4   │ 42        │ 3               │ 2                  │ 9                            │ 1              │ 1                    │ 3                   │ 3                        │ 0              │ 1                         │
 │ 5   │ 36        │ 3               │ 3                  │ 8                            │ 1              │ 1                    │ 3                   │ 2                        │ 0              │ 1                         │</code></pre><p>Let&#39;s examine the number of unique instances for each column:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in eachcol(cmcdata,true)]
-┌ Warning: `eachcol(df::AbstractDataFrame, names::Bool)` is deprecated, use `if names
-│     collect(pairs(eachcol(df)))
-│ else
-│     eachcol(df)
-│ end` instead.
-│   caller = top-level scope at none:3
-└ @ Core none:3
 10-element Array{Pair{Symbol,Int64},1}:
                          :Wifes_age =&gt; 34
                    :Wifes_education =&gt; 4
@@ -48,7 +40,7 @@ dfcmc = fit_transform!(pcmc,X)</code></pre><pre><code class="language-julia-repl
 │ 2   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.51519  │ 2.85808   │
 │ 3   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.27202  │ 1.58568   │
 │ 4   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.15043  │ 2.43394   │
-│ 5   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.420897 │ 2.00981   │</code></pre><h3 id="Evaluate-Learners-with-Same-Pipeline-1"><a class="docs-heading-anchor" href="#Evaluate-Learners-with-Same-Pipeline-1">Evaluate Learners with Same Pipeline</a><a class="docs-heading-anchor-permalink" href="#Evaluate-Learners-with-Same-Pipeline-1" title="Permalink"></a></h3><p>You can get a list of sklearners and skpreprocessors by using the following function calls: </p><pre><code class="language-julia-repl">julia&gt; sklearners()
+│ 5   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.420897 │ 2.00981   │</code></pre><h3 id="Evaluate-Learners-with-Same-Pipeline"><a class="docs-heading-anchor" href="#Evaluate-Learners-with-Same-Pipeline">Evaluate Learners with Same Pipeline</a><a id="Evaluate-Learners-with-Same-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluate-Learners-with-Same-Pipeline" title="Permalink"></a></h3><p>You can get a list of sklearners and skpreprocessors by using the following function calls: </p><pre><code class="language-julia-repl">julia&gt; sklearners()
 syntax: SKLearner(name::String, args::Dict=Dict())
 where &#39;name&#39; can be one of:
 
@@ -75,42 +67,44 @@ for learner in [jrf,ada,sgd,tree]
   println(learner.name)
   mean,sd,folds = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
-end;</code></pre><pre><code class="language-none">rf_ahT
-fold: 1, 0.535593220338983
-fold: 2, 0.48639455782312924
-fold: 3, 0.47796610169491527
-fold: 4, 0.5272108843537415
-fold: 5, 0.488135593220339
-errors: 0
-AdaBoostClassifier_DWP
-fold: 1, 0.5898305084745763
-fold: 2, 0.5
-fold: 3, 0.5559322033898305
-fold: 4, 0.5544217687074829
+end;</code></pre><pre class="documenter-example-output">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
+└ @ none:2
+rf_ds2
+fold: 1, 0.5491525423728814
+fold: 2, 0.5068027210884354
+fold: 3, 0.5186440677966102
+fold: 4, 0.5170068027210885
 fold: 5, 0.5491525423728814
 errors: 0
-SGDClassifier_ZHI
-fold: 1, 0.4847457627118644
-fold: 2, 0.47619047619047616
-fold: 3, 0.46779661016949153
-fold: 4, 0.42857142857142855
+AdaBoostClassifier_CwM
+fold: 1, 0.5254237288135594
+fold: 2, 0.5816326530612245
+fold: 3, 0.5830508474576271
+fold: 4, 0.5
+fold: 5, 0.576271186440678
+errors: 0
+SGDClassifier_p1H
+fold: 1, 0.488135593220339
+fold: 2, 0.47959183673469385
+fold: 3, 0.4440677966101695
+fold: 4, 0.4489795918367347
 fold: 5, 0.488135593220339
 errors: 0
-prunetree_byh
-fold: 1, 0.43050847457627117
-fold: 2, 0.46938775510204084
-fold: 3, 0.5152542372881356
-fold: 4, 0.46258503401360546
-fold: 5, 0.5559322033898305
-errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+prunetree_SaL
+fold: 1, 0.4406779661016949
+fold: 2, 0.46258503401360546
+fold: 3, 0.47796610169491527
+fold: 4, 0.48639455782312924
+fold: 5, 0.47796610169491527
+errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
 learners = 4×4 DataFrame
 │ Row │ name                   │ mean     │ sd        │ kfold │
 │     │ String                 │ Float64  │ Float64   │ Int64 │
 ├─────┼────────────────────────┼──────────┼───────────┼───────┤
-│ 1   │ rf_ahT                 │ 0.50306  │ 0.0263242 │ 5     │
-│ 2   │ AdaBoostClassifier_DWP │ 0.549867 │ 0.0321786 │ 5     │
-│ 3   │ SGDClassifier_ZHI      │ 0.469088 │ 0.0239879 │ 5     │
-│ 4   │ prunetree_byh          │ 0.486734 │ 0.04911   │ 5     │</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+│ 1   │ rf_ds2                 │ 0.528152 │ 0.0197006 │ 5     │
+│ 2   │ AdaBoostClassifier_CwM │ 0.553276 │ 0.0381887 │ 5     │
+│ 3   │ SGDClassifier_p1H      │ 0.469782 │ 0.0215865 │ 5     │
+│ 4   │ prunetree_SaL          │ 0.469118 │ 0.0180733 │ 5     │</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,gb]
@@ -118,47 +112,49 @@ for learner in [jrf,ada,sgd,tree,gb]
   println(learner.name)
   mean,sd,folds = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
-end;</code></pre><pre><code class="language-none">rf_ahT
-fold: 1, 0.5322033898305085
+end;</code></pre><pre class="documenter-example-output">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
+└ @ none:2
+rf_ds2
+fold: 1, 0.4915254237288136
 fold: 2, 0.5034013605442177
-fold: 3, 0.5152542372881356
-fold: 4, 0.5
+fold: 3, 0.4915254237288136
+fold: 4, 0.5408163265306123
+fold: 5, 0.49491525423728816
+errors: 0
+AdaBoostClassifier_CwM
+fold: 1, 0.576271186440678
+fold: 2, 0.5544217687074829
+fold: 3, 0.5084745762711864
+fold: 4, 0.5204081632653061
 fold: 5, 0.5491525423728814
 errors: 0
-AdaBoostClassifier_DWP
-fold: 1, 0.5457627118644067
-fold: 2, 0.5578231292517006
-fold: 3, 0.5525423728813559
-fold: 4, 0.5306122448979592
-fold: 5, 0.49830508474576274
+SGDClassifier_p1H
+fold: 1, 0.5796610169491525
+fold: 2, 0.445578231292517
+fold: 3, 0.46779661016949153
+fold: 4, 0.4965986394557823
+fold: 5, 0.5084745762711864
 errors: 0
-SGDClassifier_ZHI
-fold: 1, 0.4711864406779661
-fold: 2, 0.48299319727891155
-fold: 3, 0.5016949152542373
-fold: 4, 0.5204081632653061
-fold: 5, 0.49830508474576274
+prunetree_SaL
+fold: 1, 0.488135593220339
+fold: 2, 0.5136054421768708
+fold: 3, 0.48135593220338985
+fold: 4, 0.4387755102040816
+fold: 5, 0.488135593220339
 errors: 0
-prunetree_byh
-fold: 1, 0.46440677966101696
-fold: 2, 0.46598639455782315
-fold: 3, 0.5050847457627119
-fold: 4, 0.42517006802721086
-fold: 5, 0.43728813559322033
-errors: 0
-GradientBoostingClassifier_Eif
-fold: 1, 0.5661016949152542
-fold: 2, 0.54421768707483
-fold: 3, 0.6033898305084746
-fold: 4, 0.5340136054421769
+GradientBoostingClassifier_fRr
+fold: 1, 0.5932203389830508
+fold: 2, 0.5612244897959183
+fold: 3, 0.5898305084745763
+fold: 4, 0.5510204081632653
 fold: 5, 0.5559322033898305
-errors: 0</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
 learners = 5×4 DataFrame
 │ Row │ name                           │ mean     │ sd        │ kfold │
 │     │ String                         │ Float64  │ Float64   │ Int64 │
 ├─────┼────────────────────────────────┼──────────┼───────────┼───────┤
-│ 1   │ rf_ahT                         │ 0.520002 │ 0.0205963 │ 5     │
-│ 2   │ AdaBoostClassifier_DWP         │ 0.537009 │ 0.0239272 │ 5     │
-│ 3   │ SGDClassifier_ZHI              │ 0.494918 │ 0.0187919 │ 5     │
-│ 4   │ prunetree_byh                  │ 0.459587 │ 0.0308869 │ 5     │
-│ 5   │ GradientBoostingClassifier_Eif │ 0.560731 │ 0.0267309 │ 5     │</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 28 June 2020 18:34">Sunday 28 June 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+│ 1   │ rf_ds2                         │ 0.504437 │ 0.0209082 │ 5     │
+│ 2   │ AdaBoostClassifier_CwM         │ 0.541746 │ 0.027248  │ 5     │
+│ 3   │ SGDClassifier_p1H              │ 0.499622 │ 0.0510572 │ 5     │
+│ 4   │ prunetree_SaL                  │ 0.482002 │ 0.0271246 │ 5     │
+│ 5   │ GradientBoostingClassifier_fRr │ 0.570246 │ 0.0197944 │ 5     │</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 23 August 2020 14:30">Sunday 23 August 2020</span>. Using Julia version 1.5.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
