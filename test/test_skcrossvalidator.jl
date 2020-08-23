@@ -11,7 +11,7 @@ using AutoMLPipeline.Pipelines
 using AutoMLPipeline.FeatureSelectors
 using AutoMLPipeline.Utils
 
-function crossv(ppl,X,Y,folds,verbose)
+function crossval_class(ppl,X,Y,folds,verbose)
   @test crossvalidate(ppl,X,Y,"accuracy_score",folds,verbose).mean > 0.80
   @test crossvalidate(ppl,X,Y,"balanced_accuracy_score",folds,verbose).mean > 0.80
   @test crossvalidate(ppl,X,Y,"cohen_kappa_score",folds,verbose).mean > 0.80
@@ -24,25 +24,57 @@ function crossv(ppl,X,Y,folds,verbose)
   @test crossvalidate(ppl,X,Y,"recall_score","weighted",folds,verbose).mean > 0.80
 end
 
-function test_skcrossvalidator()
+function crossval_reg(ppl,X,Y,folds,verbose)
+  @test crossvalidate(ppl,X,Y,"mean_squared_error",folds,verbose).mean < 0.5
+  @test crossvalidate(ppl,X,Y,"mean_squared_log_error",folds,verbose).mean < 0.5
+  @test crossvalidate(ppl,X,Y,"median_absolute_error",folds,verbose).mean < 0.5
+  @test crossvalidate(ppl,X,Y,"r2_score",folds,verbose).mean > 0.50
+  @test crossvalidate(ppl,X,Y,"max_error",folds,verbose).mean < 0.7
+  @test crossvalidate(ppl,X,Y,"explained_variance_score",folds,verbose).mean > 0.50
+end
+
+function test_skcross_reg()
   data=getiris()
-  X=data[:,1:4]
-  Y=data[:,5] |> Vector{String}
+  X=data[:,1:3]
+  Y=data[:,4] 
   ppl1 = Pipeline(Dict(:machines=>[RandomForest()]))
-  crossv(ppl1,X,Y,10,false)
+  crossval_reg(ppl1,X,Y,10,false)
   ppl2 = Pipeline(Dict(:machines=>[VoteEnsemble()]))
-  crossv(ppl2,X,Y,10,false)
+  crossval_reg(ppl2,X,Y,10,false)
   cat = CatFeatureSelector()
   num = NumFeatureSelector()
   pca = SKPreprocessor("PCA")
   ptf = SKPreprocessor("PowerTransformer")
   rbc = SKPreprocessor("RobustScaler")
   ppl3=@pipeline ((cat + num) + (num |> ptf) + (num |> rbc) + (num |> pca)) |> VoteEnsemble()
-  crossv(ppl3,X,Y,10,false)
+  crossval_reg(ppl3,X,Y,10,false)
 end
-@testset "CrossValidator" begin
+@testset "CrossValidator Regression" begin
   Random.seed!(123)
-  test_skcrossvalidator()
+  test_skcross_reg()
+end
+
+
+
+function test_skcross_class()
+  data=getiris()
+  X=data[:,1:4]
+  Y=data[:,5] |> Vector{String}
+  ppl1 = Pipeline(Dict(:machines=>[RandomForest()]))
+  crossval_class(ppl1,X,Y,10,false)
+  ppl2 = Pipeline(Dict(:machines=>[VoteEnsemble()]))
+  crossval_class(ppl2,X,Y,10,false)
+  cat = CatFeatureSelector()
+  num = NumFeatureSelector()
+  pca = SKPreprocessor("PCA")
+  ptf = SKPreprocessor("PowerTransformer")
+  rbc = SKPreprocessor("RobustScaler")
+  ppl3=@pipeline ((cat + num) + (num |> ptf) + (num |> rbc) + (num |> pca)) |> VoteEnsemble()
+  crossval_class(ppl3,X,Y,10,false)
+end
+@testset "CrossValidator Classification" begin
+  Random.seed!(123)
+  test_skcross_class()
 end
 
 end
