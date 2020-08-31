@@ -41,9 +41,13 @@ function __init__()
           # regression
           "mean_squared_error"              => SKM.mean_squared_error,
           "mean_squared_log_error"          => SKM.mean_squared_log_error,
+          "mean_absolute_error"             => SKM.mean_absolute_error,
           "median_absolute_error"           => SKM.median_absolute_error,
-          "r2_score"                        => SKM. r2_score,
+          "r2_score"                        => SKM.r2_score,
           "max_error"                       => SKM.max_error,
+          "mean_poisson_deviance"           => SKM.mean_poisson_deviance,
+          "mean_gamma_deviance"             => SKM.mean_gamma_deviance,
+          "mean_tweedie_deviance"           => SKM.mean_tweedie_deviance,
           "explained_variance_score"        => SKM.explained_variance_score
          )
 end
