@@ -13,7 +13,7 @@ of the following features:
 ```@example learning
 using AutoMLPipeline
 using CSV
-cmcdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/cmc.csv"));
+cmcdata = CSV.File(joinpath(dirname(pathof(AutoMLPipeline)),"../data/cmc.csv")) |> DataFrame;
 X = cmcdata[:,1:end-1]
 Y = cmcdata[:,end] .|> string
 show5(df) = first(df,5)

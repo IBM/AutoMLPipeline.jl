@@ -109,7 +109,7 @@ end
 # define transform which opens the file and returns a dataframe
 function transform!(csvreader::CSVReader, df::DataFrame=DataFrame())
    fname = csvreader.name
-   df = CSV.read(fname) |> DataFrame
+   df = CSV.File(fname) |> DataFrame
    df != DataFrame() || error("empty dataframe.")
    return df
 end
