@@ -11,7 +11,7 @@ Random.seed!(123)
 ```@example pipeline
 using AutoMLPipeline
 using CSV
-profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
+profbdata = CSV.File(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv")) |> DataFrame
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector
 nothing #hide
