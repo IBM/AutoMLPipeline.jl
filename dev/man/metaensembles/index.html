@@ -6,65 +6,35 @@ svc = SKLearner(&quot;LinearSVC&quot;)
 ridge = SKLearner(&quot;RidgeClassifier&quot;)
 jrf = RandomForest() # julia&#39;s rf
 rfstacker = RandomForest()
-stackens = StackEnsemble([gauss,svc,ridge,jrf],Dict(:stacker=&gt;rfstacker))</code></pre><p>Let&#39;s load some dataset and create a pipeline with the <code>stackens</code> as the learner at the end of the pipeline.</p><pre><code class="language-julia">using CSV
+stackens = StackEnsemble([gauss,svc,ridge,jrf],Dict(:stacker=&gt;rfstacker))</code></pre><p>Let&#39;s load some dataset and create a pipeline with the <code>stackens</code> as the learner at the end of the pipeline.</p><pre><code class="language-">using CSV
 using Random
 Random.seed!(123);
 
-profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/profb.csv&quot;))
-X = profbdata[:,2:end]
+profbdata = CSV.File(joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/profb.csv&quot;)) |&gt; DataFrame
+X = profbdata[:,2:end] 
 Y = profbdata[:,1] |&gt; Vector;
 
 ohe = OneHotEncoder()
 catf = CatFeatureSelector();
 numf = NumFeatureSelector()
-rb = SKPreprocessor(&quot;RobustScaler&quot;);
+rb = SKPreprocessor(&quot;RobustScaler&quot;); 
 pt = SKPreprocessor(&quot;PowerTransformer&quot;);
-pca = SKPreprocessor(&quot;PCA&quot;);
-fa = SKPreprocessor(&quot;FactorAnalysis&quot;);
+pca = SKPreprocessor(&quot;PCA&quot;); 
+fa = SKPreprocessor(&quot;FactorAnalysis&quot;); 
 ica = SKPreprocessor(&quot;FastICA&quot;)
-pplstacks = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
-                       (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; stackens</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplstacks,X,Y)
-fold: 1, 0.6716417910447762
-fold: 2, 0.6716417910447762
-fold: 3, 0.7647058823529411
-fold: 4, 0.7611940298507462
-fold: 5, 0.7761194029850746
-fold: 6, 0.7313432835820896
-fold: 7, 0.6716417910447762
-fold: 8, 0.6323529411764706
-fold: 9, 0.8805970149253731
-fold: 10, 0.6865671641791045
-errors: 0
-(mean = 0.7247805092186128, std = 0.0732968095081647, folds = 10, errors = 0)</code></pre><p>It is worth noting that stack ensemble is dealing with mixture of libraries consisting of Julia&#39;s Random Forest and Scikitlearn learners.</p><h3 id="VoteEnsemble"><a class="docs-heading-anchor" href="#VoteEnsemble">VoteEnsemble</a><a id="VoteEnsemble-1"></a><a class="docs-heading-anchor-permalink" href="#VoteEnsemble" title="Permalink"></a></h3><p>Vote ensemble uses similar idea with the Stack Ensemble  but instead of stacking, it uses voting to get the final prediction. The first stage involves the collection of  bottom-level learners being trained to learn the mapping between input and output. Once they are trained in a classification problem, they are treated as transformers  wherein the final output of the ensemble is based on the  output with the greatest count. It&#39;s equivalent to majority  voting where each learner has one vote based on its prediction output class.</p><p>The VoteEnsemble accepts the following arguments wrapped inside a <code>Dictionary</code> type of argument:</p><ul><li><code>:name</code> -&gt; alias name of ensemble</li><li><code>:learners</code> -&gt; a vector of learners</li></ul><p>While the init function of VoteEnsemble expects a Dictionary type of argument, it also supports the following convenient helper functions:</p><ul><li><code>VoteEnsemble(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline but substitute the stack ensemble with the vote ensemble:</p><pre><code class="language-julia">Random.seed!(123);
+pplstacks = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) + 
+                       (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; stackens
+nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplstacks,X,Y)
+ERROR: UndefVarError: pplstacks not defined</code></pre><p>It is worth noting that stack ensemble is dealing with mixture of libraries consisting of Julia&#39;s Random Forest and Scikitlearn learners.</p><h3 id="VoteEnsemble"><a class="docs-heading-anchor" href="#VoteEnsemble">VoteEnsemble</a><a id="VoteEnsemble-1"></a><a class="docs-heading-anchor-permalink" href="#VoteEnsemble" title="Permalink"></a></h3><p>Vote ensemble uses similar idea with the Stack Ensemble  but instead of stacking, it uses voting to get the final prediction. The first stage involves the collection of  bottom-level learners being trained to learn the mapping between input and output. Once they are trained in a classification problem, they are treated as transformers  wherein the final output of the ensemble is based on the  output with the greatest count. It&#39;s equivalent to majority  voting where each learner has one vote based on its prediction output class.</p><p>The VoteEnsemble accepts the following arguments wrapped inside a <code>Dictionary</code> type of argument:</p><ul><li><code>:name</code> -&gt; alias name of ensemble</li><li><code>:learners</code> -&gt; a vector of learners</li></ul><p>While the init function of VoteEnsemble expects a Dictionary type of argument, it also supports the following convenient helper functions:</p><ul><li><code>VoteEnsemble(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline but substitute the stack ensemble with the vote ensemble:</p><pre><code class="language-">Random.seed!(123);
 
 votingens = VoteEnsemble([gauss,svc,ridge,jrf]);
-pplvote = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
-                     (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; votingens;</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplvote,X,Y)
-fold: 1, 0.6865671641791045
-fold: 2, 0.6417910447761194
-fold: 3, 0.7058823529411765
-fold: 4, 0.6716417910447762
-fold: 5, 0.8507462686567164
-fold: 6, 0.7164179104477612
-fold: 7, 0.6865671641791045
-fold: 8, 0.5294117647058824
-fold: 9, 0.8059701492537313
-fold: 10, 0.6417910447761194
-errors: 0
-(mean = 0.6936786654960492, std = 0.08875725218323854, folds = 10, errors = 0)</code></pre><h3 id="bestlearner"><a class="docs-heading-anchor" href="#bestlearner">BestLearner</a><a id="bestlearner-1"></a><a class="docs-heading-anchor-permalink" href="#bestlearner" title="Permalink"></a></h3><p>The BestLearner ensemble does not perform any 2-stage mapping. What it does is to cross-validate each learner performance and use the most optimal learner as the final model. This ensemble can be used to automatically pick the  most optimal learner in a group of learners included in each argument based on certain selection criteria.</p><p>The BestLearner accepts the following arguments wrapped in <code>Dictionary</code> type argument:</p><ul><li><code>:selection_function</code> -&gt;  Function</li><li><code>:score_type</code>         -&gt; Real</li><li><code>:partition_generator</code> -&gt; Function</li><li><code>:learners</code>            -&gt; Vector of learners</li><li><code>:name</code>                -&gt; alias name of learner</li><li><code>:learner_options_grid</code> -&gt; for hyper-parameter search</li></ul><p>The BestLearner supports the following function signatures aside from Dictionary type argument:</p><ul><li><code>BestLearner(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>BestLearner([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>BestLearner([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline as above but substitute the vote ensemble with the BestLearner ensemble:</p><pre><code class="language-julia">Random.seed!(123);
+pplvote = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) + 
+                     (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; votingens;
+nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplvote,X,Y)
+ERROR: UndefVarError: pplvote not defined</code></pre><h3 id="bestlearner"><a class="docs-heading-anchor" href="#bestlearner">BestLearner</a><a id="bestlearner-1"></a><a class="docs-heading-anchor-permalink" href="#bestlearner" title="Permalink"></a></h3><p>The BestLearner ensemble does not perform any 2-stage mapping. What it does is to cross-validate each learner performance and use the most optimal learner as the final model. This ensemble can be used to automatically pick the  most optimal learner in a group of learners included in each argument based on certain selection criteria.</p><p>The BestLearner accepts the following arguments wrapped in <code>Dictionary</code> type argument:</p><ul><li><code>:selection_function</code> -&gt;  Function</li><li><code>:score_type</code>         -&gt; Real</li><li><code>:partition_generator</code> -&gt; Function</li><li><code>:learners</code>            -&gt; Vector of learners</li><li><code>:name</code>                -&gt; alias name of learner</li><li><code>:learner_options_grid</code> -&gt; for hyper-parameter search</li></ul><p>The BestLearner supports the following function signatures aside from Dictionary type argument:</p><ul><li><code>BestLearner(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>BestLearner([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>BestLearner([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline as above but substitute the vote ensemble with the BestLearner ensemble:</p><pre><code class="language-">Random.seed!(123);
 
 bestens = BestLearner([gauss,svc,ridge,jrf]);
-pplbest = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
-                     (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; bestens;</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplbest,X,Y)
-fold: 1, 0.7164179104477612
-fold: 2, 0.7313432835820896
-fold: 3, 0.7647058823529411
-fold: 4, 0.7761194029850746
-fold: 5, 0.8507462686567164
-fold: 6, 0.6567164179104478
-fold: 7, 0.6865671641791045
-fold: 8, 0.6176470588235294
-fold: 9, 0.8656716417910447
-fold: 10, 0.6268656716417911
-errors: 0
-(mean = 0.7292800702370499, std = 0.08629137697963146, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learners/">« Learners</a><a class="docs-footer-nextpage" href="../../lib/typesfunctions/">Types and Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 31 August 2020 16:42">Monday 31 August 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+pplbest = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) + 
+                     (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; bestens;
+nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplbest,X,Y)
+ERROR: UndefVarError: pplbest not defined</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learners/">« Learners</a><a class="docs-footer-nextpage" href="../../lib/typesfunctions/">Types and Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 1 September 2020 01:24">Tuesday 1 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
