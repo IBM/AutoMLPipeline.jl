@@ -53,7 +53,7 @@ using CSV
 using Random
 Random.seed!(123);
 
-profbdata = CSV.read(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv"))
+profbdata = CSV.File(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv")) |> DataFrame
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector;
 
