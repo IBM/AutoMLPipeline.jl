@@ -8,6 +8,8 @@ Random.seed!(123)
 ```@example preprocessing
 using AutoMLPipeline
 using CSV
+using DataFrames
+
 diabetesdf = CSV.File(joinpath(dirname(pathof(AutoMLPipeline)),"../data/diabetes.csv")) |> DataFrame
 X = diabetesdf[:,1:end-1]
 Y = diabetesdf[:,end] |> Vector

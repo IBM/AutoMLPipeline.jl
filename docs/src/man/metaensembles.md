@@ -37,6 +37,7 @@ Dictionary type, it supports the following convenient function signatures:
 To illustrate, let's create some bottom-level learners from Scikitlearn and Julia:
 ```@example ensemble
 using AutoMLPipeline
+using DataFrames
 
 gauss = SKLearner("GaussianProcessClassifier")
 svc = SKLearner("LinearSVC")
