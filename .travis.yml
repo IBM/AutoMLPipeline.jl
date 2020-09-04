@@ -5,7 +5,6 @@ os:
   - osx
   - windows
 julia:
-  - 1.0
   - 1.5
   - nightly
 addons:
@@ -27,7 +26,6 @@ after_success:
 jobs:
   allow_failures:
     - julia: nightly
-    - julia: 1.0
     - os: windows
   include:
     - stage: "Documentation"

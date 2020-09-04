@@ -13,6 +13,8 @@ of the following features:
 ```@example learning
 using AutoMLPipeline
 using CSV
+using DataFrames
+
 cmcdata = CSV.File(joinpath(dirname(pathof(AutoMLPipeline)),"../data/cmc.csv")) |> DataFrame;
 X = cmcdata[:,1:end-1]
 Y = cmcdata[:,end] .|> string
