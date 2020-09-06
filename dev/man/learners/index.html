@@ -21,26 +21,26 @@ julia&gt; Y = iris[:,end] |&gt; Vector;
 julia&gt; rf = SKLearner(&quot;RandomForestClassifier&quot;,Dict(:n_estimators=&gt;30,:random_state=&gt;0));
 
 julia&gt; crossvalidate(rf,X,Y,&quot;accuracy_score&quot;,3)
-fold: 1, 0.98
+fold: 1, 0.92
 fold: 2, 0.96
-fold: 3, 0.94
+fold: 3, 0.98
 errors: 0
-(mean = 0.96, std = 0.020000000000000018, folds = 3, errors = 0)
+(mean = 0.9533333333333333, std = 0.0305505046330389, folds = 3, errors = 0)
 
 julia&gt; ada = SKLearner(&quot;AdaBoostClassifier&quot;,Dict(:n_estimators=&gt;20,:random_state=&gt;0));
 
 julia&gt; crossvalidate(ada,X,Y,&quot;accuracy_score&quot;,3)
-fold: 1, 0.96
+fold: 1, 1.0
 fold: 2, 0.92
 fold: 3, 0.94
 errors: 0
-(mean = 0.94, std = 0.019999999999999962, folds = 3, errors = 0)
+(mean = 0.9533333333333333, std = 0.04163331998932265, folds = 3, errors = 0)
 
 julia&gt; svc = SKLearner(&quot;SVC&quot;,Dict(:kernel=&gt;&quot;rbf&quot;,:random_state=&gt;0,:gamma=&gt;&quot;auto&quot;));
 
 julia&gt; crossvalidate(svc,X,Y,&quot;accuracy_score&quot;,3)
-fold: 1, 0.92
-fold: 2, 0.96
-fold: 3, 1.0
+fold: 1, 0.96
+fold: 2, 0.94
+fold: 3, 0.96
 errors: 0
-(mean = 0.96, std = 0.03999999999999998, folds = 3, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessors/">« Preprocessors</a><a class="docs-footer-nextpage" href="../metaensembles/">Meta-Ensembles »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 6 September 2020 00:31">Sunday 6 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.9533333333333333, std = 0.011547005383792525, folds = 3, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessors/">« Preprocessors</a><a class="docs-footer-nextpage" href="../metaensembles/">Meta-Ensembles »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 6 September 2020 01:08">Sunday 6 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
