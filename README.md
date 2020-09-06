@@ -100,7 +100,7 @@ julia> Pkg.add("AutoMLPipeline")
 ### Sample Usage
 Below outlines some typical way to preprocess and model any dataset.
 
-##### 1 Load Data, Extract Input (X) and Target (Y) 
+##### 1. Load Data, Extract Input (X) and Target (Y) 
 ```julia
 # Make sure that the input feature is a dataframe and the target output is a 1-D vector.
 using AutoMLPipeline
