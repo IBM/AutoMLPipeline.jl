@@ -81,8 +81,8 @@ prompt using Julia's package management which is triggered
 by pressing `]` at the julia prompt:
 ```julia
 julia> ]
-(v1.3) pkg> update
-(v1.3) pkg> add AutoMLPipeline
+pkg> update
+pkg> add AutoMLPipeline
 ```
 or
 ```julia
@@ -91,7 +91,6 @@ julia> pkg"update"
 julia> pkg"add AutoMLPipeline"
 ```
 or
-
 ```julia
 julia> using Pkg
 julia> Pkg.update()
@@ -101,15 +100,7 @@ julia> Pkg.add("AutoMLPipeline")
 ### Sample Usage
 Below outlines some typical way to preprocess and model any dataset.
 
-#### 1. Load Data
-##### 1.1 Install CSV and DataFrames Packages
-```julia
-using Pkg
-Pkg.update()
-Pkg.add("CSV")
-Pkg.add("DataFrames")
-```
-##### 1.2 Load Data, Extract Input (X) and Target (Y) 
+##### 1 Load Data, Extract Input (X) and Target (Y) 
 ```julia
 # Make sure that the input feature is a dataframe and the target output is a 1-D vector.
 using AutoMLPipeline
@@ -118,6 +109,16 @@ X = profbdata[:,2:end]
 Y = profbdata[:,1] |> Vector;
 head(x)=first(x,5)
 head(profbdata)
+
+5×7 DataFrame. Omitted printing of 1 columns
+│ Row │ Home.Away │ Favorite_Points │ Underdog_Points │ Pointspread │ Favorite_Name │ Underdog_name │
+│     │ String    │ Int64           │ Int64           │ Float64     │ String        │ String        │
+├─────┼───────────┼─────────────────┼─────────────────┼─────────────┼───────────────┼───────────────┤
+│ 1   │ away      │ 27              │ 24              │ 4.0         │ BUF           │ MIA           │
+│ 2   │ at_home   │ 17              │ 14              │ 3.0         │ CHI           │ CIN           │
+│ 3   │ away      │ 51              │ 0               │ 2.5         │ CLE           │ PIT           │
+│ 4   │ at_home   │ 28              │ 0               │ 5.5         │ NO            │ DAL           │
+│ 5   │ at_home   │ 38              │ 7               │ 5.5         │ MIN           │ HOU           │
 ```
 
 #### 2. Load AutoMLPipeline Package and Submodules
