@@ -386,15 +386,31 @@ learners = @distributed (vcat) for learner in [jrf,ada,sgd,tree,lsvc]
 end
 @show learners;
 
+      From worker 3:    AdaBoostClassifier_KPx
+      From worker 4:    SGDClassifier_P0n
+      From worker 5:    prunetree_zzO
+      From worker 2:    rf_M6x
+      From worker 6:    LinearSVC_9l7
+      From worker 4:    fold: 1, 0.6716417910447762
+      From worker 5:    fold: 1, 0.6567164179104478
+      From worker 6:    fold: 1, 0.6865671641791045
+      From worker 2:    fold: 1, 0.7164179104477612
+      From worker 4:    fold: 2, 0.7164179104477612
+      From worker 5:    fold: 2, 0.6119402985074627
+      From worker 6:    fold: 2, 0.8059701492537313
+      From worker 2:    fold: 2, 0.6716417910447762
+      From worker 4:    fold: 3, 0.6764705882352942
+      ....
+      
 learners = 5×3 DataFrame
 │ Row │ name                   │ mean     │ sd        │
 │     │ String                 │ Float64  │ Float64   │
 ├─────┼────────────────────────┼──────────┼───────────┤
-│ 1   │ rf_M6x                 │ 0.653424 │ 0.0754433 │
-│ 2   │ AdaBoostClassifier_KPx │ 0.69504  │ 0.0514792 │
-│ 3   │ SGDClassifier_P0n      │ 0.694908 │ 0.0641564 │
-│ 4   │ prunetree_zzO          │ 0.621927 │ 0.0578242 │
-│ 5   │ LinearSVC_9l7          │ 0.726097 │ 0.0498317 │
+│ 1   │ rf_M6x                 │ 0.647388 │ 0.0764844 │
+│ 2   │ AdaBoostClassifier_KPx │ 0.712862 │ 0.0471003 │
+│ 3   │ SGDClassifier_P0n      │ 0.710009 │ 0.05173   │
+│ 4   │ prunetree_zzO          │ 0.60428  │ 0.0403121 │
+│ 5   │ LinearSVC_9l7          │ 0.726383 │ 0.0467506 │
 ```
 
 #### 11. Automatic Selection of Best Learner
