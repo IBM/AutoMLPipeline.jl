@@ -3,6 +3,11 @@
 |:---:|:---:|:---:|
 | [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
+### Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/IBM/AutoMLPipeline.jl.svg)](https://starchart.cc/IBM/AutoMLPipeline.jl)
+
+
 ### AutoMLPipeline
 is a package that makes it trivial to create complex ML pipeline structures using simple expressions. It leverages on the built-in macro programming features of Julia to symbolically process, manipulate pipeline expressions, and makes it easy to discover optimal structures for machine learning regression and classification.
 
