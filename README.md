@@ -4,7 +4,7 @@
 | [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
 ### AutoMLPipeline
-is a package that makes it trivial to create complex ML pipeline structures using simple expressions. It leverages on the built-in macro programming features of Julia to symbolically process, manipulate pipeline expressions, and makes it easy to discover optimal structures for machine learning prediction and classification.
+is a package that makes it trivial to create complex ML pipeline structures using simple expressions. It leverages on the built-in macro programming features of Julia to symbolically process, manipulate pipeline expressions, and makes it easy to discover optimal structures for machine learning regression and classification.
 
 To illustrate, here is a pipeline expression and evaluation of a typical machine learning workflow that extracts numerical features (`numf`) for `ica` (Independent Component Analysis) and `pca` (Principal Component Analysis) transformations, respectively, concatenated with the hot-bit encoding (`ohe`) of categorical features (`catf`) of a given data for `rf` (Random Forest) modeling:
 
@@ -113,7 +113,6 @@ Pkg.add("DataFrames")
 ```julia
 # Make sure that the input feature is a dataframe and the target output is a 1-D vector.
 using AutoMLPipeline
-using CSV
 profbdata = getprofb()
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector;
@@ -152,6 +151,8 @@ lsvc = SKLearner("LinearSVC");     svc = SKLearner("SVC")
 mlp = SKLearner("MLPClassifier");  ada = SKLearner("AdaBoostClassifier")
 jrf = RandomForest();              vote = VoteEnsemble();
 stack = StackEnsemble();           best = BestLearner();
+skrf_reg = SKLearner("RandomForestRegressor");
+skgb_reg = SKLearner("GradientBoostingRegressor")
 ```
 
 Note: You can get a listing of available `SKPreprocessors` and `SKLearners` by invoking the following functions, respectively: 
@@ -181,7 +182,7 @@ tr = fit_transform!(ppt,X,Y)
 head(tr)
 ```
 
-#### 6. A Pipeline for the Voting Ensemble Learner
+#### 6. A Pipeline for the Voting Ensemble Classification
 ```julia
 # take all categorical columns and hot-bit encode each, 
 # concatenate them to the numerical features,
@@ -208,7 +209,7 @@ julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
 ```
 
-#### 8. A Pipeline for the Random Forest (RF)
+#### 8. A Pipeline for the Random Forest (RF) Classification
 ```julia
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorical features
@@ -225,14 +226,22 @@ pred = fit_transform!(plsvc,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(plsvc,X,Y,"accuracy_score")
 ```
+#### 10. A Pipeline for Random Forest Regression
+```julia
+iris = getiris()
+Xreg = iris[:,1:3]
+Yreg = iris[:,4] |> Vector
+pskrfreg = @pipeline (catf |> ohe) + (numf) |> skrf_reg
+res=crossvalidate(pskrfreg,Xreg,Yreg,"mean_absolute_error",10)
+```
 
 Note: More examples can be found in the *test* directory of the package. Since
 the code is written in Julia, you are highly encouraged to read the source
 code and feel free to extend or adapt the package to your problem. Please
 feel free to submit PRs to improve the package features. 
 
-#### 10. Performance Comparison of Several Learners
-##### 10.1 Sequential Processing
+#### 11. Performance Comparison of Several Learners
+##### 11.1 Sequential Processing
 ```julia
 using Random
 using DataFrames
@@ -256,7 +265,7 @@ end;
 @show learners;
 ```
 
-##### 10.2 Parallel Processing
+##### 11.2 Parallel Processing
 ```julia
 using Random
 using DataFrames
@@ -285,7 +294,7 @@ end
 
 ```
 
-#### 11. Automatic Selection of Best Learner
+#### 12. Automatic Selection of Best Learner
 You can use `*` operation as a selector function which outputs the result of the best learner.
 If we use the same pre-processing pipeline in 10, we expect that the average performance of
 best learner which is `lsvc` will be around 73.0.
@@ -295,7 +304,7 @@ pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * t
 crossvalidate(pcmc,X,Y,"accuracy_score",10)
 ```
 
-#### 12. Learners as Transformers
+#### 13. Learners as Transformers
 It is also possible to use learners in the middle of expression to serve
 as transformers and their outputs become inputs to the final learner as illustrated
 below.
@@ -317,7 +326,7 @@ Note: The `ohe` is necessary in both examples
 because the outputs of the learners and selector function are categorical 
 values that need to be hot-bit encoded before feeding to the final `ada` learner.
 
-#### 13. Tree Visualization of the Pipeline Structure
+#### 14. Tree Visualization of the Pipeline Structure
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
 # package installation 
