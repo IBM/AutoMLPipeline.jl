@@ -1,27 +1,47 @@
 module AutoMLPipeline
 
-greet() = print("Hello World!")
-export fit!, transform!, fit_transform!
+using AMLPBase
+using AMLPBase.AbsTypes
+export Machine, Learner, Transformer, Workflow, Computer
+export fit!, transform!,fit_transform!
 
-include("abstracttypes.jl")
-using .AbsTypes
-export Machine, Computer, Workflow, Learner, Transformer
+using AMLPBase.Utils
+export holdout, kfold, score, infer_eltype, nested_dict_to_tuples, 
+       nested_dict_set!, nested_dict_merge, create_transformer,
+       mergedict, getiris,
+       skipmean,skipmedian,skipstd,
+       aggregatorclskipmissing,
+       getiris, getprofb
 
-include("utils.jl")
-using .Utils
-export getiris, getprofb
-
-include("baselines.jl")
-using .Baselines
+using AMLPBase.Baselines
 export Baseline, Identity
 
-include("basefilters.jl")
-using .BaseFilters
-export OneHotEncoder, Imputer
+using AMLPBase.BaseFilters: Imputer, OneHotEncoder, Wrapper
+export Imputer,OneHotEncoder,Wrapper
 
-include("featureselector.jl")
-using .FeatureSelectors
+using AMLPBase.FeatureSelectors
 export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscriminator
+
+using AMLPBase.Normalizers
+export Normalizer
+
+using AMLPBase.DecisionTreeLearners
+export PrunedTree,RandomForest,Adaboost
+
+using AMLPBase.EnsembleMethods
+export VoteEnsemble, StackEnsemble, BestLearner
+
+using AMLPBase.CrossValidators
+export crossvalidate
+
+using AMLPBase.NARemovers
+export NARemover
+
+using AMLPBase.Pipelines
+export @pipeline @pipelinex
+export Pipeline, ComboPipeline
+
+# --------------------------------------------
 
 include("skpreprocessor.jl")
 using .SKPreprocessors
@@ -31,29 +51,8 @@ include("sklearners.jl")
 using .SKLearners
 export SKLearner, sklearners
 
-include("decisiontree.jl")
-using .DecisionTreeLearners
-export PrunedTree, RandomForest, Adaboost
-
-include("ensemble.jl")
-using .EnsembleMethods
-export VoteEnsemble, StackEnsemble, BestLearner
-
-include("crossvalidator.jl")
-using .CrossValidators
-export crossvalidate
-
 include("skcrossvalidator.jl")
 using .SKCrossValidators
 export crossvalidate
-
-include("naremover.jl")
-using .NARemovers
-export NARemover
-
-include("pipelines.jl")
-using .Pipelines
-export @pipeline, @pipelinex, @pipelinez
-export Pipeline, ComboPipeline 
 
 end # module
