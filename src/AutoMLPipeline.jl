@@ -16,7 +16,7 @@ export holdout, kfold, score, infer_eltype, nested_dict_to_tuples,
 using AMLPBase.Baselines
 export Baseline, Identity
 
-using AMLPBase.BaseFilters: Imputer, OneHotEncoder, Wrapper
+using AMLPBase.BaseFilters
 export Imputer,OneHotEncoder,Wrapper
 
 using AMLPBase.FeatureSelectors
