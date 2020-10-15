@@ -9,16 +9,32 @@
 
 
 ### AutoMLPipeline
-is a package that makes it trivial to create complex ML pipeline structures using simple expressions. It leverages on the built-in macro programming features of Julia to symbolically process, manipulate pipeline expressions, and makes it easy to discover optimal structures for machine learning regression and classification.
+------------------
+**AutoMLPipeline** is a package 
+that makes it trivial 
+to create complex ML pipeline structures 
+using simple expressions. It leverages on 
+the built-in macro programming features of 
+Julia to symbolically process, manipulate 
+pipeline expressions, and makes it easy to 
+discover optimal structures for machine 
+learning regression and classification.
 
-To illustrate, here is a pipeline expression and evaluation of a typical machine learning workflow that extracts numerical features (`numf`) for `ica` (Independent Component Analysis) and `pca` (Principal Component Analysis) transformations, respectively, concatenated with the hot-bit encoding (`ohe`) of categorical features (`catf`) of a given data for `rf` (Random Forest) modeling:
+To illustrate, here is a pipeline expression 
+and evaluation of a typical machine learning 
+workflow that extracts numerical features (`numf`) 
+for `ica` (Independent Component Analysis) 
+and `pca` (Principal Component Analysis) 
+transformations, respectively, concatenated with 
+the hot-bit encoding (`ohe`) of categorical 
+features (`catf`) of a given data for `rf` (Random Forest) modeling:
 
 ```julia
-julia> model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
-julia> fit!(model,Xtrain,Ytrain)
-julia> prediction = transform!(model,Xtest)
-julia> score(:accuracy,prediction,Ytest)
-julia> crossvalidate(model,X,Y,"balanced_accuracy_score")
+model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
+fit!(model,Xtrain,Ytrain)
+prediction = transform!(model,Xtest)
+score(:accuracy,prediction,Ytest)
+crossvalidate(model,X,Y,"balanced_accuracy_score")
 ```
 Just take note that `+` has higher priority than `|>` so if you
 are not sure, enclose the operations inside parentheses.
@@ -29,6 +45,10 @@ are not sure, enclose the operations inside parentheses.
 ### these two expressions are the same
 @pipeline a + b |> c; @pipeline (a + b) |> c
 ```
+
+More examples can be found in the 
+[examples](https://github.com/IBM/AutoMLPipeline.jl/tree/master/examples) 
+folder including optimizing pipelines by multi-threading or distributed computing.
 
 ### Motivations
 The typical workflow in machine learning
@@ -67,10 +87,9 @@ programming (discrete choices of POP elements),
 tree/graph search, and hyper-parameter search.
 
 ### Package Features
-- Pipeline API that allows high-level description of processing workflow
+- Symbolic pipeline API for easy expression and high-level description 
+  of complex pipeline structures and processing workflow
 - Common API wrappers for ML libs including Scikitlearn, DecisionTree, etc
-- Symbolic pipeline parsing for easy expression
-  of complex pipeline structures
 - Easily extensible architecture by overloading just two main interfaces: fit! and transform!
 - Meta-ensembles that allow composition of
     ensembles of ensembles (recursively if needed)
@@ -88,18 +107,6 @@ by pressing `]` at the julia prompt:
 julia> ]
 pkg> update
 pkg> add AutoMLPipeline
-```
-or
-```julia
-julia> using Pkg
-julia> pkg"update"
-julia> pkg"add AutoMLPipeline"
-```
-or
-```julia
-julia> using Pkg
-julia> Pkg.update()
-julia> Pkg.add("AutoMLPipeline")
 ```
 
 ### Sample Usage
@@ -129,28 +136,36 @@ julia> head(profbdata)
 #### 2. Load Filters, Transformers, and Learners 
 ```julia
 #### Decomposition
-julia> pca = SKPreprocessor("PCA"); fa = SKPreprocessor("FactorAnalysis"); ica = SKPreprocessor("FastICA")
+pca = SKPreprocessor("PCA")
+fa = SKPreprocessor("FactorAnalysis")
+ica = SKPreprocessor("FastICA")
 
 #### Scaler 
-julia> rb = SKPreprocessor("RobustScaler"); pt = SKPreprocessor("PowerTransformer"); 
-julia> norm = SKPreprocessor("Normalizer"); mx = SKPreprocessor("MinMaxScaler")
+rb = SKPreprocessor("RobustScaler")
+pt = SKPreprocessor("PowerTransformer")
+norm = SKPreprocessor("Normalizer") 
+mx = SKPreprocessor("MinMaxScaler")
 
 #### categorical preprocessing
-julia> ohe = OneHotEncoder()
+ohe = OneHotEncoder()
 
 #### Column selector
-julia> catf = CatFeatureSelector(); 
-julia> numf = NumFeatureSelector()
+catf = CatFeatureSelector()
+numf = NumFeatureSelector()
 
 #### Learners
-julia> rf = SKLearner("RandomForestClassifier"); 
-julia> gb = SKLearner("GradientBoostingClassifier")
-julia> lsvc = SKLearner("LinearSVC");     svc = SKLearner("SVC")
-julia> mlp = SKLearner("MLPClassifier");  ada = SKLearner("AdaBoostClassifier")
-julia> jrf = RandomForest();              vote = VoteEnsemble();
-julia> stack = StackEnsemble();           best = BestLearner();
-julia> skrf_reg = SKLearner("RandomForestRegressor");
-julia> skgb_reg = SKLearner("GradientBoostingRegressor")
+rf = SKLearner("RandomForestClassifier")
+gb = SKLearner("GradientBoostingClassifier")
+lsvc = SKLearner("LinearSVC")
+svc = SKLearner("SVC")
+mlp = SKLearner("MLPClassifier")
+ada = SKLearner("AdaBoostClassifier")
+jrf = RandomForest()
+vote = VoteEnsemble()
+stack = StackEnsemble()
+best = BestLearner()
+skrf_reg = SKLearner("RandomForestRegressor")
+skgb_reg = SKLearner("GradientBoostingRegressor")
 ```
 
 Note: You can get a listing of available `SKPreprocessors` and `SKLearners` by invoking the following functions, respectively: 
