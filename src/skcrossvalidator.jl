@@ -11,45 +11,46 @@ using AutoMLPipeline.Utils
 import AutoMLPipeline.CrossValidators.crossvalidate
 export crossvalidate
 
+const metric_dict = Dict{String,PyObject}()
+
 function __init__()
-    global SKM = pyimport_conda("sklearn.metrics","scikit-learn")
-    global metric_dict = Dict(
-          "roc_auc_score"                   => SKM.roc_auc_score,
-          "accuracy_score"                  => SKM.accuracy_score,
-          "auc"                             => SKM.auc,
-          "average_precision_score"         => SKM.average_precision_score,
-          "balanced_accuracy_score"         => SKM.balanced_accuracy_score,
-          "brier_score_loss"                => SKM.brier_score_loss,
-          "classification_report"           => SKM.classification_report,
-          "cohen_kappa_score"               => SKM.cohen_kappa_score,
-          "confusion_matrix"                => SKM.confusion_matrix,
-          "f1_score"                        => SKM.f1_score,
-          "fbeta_score"                     => SKM.fbeta_score,
-          "hamming_loss"                    => SKM.hamming_loss,
-          "hinge_loss"                      => SKM.hinge_loss,
-          "log_loss"                        => SKM.log_loss,
-          "matthews_corrcoef"               => SKM.matthews_corrcoef,
-          "multilabel_confusion_matrix"     => SKM.multilabel_confusion_matrix,
-          "precision_recall_curve"          => SKM.precision_recall_curve,
-          "precision_recall_fscore_support" => SKM.precision_recall_fscore_support,
-          "precision_score"                 => SKM.precision_score,
-          "recall_score"                    => SKM.recall_score,
-          "roc_auc_score"                   => SKM.roc_auc_score,
-          "roc_curve"                       => SKM.roc_curve,
-          "jaccard_score"                   => SKM.jaccard_score,
-          "zero_one_loss"                   => SKM.zero_one_loss,
-          # regression
-          "mean_squared_error"              => SKM.mean_squared_error,
-          "mean_squared_log_error"          => SKM.mean_squared_log_error,
-          "mean_absolute_error"             => SKM.mean_absolute_error,
-          "median_absolute_error"           => SKM.median_absolute_error,
-          "r2_score"                        => SKM.r2_score,
-          "max_error"                       => SKM.max_error,
-          "mean_poisson_deviance"           => SKM.mean_poisson_deviance,
-          "mean_gamma_deviance"             => SKM.mean_gamma_deviance,
-          "mean_tweedie_deviance"           => SKM.mean_tweedie_deviance,
-          "explained_variance_score"        => SKM.explained_variance_score
-         )
+   SKM = pyimport_conda("sklearn.metrics","scikit-learn")
+
+   metric_dict["roc_auc_score"]                   = SKM.roc_auc_score
+   metric_dict["accuracy_score"]                  = SKM.accuracy_score
+   metric_dict["auc"]                             = SKM.auc
+   metric_dict["average_precision_score"]         = SKM.average_precision_score
+   metric_dict["balanced_accuracy_score"]         = SKM.balanced_accuracy_score
+   metric_dict["brier_score_loss"]                = SKM.brier_score_loss
+   metric_dict["classification_report"]           = SKM.classification_report
+   metric_dict["cohen_kappa_score"]               = SKM.cohen_kappa_score
+   metric_dict["confusion_matrix"]                = SKM.confusion_matrix
+   metric_dict["f1_score"]                        = SKM.f1_score
+   metric_dict["fbeta_score"]                     = SKM.fbeta_score
+   metric_dict["hamming_loss"]                    = SKM.hamming_loss
+   metric_dict["hinge_loss"]                      = SKM.hinge_loss
+   metric_dict["log_loss"]                        = SKM.log_loss
+   metric_dict["matthews_corrcoef"]               = SKM.matthews_corrcoef
+   metric_dict["multilabel_confusion_matrix"]     = SKM.multilabel_confusion_matrix
+   metric_dict["precision_recall_curve"]          = SKM.precision_recall_curve
+   metric_dict["precision_recall_fscore_support"] = SKM.precision_recall_fscore_support
+   metric_dict["precision_score"]                 = SKM.precision_score
+   metric_dict["recall_score"]                    = SKM.recall_score
+   metric_dict["roc_auc_score"]                   = SKM.roc_auc_score
+   metric_dict["roc_curve"]                       = SKM.roc_curve
+   metric_dict["jaccard_score"]                   = SKM.jaccard_score
+   metric_dict["zero_one_loss"]                   = SKM.zero_one_loss
+   # regression
+   metric_dict["mean_squared_error"]              = SKM.mean_squared_error
+   metric_dict["mean_squared_log_error"]          = SKM.mean_squared_log_error
+   metric_dict["mean_absolute_error"]             = SKM.mean_absolute_error
+   metric_dict["median_absolute_error"]           = SKM.median_absolute_error
+   metric_dict["r2_score"]                        = SKM.r2_score
+   metric_dict["max_error"]                       = SKM.max_error
+   metric_dict["mean_poisson_deviance"]           = SKM.mean_poisson_deviance
+   metric_dict["mean_gamma_deviance"]             = SKM.mean_gamma_deviance
+   metric_dict["mean_tweedie_deviance"]           = SKM.mean_tweedie_deviance
+   metric_dict["explained_variance_score"]        = SKM.explained_variance_score
 end
 
 function checkfun(sfunc::String)
