@@ -13,7 +13,7 @@ export holdout, kfold, score, infer_eltype, nested_dict_to_tuples,
        aggregatorclskipmissing,
        getiris, getprofb
 
-using AMLPBase.Baselines
+using AMLPBase.BaselineModels
 export Baseline, Identity
 
 using AMLPBase.BaseFilters
@@ -30,6 +30,9 @@ export PrunedTree,RandomForest,Adaboost
 
 using AMLPBase.EnsembleMethods
 export VoteEnsemble, StackEnsemble, BestLearner
+
+using AMLPBase.SVMModels
+export SVMModel, svmlearners
 
 using AMLPBase.CrossValidators
 export crossvalidate

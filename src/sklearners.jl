@@ -118,7 +118,7 @@ function SKLearner(learner::String, args::Dict=Dict())
 end
 
 """
-    sklearners()
+    function sklearners()
 
 List the available scikitlearn machine learners.
 """
