@@ -86,7 +86,7 @@ and the following metrics for regression:
 - explained_variance_score
 """
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String="accuracy_score",nfolds=10,verbose::Bool=true)
+                       sfunc::String,nfolds=10,verbose::Bool=true)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(a,b) = pfunc(a,b)
