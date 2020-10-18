@@ -1,6 +1,5 @@
 module BaseFilters
 
-using Infiltrator
 using Random
 using Dates
 using DataFrames

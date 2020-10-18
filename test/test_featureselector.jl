@@ -4,15 +4,6 @@ using Random
 using Test
 using CSV
 using AutoMLPipeline
-using AutoMLPipeline.DecisionTreeLearners
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.SKLearners
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.Pipelines
-using AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.FeatureSelectors
 using Statistics
 using DataFrames
 
