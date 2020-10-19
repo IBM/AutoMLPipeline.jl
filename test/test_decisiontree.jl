@@ -1,8 +1,7 @@
 module TestDecisionTree
 
 using Test
-using AutoMLPipeline.DecisionTreeLearners
-using AutoMLPipeline.Utils
+using AutoMLPipeline
 using Random
 using DataFrames: nrow, DataFrame
 

@@ -2,8 +2,7 @@ module TestNARemover
 
 using Test
 using Random
-using AutoMLPipeline.NARemovers
-using AutoMLPipeline.AbsTypes
+using AutoMLPipeline
 using DataFrames
 
 function test_naremover()

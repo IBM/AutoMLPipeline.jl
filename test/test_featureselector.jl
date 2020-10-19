@@ -68,17 +68,9 @@ function diabetes_test()
     pl = @pipeline disc |> ((numf |> rbs |>  ica) + (catf |> ohe)) |> rf
     @test crossvalidate(pl,X,Y,"accuracy_score",10,false).mean > 0.60
 
-    disc = CatNumDiscriminator(20)
-    pl = @pipeline disc |> ( (catf |> ohe)) |> jrf
-    @test crossvalidate(pl,X,Y,"accuracy_score",20,false).mean > 0.60
-
     disc = CatNumDiscriminator(50)
     pl = @pipeline disc |> ((numf |> rbs |>  pca) + (catf |> ohe)) |> lsvc
-    @test crossvalidate(pl,X,Y,"accuracy_score",20,false).mean > 0.60
-
-    disc = CatNumDiscriminator(100)
-    pl = @pipeline disc |> ((numf |> rbs |>  ica) + (catf |> ohe)) |> rf
-    @test crossvalidate(pl,X,Y,"accuracy_score",20,false).mean > 0.60
+    @test crossvalidate(pl,X,Y,"accuracy_score",2,false).mean > 0.60
 end
 @testset "Feature Selectors: Diabetes" begin
     Random.seed!(123)

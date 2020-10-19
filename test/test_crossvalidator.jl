@@ -3,7 +3,6 @@ module TestCrossValidator
 using Test
 using Random
 using AutoMLPipeline
-using AutoMLPipeline.Utils
 
 function test_crossvalidator()
   racc = 50.0

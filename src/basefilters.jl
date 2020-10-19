@@ -5,12 +5,12 @@ using Dates
 using DataFrames
 using Statistics
 
-using AutoMLPipeline.Utils
-using AutoMLPipeline.AbsTypes: Machine, Transformer, Learner, Workflow, Computer
+using ..Utils
+using ..AbsTypes: Machine, Transformer, Learner, Workflow, Computer
 
-import AutoMLPipeline.AbsTypes: fit!, transform!
+import ..AbsTypes: fit!, transform!
 export fit!,transform!
-export OneHotEncoder, Imputer
+export OneHotEncoder, Imputer, Wrapper
 
 
 """
@@ -29,34 +29,36 @@ and coerces the instance matrix to be of element type Float64.
 Implements `fit!` and `transform`.
 """
 mutable struct OneHotEncoder <: Transformer
-  name::String
-  model::Dict
-  args::Dict
+   name::String
+   model::Dict{Symbol,Any}
 
-  function OneHotEncoder(args::Dict=Dict())
-    default_args = Dict(
-                        :name => "ohe",
-                        # Nominal columns
-                        :nominal_columns => Int[],
-                        # Nominal column values map. Key is column index, value is list of
-                        # possible values for that column.
-                        :nominal_column_values_map => Dict{Int,Any}() 
-                       )
-    cargs=nested_dict_merge(default_args,args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
-  end
+   function OneHotEncoder(args::Dict=Dict{Symbol,Any}())
+      default_args = Dict{Symbol,Any}(
+         :name => "ohe",
+         :nominal_columns => Int[],
+         # Nominal column values map. Key is column index, value is list of
+         # possible values for that column.
+         :nominal_column_values_map => Dict{Int,Any}() 
+      )
+      cargs=nested_dict_merge(default_args,args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      new(cargs[:name],cargs)
+   end
+end
+
+function OneHotEncoder(name::String; opt...)
+   OneHotEncoder(Dict(:name=>name,:impl_args=>Dict(pairs(opt))))
 end
 
 function fit!(ohe::OneHotEncoder, myinstances::DataFrame, labels::Vector=[]) 
   # Obtain nominal columns
-  nominal_columns = ohe.args[:nominal_columns]
+  nominal_columns = ohe.model[:nominal_columns]
   if nominal_columns == Int[]
     nominal_columns,_ = find_catnum_columns(myinstances)
   end
 
   # Obtain unique values for each nominal column
-  nominal_column_values_map = ohe.args[:nominal_column_values_map]
+  nominal_column_values_map = ohe.model[:nominal_column_values_map]
   if nominal_column_values_map == Dict{Int,Any}()
     for column in nominal_columns
       nominal_column_values_map[column] = unique(myinstances[:, column])
@@ -64,10 +66,8 @@ function fit!(ohe::OneHotEncoder, myinstances::DataFrame, labels::Vector=[])
   end
 
   # Create model
-  ohe.model = Dict(
-    :nominal_columns => nominal_columns,
-    :nominal_column_values_map => nominal_column_values_map
-  )
+  ohe.model[:nominal_columns] = nominal_columns
+  ohe.model[:nominal_column_values_map] = nominal_column_values_map
 end
 
 function transform!(ohe::OneHotEncoder, pinstances::DataFrame)
@@ -125,24 +125,28 @@ Imputes NaN values from Float64 features.
 Implements `fit!` and `transform`.
 """
 mutable struct Imputer <: Transformer
-  name::String
-  model::Dict
-  args::Dict
+   name::String
+   model::Dict{Symbol,Any}
 
-  function Imputer(args=Dict())
-    default_args = Dict(
-      # Imputation strategy.
-      # Statistic that takes a vector such as mean or median.
-      :strategy => mean
-    )
-    cargs=nested_dict_merge(default_args,args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
-  end
+   function Imputer(args=Dict())
+      default_args = Dict{Symbol,Any}(
+         :name => "imputer",
+         # Imputation strategy.
+         # Statistic that takes a vector such as mean or median.
+         :strategy => mean
+      )
+      cargs=nested_dict_merge(default_args,args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      new(cargs[:name],cargs)
+   end
+end
+
+function Imputer(name::String;opt...)
+   Imputer((Dict(:name=>name,:impl_args=>Dict(pairs(opt)))))
 end
 
 function fit!(imp::Imputer, myinstances::DataFrame, labels::Vector=[]) 
-  imp.model = imp.args
+   nothing
 end
 
 function transform!(imp::Imputer, myinstances::DataFrame) 
@@ -167,6 +171,7 @@ end
 """
     Wrapper(
        default_args = Dict(
+          :name => "ohe-wrapper",
           # Transformer to call.
           :transformer => OneHotEncoder(),
           # Transformer args.
@@ -181,10 +186,10 @@ Implements `fit!` and `transform`.
 mutable struct Wrapper <: Transformer
   name::String
   model::Dict
-  args::Dict
 
   function Wrapper(args=Dict())
     default_args = Dict(
+      :name => "ohe-wrapper",
       # Transformer to call.
       :transformer => OneHotEncoder(),
       # Transformer args.
@@ -192,26 +197,29 @@ mutable struct Wrapper <: Transformer
     )
     cargs=nested_dict_merge(default_args,args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
+    new(cargs[:name],cargs)
   end
 end
 
+function Wrapper(transformer::Machine;opt...)
+   Wrapper(Dict(:transfomer => transformer, 
+                :transformer_args => Dict(pairs(opt)))
+          )
+end
+
 function fit!(wrapper::Wrapper, myinstances::DataFrame, labels::Vector) 
-  transformer_args = wrapper.args[:transformer_args]
+  transformer_args = wrapper.model[:transformer_args]
   transformer = createtransformer(
-    wrapper.args[:transformer],
-    transformer_args
+    wrapper.model[:transformer],transformer_args
   )
 
   if transformer_args != Dict()
-    transformer_args = mergedict(transformer.args, transformer_args)
+    transformer_args = mergedict(transformer.model, transformer_args)
   end
   fit!(transformer, myinstances, labels)
 
-  wrapper.model = Dict(
-    :transformer => transformer,
-    :transformer_args => transformer_args
-  )
+  wrapper.model[:transformer] = transformer
+  wrapper.model[:transformer_args] = transformer_args
 end
 
 function transform!(wrapper::Wrapper, myinstances::DataFrame)
@@ -230,7 +238,7 @@ Create transformer
 Returns: new transformer.
 """
 function createtransformer(prototype::Transformer, args=Dict())
-  new_args = copy(prototype.args)
+  new_args = copy(prototype.model)
   if args != Dict()
     new_args = mergedict(new_args, args)
   end

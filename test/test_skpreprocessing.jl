@@ -3,12 +3,6 @@ module TestSKPreprocessing
 using Random
 using Test
 using AutoMLPipeline
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.Pipelines
-using AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.FeatureSelectors
 using Statistics
 using DataFrames: DataFrame, nrow
 
@@ -57,11 +51,11 @@ end
 end
 
 @testset "scikit preprocessors transform test" begin
-    Random.seed!(123)
-    for cl in preprocessors
-	#println(cl)
-	transform_test(cl,X,Y)
-    end
+   Random.seed!(123)
+   for cl in preprocessors
+      #println(cl)
+      transform_test(cl,X,Y)
+   end
 end
 
 function skptest()
