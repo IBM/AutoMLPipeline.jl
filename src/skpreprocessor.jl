@@ -5,10 +5,10 @@ using PyCall
 # standard included modules
 using DataFrames
 using Random
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.Utils
+using ..AbsTypes
+using ..Utils
 
-import AutoMLPipeline.AbsTypes: fit!, transform!
+import ..AbsTypes: fit!, transform!
 export fit!, transform!
 export SKPreprocessor, skpreprocessors
 

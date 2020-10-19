@@ -5,10 +5,10 @@ using PyCall
 # standard included modules
 using DataFrames
 using Random
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.Utils
+using ..AbsTypes
+using ..Utils
 
-import AutoMLPipeline.CrossValidators.crossvalidate
+import ..CrossValidators: crossvalidate
 export crossvalidate
 
 const metric_dict = Dict{String,PyObject}()
