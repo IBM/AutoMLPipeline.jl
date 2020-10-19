@@ -2,10 +2,7 @@ module TestEnsembleMethods
 
 using Test
 using Random
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.Utils
-using AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.DecisionTreeLearners
+using AutoMLPipeline
 using DataFrames
 
 function generateXY()

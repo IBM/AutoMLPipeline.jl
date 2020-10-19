@@ -3,14 +3,14 @@ module DecisionTreeLearners
 
 import DecisionTree
 DT = DecisionTree
-
 # standard included modules
 using DataFrames
 using Random
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.Utils
 
-import AutoMLPipeline.AbsTypes: fit!, transform!
+using ..AbsTypes
+using ..Utils
+
+import ..AbsTypes: fit!, transform!
 export fit!, transform!
 
 export PrunedTree, RandomForest, Adaboost
@@ -41,34 +41,37 @@ Hyperparmeters:
 Implements `fit!`, `transform!`
 """
 mutable struct PrunedTree <: Learner
-  name::String
-  model::Dict
-  args::Dict
+   name::String
+   model::Dict{Symbol,Any}
 
-  function PrunedTree(args=Dict())
-    default_args = Dict(
-      :name => "prunetree",
-      # Output to train against
-      # (:class).
-      :output => :class,
-      # Options specific to this implementation.
-      :impl_args => Dict(
-        # Merge leaves having >= purity_threshold CombineMLd purity.
-        :purity_threshold => 1.0,
-        # Maximum depth of the decision tree (default: no maximum).
-        :max_depth => -1,
-        # Minimum number of samples each leaf needs to have.
-        :min_samples_leaf => 1,
-        # Minimum number of samples in needed for a split.
-        :min_samples_split => 2,
-        # Minimum purity needed for a split.
-        :min_purity_increase => 0.0
-      )
-    )
-    cargs = nested_dict_merge(default_args, args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
-  end
+   function PrunedTree(args=Dict())
+      default_args = Dict{Symbol,Any}(
+         :name => "prunetree",
+         # Output to train against
+         # (:class).
+         :output => :class,
+         # Options specific to this implementation.
+         :impl_args => Dict{Symbol,Any}(
+            # Merge leaves having >= purity_threshold CombineMLd purity.
+            :purity_threshold => 1.0,
+            # Maximum depth of the decision tree (default: no maximum).
+            :max_depth => -1,
+            # Minimum number of samples each leaf needs to have.
+            :min_samples_leaf => 1,
+            # Minimum number of samples in needed for a split.
+            :min_samples_split => 2,
+            # Minimum purity needed for a split.
+            :min_purity_increase => 0.0
+           )
+      ) 
+      cargs = nested_dict_merge(default_args, args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      new(cargs[:name],cargs)
+   end
+end
+
+function PrunedTree(name::String;opt...)
+   PrunedTree(Dict(:name=>name,:impl_args=>Dict(pairs(opt))))
 end
 
 """
@@ -78,7 +81,7 @@ Optimize the hyperparameters of `PrunedTree` instance.
 """
 function fit!(ptree::PrunedTree, features::DataFrame, labels::Vector) 
   instances=convert(Matrix,features)
-  args = ptree.args[:impl_args]
+  args = ptree.model[:impl_args]
   btreemodel = DT.build_tree(
     labels,
     instances,
@@ -88,10 +91,8 @@ function fit!(ptree::PrunedTree, features::DataFrame, labels::Vector)
     args[:min_samples_split],
     args[:min_purity_increase])
   btreemodel = DT.prune_tree(btreemodel, args[:purity_threshold])
-  ptree.model = Dict(
-                    :dtmodel => btreemodel,
-                    :impl_args => args
-                   )
+  ptree.model[:dtmodel] = btreemodel
+  ptree.model[:impl_args] = args
 end
 
 
@@ -135,33 +136,36 @@ Hyperparmeters:
 Implements `fit!`, `transform!`
 """
 mutable struct RandomForest <: Learner
-  name::String
-  model::Dict
-  args::Dict
-  function RandomForest(args=Dict())
-    default_args = Dict(
-      :name => "rf",
-      # Output to train against
-      # (:class).
-      :output => :class,
-      # Options specific to this implementation.
-      :impl_args => Dict(
-        # Number of features to train on with trees (default: 0, keep all).
-        :num_subfeatures => 0,
-        # Number of trees in forest.
-        :num_trees => 10,
-        # Proportion of trainingset to be used for trees.
-        :partial_sampling => 0.7,
-        # Maximum depth of each decision tree (default: no maximum).
-        :max_depth => -1
+   name::String
+   model::Dict{Symbol,Any}
+
+   function RandomForest(args=Dict())
+      default_args = Dict{Symbol,Any}(
+          :name => "rf",
+          # Output to train against
+          # (:class).
+          :output => :class,
+          # Options specific to this implementation.
+          :impl_args => Dict{Symbol,Any}(
+              # Number of features to train on with trees (default: 0, keep all).
+              :num_subfeatures => 0,
+              # Number of trees in forest.
+              :num_trees => 10,
+              # Proportion of trainingset to be used for trees.
+              :partial_sampling => 0.7,
+              # Maximum depth of each decision tree (default: no maximum).
+              :max_depth => -1
+          )
       )
-    )
-    cargs = nested_dict_merge(default_args, args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
-  end
+      cargs = nested_dict_merge(default_args, args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      new(cargs[:name],cargs)
+   end
 end
 
+function RandomForest(name::String;opt...)
+   RandomForest(Dict(:name=>name,:impl_args=>Dict(pairs(opt))))
+end
 
 """
     fit!(forest::RandomForest, features::T, labels::Vector) where {T<:Union{Vector,Matrix,DataFrame}}
@@ -171,7 +175,7 @@ Optimize the parameters of the `RandomForest` instance.
 function fit!(forest::RandomForest, features::DataFrame, labels::Vector) 
   instances=convert(Matrix,features)
   # Set training-dependent options
-  impl_args = forest.args[:impl_args]
+  impl_args = forest.model[:impl_args]
   # Build model
   model = DT.build_forest(
     labels, 
@@ -181,10 +185,8 @@ function fit!(forest::RandomForest, features::DataFrame, labels::Vector)
     impl_args[:partial_sampling],
     impl_args[:max_depth]
   )
-  forest.model = Dict(
-                      :dtmodel => model,
-                      :impl_args => impl_args
-                     )
+  forest.model[:dtmodel] = model
+  forest.model[:impl_args] = impl_args
 end
 
 
@@ -222,8 +224,8 @@ Implements `fit!`, `transform!`
 """
 mutable struct Adaboost <: Learner
   name::String
-  model::Dict
-  args::Dict
+  model::Dict{Symbol,Any}
+
   function Adaboost(args=Dict())
     default_args = Dict(
       :name => "adaboost",
@@ -238,10 +240,13 @@ mutable struct Adaboost <: Learner
     )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
+    new(cargs[:name],cargs)
   end
 end
 
+function Adaboost(name::String;opt...)
+   Adaboost(Dict(:name=>name,:impl_args=>Dict(pairs(opt))))
+end
 
 """
     fit!(adaboost::Adaboost, features::DataFrame, labels::Vector) 
@@ -255,12 +260,10 @@ function fit!(adaboost::Adaboost, features::DataFrame, labels::Vector)
   #              official documentation to avoid confusion in variable
   #              naming within CombineML.
   ensemble, coefficients = DT.build_adaboost_stumps(
-    labels, instances, adaboost.args[:impl_args][:num_iterations]
+    labels, instances, adaboost.model[:impl_args][:num_iterations]
   )
-  adaboost.model = Dict(
-    :ensemble => ensemble,
-    :coefficients => coefficients
-  )
+  adaboost.model[:ensemble] = ensemble
+  adaboost.model[:coefficients] = coefficients
 end
 
 """

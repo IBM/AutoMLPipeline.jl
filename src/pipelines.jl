@@ -3,12 +3,12 @@ module Pipelines
 using DataFrames
 using Random
 
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.Utils
-using AutoMLPipeline.EnsembleMethods: BestLearner
+using ..AbsTypes
+using ..BaseFilters
+using ..Utils
+using ..EnsembleMethods: BestLearner
 
-import AutoMLPipeline.AbsTypes: fit!, transform!
+import ..AbsTypes: fit!, transform!
 export fit!, transform!
 export Pipeline, ComboPipeline 
 export @pipeline, @pipelinex, @pipelinez
@@ -23,22 +23,21 @@ of `fit_transform` to the succeeding elements in the pipeline.
 Implements `fit!` and `transform!`.
 """
 mutable struct Pipeline <: Workflow
-  name::String
-  model::Dict
-  args::Dict
+   name::String
+   model::Dict{Symbol,Any}
 
-  function Pipeline(args::Dict = Dict())
-    default_args = Dict(
-			:name => "linearpipeline",
-			# machines as list to chain in sequence.
-			:machines => Vector{Machine}(),
-			# Transformer args as list applied to same index transformer.
-			:machine_args => Dict()
-		       )
-    cargs = nested_dict_merge(default_args, args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
-  end
+   function Pipeline(args::Dict = Dict())
+      default_args = Dict{Symbol,Any}(
+         :name => "linearpipeline",
+         # machines as list to chain in sequence.
+         :machines => Vector{Machine}(),
+         # Transformer args as list applied to same index transformer.
+         :machine_args => Dict{Symbol,Any}()
+      )
+      cargs = nested_dict_merge(default_args, args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      new(cargs[:name],cargs)
+   end
 end
 
 """
@@ -46,10 +45,13 @@ end
 
 Helper function for Pipeline structure.
 """
-function Pipeline(machs::Vector{<:Machine},args::Dict=Dict())
+function Pipeline(machs::Vector{<:Machine},args::Dict)
   Pipeline(Dict(:machines => machs, args...))
 end
 
+function Pipeline(machs::Vector{<:Machine};opt...)
+   Pipeline(Dict(:machines=>machs,:impl_args=>Dict(pairs(opt))))
+end
 
 """
     Pipeline(machs::Vararg{Machine})
@@ -57,20 +59,16 @@ end
 Helper function for Pipeline structure.
 """
 function Pipeline(machs::Vararg{Machine})
-  combo=nothing
-  if eltype(machs) <: Machine
-    v=[x for x in machs] # convert tuples to vector
-    combo = Pipeline(v)
-  else
-    error("argument setup error")
-  end
+  (eltype(machs) <: Machine) || error("argument setup error")
+  v=[x for x in machs] # convert tuples to vector
+  combo = Pipeline(v)
   return combo
 end
 
 function fit!(pipe::Pipeline, features::DataFrame=DataFrame(), labels::Vector=[])
   instances=deepcopy(features)
-  machines = pipe.args[:machines]
-  machine_args = pipe.args[:machine_args]
+  machines = pipe.model[:machines]
+  machine_args = pipe.model[:machine_args]
 
   current_instances = instances
   new_machines = Machine[]
@@ -88,10 +86,8 @@ function fit!(pipe::Pipeline, features::DataFrame=DataFrame(), labels::Vector=[]
   push!(new_machines, machine)
   fit!(machine, current_instances, labels)
 
-  pipe.model = Dict(
-      :machines => new_machines,
-      :machine_args => machine_args
-  )
+  pipe.model[:machines] = new_machines
+  pipe.model[:machine_args] = machine_args
 end
 
 function transform!(pipe::Pipeline, instances::DataFrame=DataFrame())
@@ -117,44 +113,42 @@ their output into one dataframe.
 Implements `fit!` and `transform!`.
 """
 mutable struct ComboPipeline <: Workflow
-  name::String
-  model::Dict
-  args::Dict
+   name::String
+   model::Dict{Symbol,Any}
 
-  function ComboPipeline(args::Dict = Dict())
-    default_args = Dict(
-	:name => "combopipeline",
-	# machines as list to chain in sequence.
-	:machines => Vector{Machine}(),
-	# Transformer args as list applied to same index transformer.
-	:machine_args => Dict()
-       )
-    cargs = nested_dict_merge(default_args, args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
-  end
+   function ComboPipeline(args::Dict = Dict())
+      default_args = Dict{Symbol,Any}(
+         :name => "combopipeline",
+         # machines as list to chain in sequence.
+         :machines => Vector{Machine}(),
+         # Transformer args as list applied to same index transformer.
+         :machine_args => Dict{Symbol,Any}()
+      )
+      cargs = nested_dict_merge(default_args, args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      new(cargs[:name],cargs)
+   end
 end
 
-function ComboPipeline(machs::Vector{<:Machine},args::Dict=Dict()) 
+function ComboPipeline(machs::Vector{<:Machine},args::Dict) 
   ComboPipeline(Dict(:machines => machs, args...))
 end
 
-function ComboPipeline(machs::Vararg{Machine})
-  combo=nothing
-  if eltype(machs) <: Machine
-    v=[eval(x) for x in machs] # convert tuples to vector
-    combo = ComboPipeline(v)
-  else
-    error("argument setup error")
-  end
-  return combo
+function ComboPipeline(machs::Vector{<:Machine};opt...)
+   ComboPipeline(Dict(:machines=>machs,:impl_args=>Dict(pairs(opt))))
 end
 
+function ComboPipeline(machs::Vararg{Machine})
+   (eltype(machs) <: Machine) || error("argument setup error")
+   v=[eval(x) for x in machs] # convert tuples to vector
+   combo = ComboPipeline(v)
+   return combo
+end
 
 function fit!(pipe::ComboPipeline, features::DataFrame, labels::Vector=[])
   instances=deepcopy(features)
-  machines = pipe.args[:machines]
-  machine_args = pipe.args[:machine_args]
+  machines = pipe.model[:machines]
+  machine_args = pipe.model[:machine_args]
 
   new_machines = Machine[]
   new_instances = DataFrame()
@@ -165,10 +159,8 @@ function fit!(pipe::ComboPipeline, features::DataFrame, labels::Vector=[])
     fit!(machine, instances, labels)
   end
 
-  pipe.model = Dict(
-      :machines => new_machines,
-      :machine_args => machine_args
-  )
+  pipe.model[:machines] = new_machines
+  pipe.model[:machine_args] = machine_args
 end
 
 function transform!(pipe::ComboPipeline, features::DataFrame=DataFrame())
