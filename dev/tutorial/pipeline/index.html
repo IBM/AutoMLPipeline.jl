@@ -161,7 +161,7 @@ julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt
                         ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;
 
 julia&gt; crossvalidate(pjrf,X,Y,&quot;accuracy_score&quot;)
-fold: 1, 0.7164179104477612
+fold: 1, 0.7313432835820896
 fold: 2, 0.7910447761194029
 fold: 3, 0.6911764705882353
 fold: 4, 0.7761194029850746
@@ -170,6 +170,6 @@ fold: 6, 0.7014925373134329
 fold: 7, 0.6268656716417911
 fold: 8, 0.7058823529411765
 fold: 9, 0.746268656716418
-fold: 10, 0.7313432835820896
+fold: 10, 0.835820895522388
 errors: 0
-(mean = 0.7143327480245829, std = 0.050286466913232235, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 19 October 2020 22:44">Monday 19 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7262730465320456, std = 0.0633226952356689, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 19 October 2020 23:37">Monday 19 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
