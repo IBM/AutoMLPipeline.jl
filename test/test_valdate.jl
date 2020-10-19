@@ -5,13 +5,6 @@ using DataFrames
 using Test
 using Random
 using AutoMLPipeline
-using AutoMLPipeline.CrossValidators
-using AutoMLPipeline.DecisionTreeLearners
-using AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils
-using AutoMLPipeline.ValDateFilters
 
 function generateXY()
     Random.seed!(123)

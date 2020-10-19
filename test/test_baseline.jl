@@ -5,12 +5,6 @@ using Test
 using DataFrames: nrow
 
 using AutoMLPipeline
-using AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.DecisionTreeLearners
-using AutoMLPipeline.Utils
-using AutoMLPipeline.FeatureSelectors
 
 function test_baseline()
     Random.seed!(123)
@@ -23,7 +17,6 @@ function test_baseline()
     @test sum(transform!(bl,instances) .== repeat(["setosa"],nrow(iris))) == nrow(iris)
     idy = Identity()
     fit!(idy,instances,labels)
-	 @test idy.model == Dict()
     @test (transform!(idy,instances) .== instances) |> Matrix |> sum == 150*4
 end
 @testset "Baseline Tests" begin

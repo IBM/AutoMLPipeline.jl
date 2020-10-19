@@ -5,10 +5,10 @@ using PyCall
 # standard included modules
 using DataFrames
 using Random
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.Utils
+using ..AbsTypes
+using ..Utils
 
-import AutoMLPipeline.AbsTypes: fit!, transform!
+import ..AbsTypes: fit!, transform!
 export fit!, transform!
 export SKPreprocessor, skpreprocessors
 
@@ -98,32 +98,35 @@ documentation for arguments to pass.
 Implements `fit!` and `transform!`.
 """
 mutable struct SKPreprocessor <: Transformer
-  name::String
-  model::Dict
-  args::Dict
+   name::String
+   model::Dict{Symbol,Any}
 
-  function SKPreprocessor(args=Dict())
-    default_args=Dict(
-                      :name => "skprep",
-                      :preprocessor => "PCA",
-                      :impl_args => Dict(),
-                      :autocomponent=>false
-                     )
-    cargs = nested_dict_merge(default_args, args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    prep = cargs[:preprocessor]
-    if !(prep in keys(preprocessor_dict)) 
-      println("$prep is not supported.") 
-      println()
-      skpreprocessors()
-      error("Argument keyword error")
-    end
-    new(cargs[:name],Dict(),cargs)
-  end
+   function SKPreprocessor(args=Dict())
+      default_args=Dict{Symbol,Any}(
+         :name => "skprep",
+         :preprocessor => "PCA",
+         :autocomponent=>false,
+         :impl_args => Dict{Symbol,Any}()
+      )
+      cargs = nested_dict_merge(default_args, args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      prep = cargs[:preprocessor]
+      if !(prep in keys(preprocessor_dict)) 
+         println("$prep is not supported.") 
+         println()
+         skpreprocessors()
+         error("Argument keyword error")
+      end
+      new(cargs[:name],cargs)
+   end
 end
 
-function SKPreprocessor(prep::String,args::Dict=Dict())
+function SKPreprocessor(prep::String,args::Dict)
   SKPreprocessor(Dict(:preprocessor => prep,:name=>prep,args...))
+end
+
+function SKPreprocessor(prep::String;opt...)
+   SKPreprocessor(Dict(:preprocessor => prep,:name=>prep,:impl_args=>Dict(pairs(opt))))
 end
 
 function skpreprocessors()
@@ -140,8 +143,8 @@ end
 
 function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])
   features = x |> Array
-  impl_args = copy(skp.args[:impl_args])
-  autocomp = skp.args[:autocomponent]
+  impl_args = copy(skp.model[:impl_args])
+  autocomp = skp.model[:autocomponent]
   if autocomp == true
     cols = ncol(x)
     ncomponents = 1
@@ -150,16 +153,14 @@ function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])
       push!(impl_args,:n_components => ncomponents)
     end
   end
-  preprocessor = skp.args[:preprocessor]
+  preprocessor = skp.model[:preprocessor]
   py_preprocessor = preprocessor_dict[preprocessor]
 
   # Train model
   preproc = py_preprocessor(;impl_args...)
   preproc.fit(features)
-  skp.model = Dict(
-                   :skpreprocessor => preproc,
-                   :impl_args => impl_args
-                  )
+  skp.model[:skpreprocessor] = preproc
+  skp.model[:impl_args] = impl_args
 end
 
 function transform!(skp::SKPreprocessor, x::DataFrame)
