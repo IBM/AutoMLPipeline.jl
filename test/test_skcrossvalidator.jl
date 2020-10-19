@@ -3,13 +3,6 @@ module TestSKCrossValidator
 using Test
 using Random
 using AutoMLPipeline
-using AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.SKCrossValidators
-using AutoMLPipeline.DecisionTreeLearners
-using AutoMLPipeline.Pipelines
-using AutoMLPipeline.FeatureSelectors
-using AutoMLPipeline.Utils
 
 function crossval_class(ppl,X,Y,folds,verbose)
   @test crossvalidate(ppl,X,Y,"accuracy_score",folds,verbose).mean > 0.80

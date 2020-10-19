@@ -4,11 +4,6 @@ using Random
 using Test
 using AutoMLPipeline
 using AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters
-using AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.DecisionTreeLearners
-using AutoMLPipeline.Utils
-using AutoMLPipeline.FeatureSelectors
 
 global const data = getiris()
 global const features = data[:,1:4]

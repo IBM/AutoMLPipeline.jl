@@ -9,7 +9,7 @@ export Machine, Computer, Workflow, Learner, Transformer
 
 include("utils.jl")
 using .Utils
-export getiris, getprofb
+export getiris,getprofb,score
 
 include("baselines.jl")
 using .Baselines

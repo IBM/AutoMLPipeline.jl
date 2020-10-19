@@ -8,14 +8,14 @@ import MLBase
 # standard included modules
 using DataFrames
 using Random
-using AutoMLPipeline.AbsTypes
-using AutoMLPipeline.Utils
+using ..AbsTypes
+using ..Utils
 
-import AutoMLPipeline.AbsTypes: fit!, transform!
+import ..AbsTypes: fit!, transform!
 export fit!, transform!
 export VoteEnsemble, StackEnsemble, BestLearner
 
-using AutoMLPipeline.DecisionTreeLearners
+using ..DecisionTreeLearners
 
 
 """
@@ -35,40 +35,37 @@ Implements: `fit!`, `transform!`
 """
 mutable struct VoteEnsemble <: Learner
   name::String
-  model::Dict
-  args::Dict
+  model::Dict{Symbol,Any}
   
   function VoteEnsemble(args=Dict())
-    default_args = Dict( 
+     default_args = Dict{Symbol,Any}( 
       :name => "votingens",
       # Output to train against
       # (:class).
       :output => :class,
       # Learners in voting committee.
-      :impl_args => Dict(),
-      :learners => [PrunedTree(), Adaboost(), RandomForest()]
+      :learners => [PrunedTree(), Adaboost(), RandomForest()],
+      :impl_args => Dict{Symbol,Any}()
     )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
+    new(cargs[:name],cargs)
   end
 end
 
-function VoteEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
-  VoteEnsemble(Dict(:learners => learners, args...))
+function VoteEnsemble(learners::Vector{<:Learner},args::Dict)
+   VoteEnsemble(Dict(:learners => learners, args...))
+end
+
+function VoteEnsemble(learners::Vector{<:Learner}; opt...)
+   VoteEnsemble(Dict(:learners => learners, :impl_args => Dict(pairs(opt))))
 end
 
 function VoteEnsemble(learners::Vararg{<:Learner})
-  vlearner=nothing
-  if eltype(learners) <: Learner
-    v=[x for x in learners] # convert tuples to vector
-    vlearner = VoteEnsemble(v)
-  else
-    error("argument setup error")
-  end
-  return vlearner
+   (eltype(learners) <: Learner) || error("argument setup error")
+   v=[x for x in learners] # convert tuples to vector
+   VoteEnsemble(v)
 end
-
 
 """
     fit!(ve::VoteEnsemble, instances::DataFrame, labels::Vector)
@@ -77,11 +74,11 @@ Training phase of the ensemble.
 """
 function fit!(ve::VoteEnsemble, instances::DataFrame, labels::Vector)
   # Train all learners
-  learners = ve.args[:learners]
+  learners = ve.model[:learners]
   for learner in learners
     fit!(learner, instances, labels)
   end
-  ve.model = Dict( :learners => learners )
+  ve.model[:learners] = learners 
 end
 
 """
@@ -118,11 +115,10 @@ An ensemble where a 'stack' of learners is used for training and prediction.
 """
 mutable struct StackEnsemble <: Learner
   name::String
-  model::Dict
-  args::Dict
+  model::Dict{Symbol,Any}
 
   function StackEnsemble(args=Dict())
-    default_args = Dict(    
+     default_args = Dict{Symbol,Any}(
       :name => "stackens",
       # Output to train against
       # (:class).
@@ -134,27 +130,27 @@ mutable struct StackEnsemble <: Learner
       # Proportion of training set left to train stacker itself.
       :stacker_training_proportion => 0.3,
       # Provide original features on top of learner outputs to stacker.
-      :keep_original_features => false
+      :keep_original_features => false,
+      :impl_args => Dict{Symbol,Any}()
     )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
+    new(cargs[:name],cargs)
   end
 end
 
-function StackEnsemble(learners::Vector{<:Learner},args::Dict=Dict())
-  StackEnsemble(Dict(:learners => learners, args...))
+function StackEnsemble(learners::Vector{<:Learner},args::Dict)
+   StackEnsemble(Dict(:learners => learners, args...))
+end
+
+function StackEnsemble(learners::Vector{<:Learner}; opt...)
+   StackEnsemble(Dict(:learners => learners, :impl_args => Dict(pairs(opt))))
 end
 
 function StackEnsemble(learners::Vararg{<:Learner})
-  vlearner=nothing
-  if eltype(learners) <: Learner
-    v=[x for x in learners] # convert tuples to vector
-    vlearner = StackEnsemble(v)
-  else
-    error("argument setup error")
-  end
-  return vlearner
+   (eltype(learners) <: Learner) || error("argument setup error")
+   v=[x for x in learners] # convert tuples to vector
+   StackEnsemble(v)
 end
 
 """
@@ -170,7 +166,7 @@ Training phase of the stack of learners.
 - build final model from the trained learners
 """
 function fit!(se::StackEnsemble, instances::DataFrame, labels::Vector)
-  learners = se.args[:learners]
+  learners = se.model[:learners]
   num_learners = size(learners, 1)
   num_instances = size(instances, 1)
   num_labels = size(labels, 1)
@@ -178,7 +174,7 @@ function fit!(se::StackEnsemble, instances::DataFrame, labels::Vector)
   # Perform holdout to obtain indices for 
   # partitioning learner and stacker training sets
   shuffled_indices = randperm(num_instances)
-  stack_proportion = se.args[:stacker_training_proportion]
+  stack_proportion = se.model[:stacker_training_proportion]
   (learner_indices, stack_indices) = holdout(num_instances, stack_proportion)
   
   # Partition training set for learners and stacker
@@ -194,19 +190,17 @@ function fit!(se::StackEnsemble, instances::DataFrame, labels::Vector)
   
   # Train stacker on learners' outputs
   label_map = MLBase.labelmap(labels)
-  stacker = se.args[:stacker]
-  keep_original_features = se.args[:keep_original_features]
+  stacker = se.model[:stacker]
+  keep_original_features = se.model[:keep_original_features]
   stacker_instances = build_stacker_instances(learners, stack_instances, 
                       label_map, keep_original_features) |> DataFrame
   fit!(stacker, stacker_instances, stack_labels)
   
   # Build model
-  se.model = Dict(
-    :learners => learners, 
-    :stacker => stacker, 
-    :label_map => label_map, 
-    :keep_original_features => keep_original_features
-  )
+  se.model[:learners] = learners
+  se.model[:stacker] = stacker 
+  se.model[:label_map] = label_map 
+  se.model[:keep_original_features] = keep_original_features
 end
 
 """
@@ -286,11 +280,10 @@ grid search on learners if grid option is indicated.
 """
 mutable struct BestLearner <: Learner
   name::String
-  model::Dict
-  args::Dict
+  model::Dict{Symbol,Any}
   
-  function BestLearner(args=Dict())
-    default_args = Dict(
+  function BestLearner(args=Dict{Symbol,Any}())
+     default_args = Dict{Symbol,Any}(
       :name => "bestens",
       # Output to train against
       # (:class).
@@ -308,27 +301,27 @@ mutable struct BestLearner <: Learner
       # Format is [learner_1_options, learner_2_options, ...]
       # where learner_options is same as a learner's options but
       # with a list of values instead of scalar.
-      :learner_options_grid => nothing
+      :learner_options_grid => nothing,
+      :impl_args => Dict{Symbol,Any}()
     )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name]*"_"*randstring(3)
-    new(cargs[:name],Dict(),cargs)
+    new(cargs[:name],cargs)
   end
 end
 
-function BestLearner(learners::Vector{<:Learner},args::Dict=Dict())
-  BestLearner(Dict(:learners => learners, args...))
+function BestLearner(learners::Vector{<:Learner},args::Dict)
+   BestLearner(Dict(:learners => learners, args...))
+end
+
+function BestLearner(learners::Vector{<:Learner}; opt...)
+   BestLearner(Dict(:learners => learners, :impl_args => Dict(pairs(opt))))
 end
 
 function BestLearner(learners::Vararg{Learner})
-  vlearner=nothing
-  if eltype(learners) <: Learner
-    v=[x for x in learners] # convert tuples to vector
-    vlearner = BestLearner(v)
-  else
-    error("argument setup error")
-  end
-  return vlearner
+   (eltype(learners) <: Learner) || error("argument setup error")
+   v=[x for x in learners] # convert tuples to vector
+   BestLearner(v)
 end
 
 
@@ -345,16 +338,16 @@ Training phase:
 """
 function fit!(bls::BestLearner, instances::DataFrame, labels::Vector)
   # Obtain learners as is if no options grid present 
-  if bls.args[:learner_options_grid] == nothing
-    learners = bls.args[:learners]
+  if bls.model[:learner_options_grid] == nothing
+    learners = bls.model[:learners]
   # Generate learners if options grid present 
   else
     # Foreach prototype learner, generate learners with specific options
     # found in grid.
     learners = Transformer[]
-    for l_index in 1:length(bls.args[:learners])
+    for l_index in 1:length(bls.model[:learners])
       # Obtain options grid
-      options_prototype = bls.args[:learner_options_grid][l_index]
+      options_prototype = bls.model[:learner_options_grid][l_index]
       grid_list = nested_dict_to_tuples(options_prototype)
       grid_keys = map(x -> x[1], grid_list)
       grid_values = map(x -> x[2], grid_list)
@@ -371,7 +364,7 @@ function fit!(bls::BestLearner, instances::DataFrame, labels::Vector)
         end
 
         # Generate learner
-        learner_prototype = bls.args[:learners][l_index]
+        learner_prototype = bls.model[:learners][l_index]
         learner = create_transformer(learner_prototype, learner_options)
 
         # Append to candidate learners
@@ -381,24 +374,24 @@ function fit!(bls::BestLearner, instances::DataFrame, labels::Vector)
   end
 
   # Generate partitions
-  partition_generator = bls.args[:partition_generator]
+  partition_generator = bls.model[:partition_generator]
   partitions = partition_generator(instances, labels)
 
   # Train each learner on each partition and obtain validation output
-  num_partitions = size(partitions, 1)
-  num_learners = size(learners, 1)
-  num_instances = size(instances, 1)
-  score_type = bls.args[:score_type]
+  num_partitions           = size(partitions, 1)
+  num_learners             = size(learners, 1)
+  num_instances            = size(instances, 1)
+  score_type               = bls.model[:score_type]
   learner_partition_scores = Array{score_type}(undef,num_learners, num_partitions)
   for l_index = 1:num_learners, p_index = 1:num_partitions
     partition = partitions[p_index]
     rest = setdiff(1:num_instances, partition)
     learner = learners[l_index]
 
-    training_instances = instances[partition,:]
-    training_labels = labels[partition]
+    training_instances   = instances[partition,:]
+    training_labels      = labels[partition]
     validation_instances = instances[rest, :]
-    validation_labels = labels[rest]
+    validation_labels    = labels[rest]
 
     fit!(learner, training_instances, training_labels)
     predictions = transform!(learner, validation_instances)
@@ -408,19 +401,17 @@ function fit!(bls::BestLearner, instances::DataFrame, labels::Vector)
   
   # Find best learner based on selection function
   best_learner_index = 
-    bls.args[:selection_function](learner_partition_scores)
+    bls.model[:selection_function](learner_partition_scores)
   best_learner = learners[best_learner_index]
   
   # Retrain best learner on all training instances
   fit!(best_learner, instances, labels)
   
   # Create model
-  bls.model = Dict(
-    :best_learner => best_learner,
-    :best_learner_index => best_learner_index,
-    :learners => learners,
-    :learner_partition_scores => learner_partition_scores
-  )
+  bls.model[:best_learner]             = best_learner
+  bls.model[:best_learner_index]       = best_learner_index
+  bls.model[:learners]                 = learners
+  bls.model[:learner_partition_scores] = learner_partition_scores
 end
 
 """ 
@@ -429,7 +420,7 @@ end
 Choose the best learner based on cross-validation results and use it for prediction.
 """
 function transform!(bls::BestLearner, instances::DataFrame)
-  transform!(bls.model[:best_learner], instances)
+   transform!(bls.model[:best_learner], instances)
 end
 
 end # module
