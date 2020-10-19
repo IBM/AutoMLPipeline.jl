@@ -61,102 +61,24 @@ and *args* are the corresponding preprocessor&#39;s initial parameters.
 Note: Please consult Scikitlearn&#39;s online help for more details about the preprocessor&#39;s arguments.</code></pre><p>Let us evaluate 4 learners using the same preprocessing pipeline:</p><pre><code class="language-julia">jrf = RandomForest()
 ada = SKLearner(&quot;AdaBoostClassifier&quot;)
 sgd = SKLearner(&quot;SGDClassifier&quot;)
-tree = PrunedTree()</code></pre><pre><code class="language-julia">using DataFrames: DataFrame, nrow,ncol
+tree = PrunedTree()</code></pre><pre><code class="language-">using DataFrames: DataFrame, nrow,ncol
 
-learners = DataFrame()
+learners = DataFrame() 
 for learner in [jrf,ada,sgd,tree]
   pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt; learner
   println(learner.name)
   mean,sd,folds = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
-end;</code></pre><pre class="documenter-example-output">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
-└ @ none:2
-rf_ds2
-fold: 1, 0.5491525423728814
-fold: 2, 0.5068027210884354
-fold: 3, 0.5186440677966102
-fold: 4, 0.5170068027210885
-fold: 5, 0.5491525423728814
-errors: 0
-AdaBoostClassifier_CwM
-fold: 1, 0.5254237288135594
-fold: 2, 0.5816326530612245
-fold: 3, 0.5830508474576271
-fold: 4, 0.5
-fold: 5, 0.576271186440678
-errors: 0
-SGDClassifier_p1H
-fold: 1, 0.4915254237288136
-fold: 2, 0.46598639455782315
-fold: 3, 0.4101694915254237
-fold: 4, 0.4387755102040816
-fold: 5, 0.47796610169491527
-errors: 0
-prunetree_SaL
-fold: 1, 0.4406779661016949
-fold: 2, 0.46258503401360546
-fold: 3, 0.47796610169491527
-fold: 4, 0.48639455782312924
-fold: 5, 0.47796610169491527
-errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
-learners = 4×4 DataFrame
-│ Row │ name                   │ mean     │ sd        │ kfold │
-│     │ String                 │ Float64  │ Float64   │ Int64 │
-├─────┼────────────────────────┼──────────┼───────────┼───────┤
-│ 1   │ rf_ds2                 │ 0.528152 │ 0.0197006 │ 5     │
-│ 2   │ AdaBoostClassifier_CwM │ 0.553276 │ 0.0381887 │ 5     │
-│ 3   │ SGDClassifier_p1H      │ 0.456885 │ 0.032548  │ 5     │
-│ 4   │ prunetree_SaL          │ 0.469118 │ 0.0180733 │ 5     │</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+end;
+nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+learners = 0×0 DataFrame</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
-learners = DataFrame()
+learners = DataFrame() 
 for learner in [jrf,ada,sgd,tree,gb]
   pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; rbs) + (numf |&gt; std)) |&gt; learner
   println(learner.name)
   mean,sd,folds = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,5)
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
-end;</code></pre><pre class="documenter-example-output">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
-└ @ none:2
-rf_ds2
-fold: 1, 0.4915254237288136
-fold: 2, 0.5034013605442177
-fold: 3, 0.4915254237288136
-fold: 4, 0.5408163265306123
-fold: 5, 0.49491525423728816
-errors: 0
-AdaBoostClassifier_CwM
-fold: 1, 0.576271186440678
-fold: 2, 0.5544217687074829
-fold: 3, 0.5084745762711864
-fold: 4, 0.5204081632653061
-fold: 5, 0.5491525423728814
-errors: 0
-SGDClassifier_p1H
-fold: 1, 0.49830508474576274
-fold: 2, 0.3979591836734694
-fold: 3, 0.44745762711864406
-fold: 4, 0.45918367346938777
-fold: 5, 0.4915254237288136
-errors: 0
-prunetree_SaL
-fold: 1, 0.488135593220339
-fold: 2, 0.5136054421768708
-fold: 3, 0.48135593220338985
-fold: 4, 0.4387755102040816
-fold: 5, 0.488135593220339
-errors: 0
-GradientBoostingClassifier_fRr
-fold: 1, 0.5932203389830508
-fold: 2, 0.5612244897959183
-fold: 3, 0.5898305084745763
-fold: 4, 0.5510204081632653
-fold: 5, 0.5559322033898305
-errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
-learners = 5×4 DataFrame
-│ Row │ name                           │ mean     │ sd        │ kfold │
-│     │ String                         │ Float64  │ Float64   │ Int64 │
-├─────┼────────────────────────────────┼──────────┼───────────┼───────┤
-│ 1   │ rf_ds2                         │ 0.504437 │ 0.0209082 │ 5     │
-│ 2   │ AdaBoostClassifier_CwM         │ 0.541746 │ 0.027248  │ 5     │
-│ 3   │ SGDClassifier_p1H              │ 0.458886 │ 0.0401932 │ 5     │
-│ 4   │ prunetree_SaL                  │ 0.482002 │ 0.0271246 │ 5     │
-│ 5   │ GradientBoostingClassifier_fRr │ 0.570246 │ 0.0197944 │ 5     │</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 18 October 2020 01:53">Sunday 18 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end;
+nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+learners = 0×0 DataFrame</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 19 October 2020 20:51">Monday 19 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

@@ -112,76 +112,16 @@ catf = CatFeatureSelector()
 numf = NumFeatureSelector()
 disc = CatNumDiscriminator(0) # disable turning numeric to categorical features
 pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)
-fold: 1, 0.8076923076923077
-fold: 2, 0.72
-fold: 3, 0.8461538461538461
-fold: 4, 0.84
-fold: 5, 0.6153846153846154
-fold: 6, 0.7307692307692307
-fold: 7, 0.6
-fold: 8, 0.8461538461538461
-fold: 9, 0.68
-fold: 10, 0.7307692307692307
-fold: 11, 0.7692307692307693
-fold: 12, 0.72
-fold: 13, 0.8461538461538461
-fold: 14, 0.72
-fold: 15, 0.7692307692307693
-fold: 16, 0.6923076923076923
-fold: 17, 0.76
-fold: 18, 0.7307692307692307
-fold: 19, 0.76
-fold: 20, 0.9230769230769231
-fold: 21, 0.8461538461538461
-fold: 22, 0.84
-fold: 23, 0.7307692307692307
-fold: 24, 0.88
-fold: 25, 0.6923076923076923
-fold: 26, 0.7307692307692307
-fold: 27, 0.56
-fold: 28, 0.7692307692307693
-fold: 29, 0.72
-fold: 30, 0.6923076923076923
-errors: 0
-(mean = 0.7523076923076922, std = 0.08337112657251436, folds = 30, errors = 0)</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
+ERROR: MethodError: no method matching crossvalidate(::Pipeline, ::DataFrames.DataFrame, ::Array{String,1}, ::String, ::Int64)
+Closest candidates are:
+  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:90
+  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, !Matched::Function, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/crossvalidator.jl:25
+  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String; nfolds, verbose) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:97
+  ...</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
 pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)
-fold: 1, 0.7307692307692307
-fold: 2, 0.76
-fold: 3, 0.8461538461538461
-fold: 4, 0.72
-fold: 5, 0.6538461538461539
-fold: 6, 0.8461538461538461
-fold: 7, 0.76
-fold: 8, 0.7692307692307693
-fold: 9, 0.68
-fold: 10, 0.5384615384615384
-fold: 11, 0.7692307692307693
-fold: 12, 0.72
-fold: 13, 0.6923076923076923
-fold: 14, 0.76
-fold: 15, 0.5769230769230769
-┌ Warning: Unseen value found in OneHotEncoder,
-│                 for entry (7, 1) = 17.
-│                 Patching value to 6.
-└ @ AutoMLPipeline.BaseFilters ~/build/IBM/AutoMLPipeline.jl/src/basefilters.jl:98
-fold: 16, 0.7692307692307693
-fold: 17, 0.72
-fold: 18, 0.7692307692307693
-fold: 19, 0.72
-fold: 20, 0.6153846153846154
-fold: 21, 0.7307692307692307
-fold: 22, 0.76
-fold: 23, 0.7692307692307693
-fold: 24, 0.76
-fold: 25, 0.7692307692307693
-fold: 26, 0.8461538461538461
-┌ Warning: Unseen value found in OneHotEncoder,
-│                 for entry (7, 1) = 15.
-│                 Patching value to 6.
-└ @ AutoMLPipeline.BaseFilters ~/build/IBM/AutoMLPipeline.jl/src/basefilters.jl:98
-fold: 27, 0.88
-fold: 28, 0.6153846153846154
-fold: 29, 0.76
-fold: 30, 0.7307692307692307
-errors: 0
-(mean = 0.7346153846153848, std = 0.07734499673999644, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 18 October 2020 01:53">Sunday 18 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ERROR: MethodError: no method matching crossvalidate(::Pipeline, ::DataFrames.DataFrame, ::Array{String,1}, ::String, ::Int64)
+Closest candidates are:
+  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:90
+  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, !Matched::Function, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/crossvalidator.jl:25
+  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String; nfolds, verbose) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:97
+  ...</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 19 October 2020 20:51">Monday 19 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
