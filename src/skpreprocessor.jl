@@ -13,12 +13,17 @@ export fit!, transform!
 export SKPreprocessor, skpreprocessors
 
 const preprocessor_dict = Dict{String,PyObject}()
+const DEC  = PyNULL()
+const FS   = PyNULL()
+const IMP  = PyNULL()
+const PREP = PyNULL()
+
 
 function __init__()
-   DEC  = pyimport_conda("sklearn.decomposition","scikit-learn")
-   FS   = pyimport_conda("sklearn.feature_selection","scikit-learn")
-   IMP  = pyimport_conda("sklearn.impute","scikit-learn")
-   PREP = pyimport_conda("sklearn.preprocessing","scikit-learn")
+   copy!(DEC , pyimport_conda("sklearn.decomposition","scikit-learn"))
+   copy!(FS  , pyimport_conda("sklearn.feature_selection","scikit-learn"))
+   copy!(IMP , pyimport_conda("sklearn.impute","scikit-learn"))
+   copy!(PREP, pyimport_conda("sklearn.preprocessing","scikit-learn"))
 
    # Available scikit-learn learners.
    preprocessor_dict["DictionaryLearning"]          = DEC.DictionaryLearning

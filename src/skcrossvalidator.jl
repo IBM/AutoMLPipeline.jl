@@ -12,9 +12,10 @@ import ..CrossValidators: crossvalidate
 export crossvalidate
 
 const metric_dict = Dict{String,PyObject}()
+const SKM = PyNULL()
 
 function __init__()
-   SKM = pyimport_conda("sklearn.metrics","scikit-learn")
+   copy!(SKM, pyimport_conda("sklearn.metrics","scikit-learn"))
 
    metric_dict["roc_auc_score"]                   = SKM.roc_auc_score
    metric_dict["accuracy_score"]                  = SKM.accuracy_score
