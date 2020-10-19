@@ -22,8 +22,8 @@ export Imputer,OneHotEncoder,Wrapper
 using AMLPBase.FeatureSelectors
 export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscriminator
 
-using AMLPBase.Normalizers
-export Normalizer
+#using AMLPBase.Normalizers
+#export Normalizer
 
 using AMLPBase.DecisionTreeLearners
 export PrunedTree,RandomForest,Adaboost
@@ -31,8 +31,8 @@ export PrunedTree,RandomForest,Adaboost
 using AMLPBase.EnsembleMethods
 export VoteEnsemble, StackEnsemble, BestLearner
 
-using AMLPBase.SVMModels
-export SVMModel, svmlearners
+#using AMLPBase.SVMModels
+#export SVMModel, svmlearners
 
 using AMLPBase.CrossValidators
 export crossvalidate
