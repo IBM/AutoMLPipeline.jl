@@ -1,11 +1,11 @@
 module AutoMLPipeline
 
-using AMLPBase
-using AMLPBase.AbsTypes
+using AMLPipelineBase
+using AMLPipelineBase.AbsTypes
 export Machine, Learner, Transformer, Workflow, Computer
 export fit!, transform!,fit_transform!
 
-using AMLPBase.Utils
+using AMLPipelineBase.Utils
 export holdout, kfold, score, infer_eltype, nested_dict_to_tuples, 
        nested_dict_set!, nested_dict_merge, create_transformer,
        mergedict, getiris,
@@ -13,28 +13,28 @@ export holdout, kfold, score, infer_eltype, nested_dict_to_tuples,
        aggregatorclskipmissing,
        getiris, getprofb
 
-using AMLPBase.BaselineModels
+using AMLPipelineBase.BaselineModels
 export Baseline, Identity
 
-using AMLPBase.BaseFilters
+using AMLPipelineBase.BaseFilters
 export Imputer,OneHotEncoder,Wrapper
 
-using AMLPBase.FeatureSelectors
+using AMLPipelineBase.FeatureSelectors
 export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscriminator
 
-using AMLPBase.DecisionTreeLearners
+using AMLPipelineBase.DecisionTreeLearners
 export PrunedTree,RandomForest,Adaboost
 
-using AMLPBase.EnsembleMethods
+using AMLPipelineBase.EnsembleMethods
 export VoteEnsemble, StackEnsemble, BestLearner
 
-using AMLPBase.CrossValidators
+using AMLPipelineBase.CrossValidators
 export crossvalidate
 
-using AMLPBase.NARemovers
+using AMLPipelineBase.NARemovers
 export NARemover
 
-using AMLPBase.Pipelines
+using AMLPipelineBase.Pipelines
 export @pipeline @pipelinex
 export Pipeline, ComboPipeline
 
