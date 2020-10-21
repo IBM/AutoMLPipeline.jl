@@ -13,19 +13,30 @@ export fit!, transform!
 export SKLearner, sklearners
 
 const learner_dict = Dict{String,PyObject}() 
+const ENS   = PyNULL()
+const LM    = PyNULL()
+const DA    = PyNULL()
+const NN    = PyNULL()
+const SVM   = PyNULL()
+const TREE  = PyNULL()
+const ANN   = PyNULL()
+const GP    = PyNULL()
+const KR    = PyNULL()
+const NB    = PyNULL()
+const ISO   = PyNULL()
 
 function __init__()
-   ENS  = pyimport_conda("sklearn.ensemble","scikit-learn")
-   LM   = pyimport_conda("sklearn.linear_model","scikit-learn")
-   DA   = pyimport_conda("sklearn.discriminant_analysis","scikit-learn")
-   NN   = pyimport_conda("sklearn.neighbors","scikit-learn")
-   SVM  = pyimport_conda("sklearn.svm","scikit-learn")
-   TREE = pyimport_conda("sklearn.tree","scikit-learn")
-   ANN  = pyimport_conda("sklearn.neural_network","scikit-learn")
-   GP   = pyimport_conda("sklearn.gaussian_process","scikit-learn")
-   KR   = pyimport_conda("sklearn.kernel_ridge","scikit-learn")
-   NB   = pyimport_conda("sklearn.naive_bayes","scikit-learn")
-   ISO  = pyimport_conda("sklearn.isotonic","scikit-learn")
+   copy!(ENS , pyimport_conda("sklearn.ensemble","scikit-learn"))
+   copy!(LM  , pyimport_conda("sklearn.linear_model","scikit-learn"))
+   copy!(DA  , pyimport_conda("sklearn.discriminant_analysis","scikit-learn"))
+   copy!(NN  , pyimport_conda("sklearn.neighbors","scikit-learn"))
+   copy!(SVM , pyimport_conda("sklearn.svm","scikit-learn"))
+   copy!(TREE, pyimport_conda("sklearn.tree","scikit-learn"))
+   copy!(ANN , pyimport_conda("sklearn.neural_network","scikit-learn"))
+   copy!(GP  , pyimport_conda("sklearn.gaussian_process","scikit-learn"))
+   copy!(KR  , pyimport_conda("sklearn.kernel_ridge","scikit-learn"))
+   copy!(NB  , pyimport_conda("sklearn.naive_bayes","scikit-learn"))
+   copy!(ISO , pyimport_conda("sklearn.isotonic","scikit-learn"))
 
    # Available scikit-learn learners.
    learner_dict["AdaBoostClassifier"]          = ENS.AdaBoostClassifier
@@ -89,39 +100,36 @@ consult Scikitlearn documentation for arguments to pass.
 Implements `fit!` and `transform!`. 
 """
 mutable struct SKLearner <: Learner
-   name::String
-   model::Dict{Symbol,Any}
+  name::String
+  model::Dict
+  args::Dict
 
-   function SKLearner(args=Dict())
-      default_args=Dict{Symbol,Any}(
-         :name => "sklearner",
-         :output => :class,
-         :learner => "LinearSVC",
-         :impl_args => Dict{Symbol,Any}()
+  function SKLearner(args=Dict())
+    default_args=Dict(
+       :name => "sklearner",
+       :output => :class,
+       :learner => "LinearSVC",
+       :impl_args => Dict()
       )
-      cargs = nested_dict_merge(default_args, args)
-      cargs[:name] = cargs[:name]*"_"*randstring(3)
-      skl = cargs[:learner]
-      if !(skl in keys(learner_dict)) 
-         println("$skl is not supported.") 
-         println()
-         sklearners()
-         error("Argument keyword error")
-      end
-      new(cargs[:name],cargs)
-   end
+    cargs = nested_dict_merge(default_args, args)
+    cargs[:name] = cargs[:name]*"_"*randstring(3)
+    skl = cargs[:learner]
+    if !(skl in keys(learner_dict)) 
+      println("$skl is not supported.") 
+      println()
+      sklearners()
+      error("Argument keyword error")
+    end
+    new(cargs[:name],Dict(),cargs)
+  end
 end
 
-function SKLearner(learner::String, args::Dict)
+function SKLearner(learner::String, args::Dict=Dict())
   SKLearner(Dict(:learner => learner,:name=>learner,  args...))
 end
 
-function SKLearner(learner::String; opt...)
-   SKLearner(Dict(:learner => learner,:name=>learner,  :impl_args => Dict(pairs(opt))))
-end
-
 """
-    sklearners()
+    function sklearners()
 
 List the available scikitlearn machine learners.
 """
@@ -139,8 +147,8 @@ end
 
 function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
   x = xx |> Array
-  impl_args = copy(skl.model[:impl_args])
-  learner = skl.model[:learner]
+  impl_args = copy(skl.args[:impl_args])
+  learner = skl.args[:learner]
   py_learner = learner_dict[learner]
 
   # Assign CombineML-specific defaults if required
@@ -153,8 +161,10 @@ function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
   # Train
   modelobj = py_learner(;impl_args...)
   modelobj.fit(x,y)
-  skl.model[:sklearner] = modelobj
-  skl.model[:impl_args] = impl_args
+  skl.model = Dict(
+      :sklearner => modelobj,
+      :impl_args => impl_args
+     )
 end
 
 

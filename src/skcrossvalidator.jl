@@ -5,18 +5,17 @@ using PyCall
 # standard included modules
 using DataFrames
 using Random
-
 using ..AbsTypes
 using ..Utils
 
-# overload crossvalidate
 import ..CrossValidators: crossvalidate
 export crossvalidate
 
 const metric_dict = Dict{String,PyObject}()
+const SKM = PyNULL()
 
 function __init__()
-   SKM = pyimport_conda("sklearn.metrics","scikit-learn")
+   copy!(SKM, pyimport_conda("sklearn.metrics","scikit-learn"))
 
    metric_dict["roc_auc_score"]                   = SKM.roc_auc_score
    metric_dict["accuracy_score"]                  = SKM.accuracy_score
@@ -56,11 +55,11 @@ function __init__()
 end
 
 function checkfun(sfunc::String)
-   if !(sfunc in keys(metric_dict))
-      println("$sfunc metric is not supported")
-      println("metric: ",keys(metric_dict))
-      error("Metric keyword error")
-   end
+    if !(sfunc in keys(metric_dict))
+        println("$sfunc metric is not supported")
+        println("metric: ",keys(metric_dict))
+        error("Metric keyword error")
+    end
 end
 
 """
@@ -87,30 +86,21 @@ and the following metrics for regression:
 - max_error
 - explained_variance_score
 """
-function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String, nfolds::Int,verbose::Bool)
-   checkfun(sfunc)
-   pfunc = metric_dict[sfunc]
-   metric(a,b) = pfunc(a,b)
-   crossvalidate(pl,X,Y,metric,nfolds,verbose)
+function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
+                       sfunc::String,nfolds=10,verbose::Bool=true)
+    checkfun(sfunc)
+    pfunc = metric_dict[sfunc]
+    metric(a,b) = pfunc(a,b)
+    crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String; nfolds=10,verbose=true)
-   crossvalidate(pl,X,Y,sfunc,nfolds,verbose)
-end
-
-function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String,averagetype::String, nfolds::Int,verbose::Bool)
+                       sfunc::String,averagetype::String,nfolds=10,verbose::Bool=true)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(a,b) = pfunc(a,b,average=averagetype)
     crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
 
-
-function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String,averagetype::String; nfolds=10,verbose::Bool=true)
-   crossvalidate(pl,X,Y,sfunc,averagetype,nfolds,verbose)
-end
 
 end
