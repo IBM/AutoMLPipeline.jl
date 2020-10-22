@@ -72,4 +72,22 @@ end
   test_skcross_class()
 end
 
+function test_crossval_options()
+  data=getiris()
+  X=data[:,1:4]
+  Y=data[:,5] |> collect
+  acc(x,y)=score(:accuracy,x,y)
+  ppl1 = Pipeline(RandomForest())
+  @test crossvalidate(ppl1,X,Y,"accuracy_score",10,false).mean > 0.90
+  @test crossvalidate(ppl1,X,Y,"accuracy_score").mean > 0.90
+  @test crossvalidate(ppl1,X,Y,"accuracy_score",10).mean > 0.90
+  @test crossvalidate(ppl1,X,Y,"accuracy_score",false).mean > 0.90
+  @test crossvalidate(ppl1,X,Y,"accuracy_score",verbose=false).mean > 0.90
+  @test crossvalidate(ppl1,X,Y,metric=acc,verbose=false).mean > 0.90
+  @test crossvalidate(ppl1,X,Y,metric=acc,nfolds=5).mean > 0.90
+  @test crossvalidate(ppl1,X,Y,acc,5,true).mean > 0.90
+end
+@testset "CrossValidator Argument Options" begin
+  Random.seed!(123)
+  test_crossval_options()
 end
