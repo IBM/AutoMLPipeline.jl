@@ -49,11 +49,7 @@ following variables and their descriptions:
 Before continuing further with the tutorial, let us load the 
 necessary modules of AutoMLPipeline:
 ```@example pipeline
-using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
-using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
-using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils, AutoMLPipeline.SKLearners
+using AutoMLPipeline
 nothing #hide
 ```
 
