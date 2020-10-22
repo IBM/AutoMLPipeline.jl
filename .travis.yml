@@ -26,7 +26,6 @@ after_success:
 jobs:
   allow_failures:
     - julia: nightly
-    - os: windows
   include:
     - stage: "Documentation"
       julia: 1.5
