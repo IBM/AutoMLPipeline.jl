@@ -100,32 +100,35 @@ consult Scikitlearn documentation for arguments to pass.
 Implements `fit!` and `transform!`. 
 """
 mutable struct SKLearner <: Learner
-  name::String
-  model::Dict
-  args::Dict
+   name::String
+   model::Dict{Symbol,Any}
 
-  function SKLearner(args=Dict())
-    default_args=Dict(
-       :name => "sklearner",
-       :output => :class,
-       :learner => "LinearSVC",
-       :impl_args => Dict()
+   function SKLearner(args=Dict{Symbol,Any}())
+      default_args=Dict{Symbol,Any}(
+         :name => "sklearner",
+         :output => :class,
+         :learner => "LinearSVC",
+         :impl_args => Dict{Symbol,Any}()
       )
-    cargs = nested_dict_merge(default_args, args)
-    cargs[:name] = cargs[:name]*"_"*randstring(3)
-    skl = cargs[:learner]
-    if !(skl in keys(learner_dict)) 
-      println("$skl is not supported.") 
-      println()
-      sklearners()
-      error("Argument keyword error")
-    end
-    new(cargs[:name],Dict(),cargs)
-  end
+      cargs = nested_dict_merge(default_args, args)
+      cargs[:name] = cargs[:name]*"_"*randstring(3)
+      skl = cargs[:learner]
+      if !(skl in keys(learner_dict)) 
+         println("$skl is not supported.") 
+         println()
+         sklearners()
+         error("Argument keyword error")
+      end
+      new(cargs[:name],cargs)
+   end
 end
 
-function SKLearner(learner::String, args::Dict=Dict())
-  SKLearner(Dict(:learner => learner,:name=>learner,  args...))
+function SKLearner(learner::String, args::Dict)
+   SKLearner(Dict(:learner => learner,:name=>learner, args...))
+end
+
+function SKLearner(learner::String; args...)
+   SKLearner(Dict(:learner => learner,:name=>learner,:impl_args=>Dict(pairs(args))))
 end
 
 """
@@ -147,8 +150,8 @@ end
 
 function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
   x = xx |> Array
-  impl_args = copy(skl.args[:impl_args])
-  learner = skl.args[:learner]
+  impl_args = copy(skl.model[:impl_args])
+  learner = skl.model[:learner]
   py_learner = learner_dict[learner]
 
   # Assign CombineML-specific defaults if required
@@ -161,10 +164,8 @@ function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
   # Train
   modelobj = py_learner(;impl_args...)
   modelobj.fit(x,y)
-  skl.model = Dict(
-      :sklearner => modelobj,
-      :impl_args => impl_args
-     )
+  skl.model[:sklearner] = modelobj
+  skl.model[:impl_args] = impl_args
 end
 
 
