@@ -83,13 +83,12 @@ export CSVReader
 mutable struct CSVReader <: Transformer
    name::String
    model::Dict
-   args::Dict
 
    function CSVReader(args = Dict(:fname=>""))
       fname = args[:fname]
-      fname != "" || error("missing filename.")  
-      isfile(fname) || error("file does not exist.")
-      new(fname,Dict(),args)
+      fname != "" || throw(ArgumentError("missing filename."))
+      isfile(fname) || throw(ArgumentError("file does not exist."))
+      new(fname,args)
    end
 end
 
@@ -102,15 +101,14 @@ CSVReader(fname::String) = CSVReader(Dict(:fname=>fname))
 # type which is needed in the pipeline call iteration.
 function fit!(csvreader::CSVReader, df::DataFrame=DataFrame(), target::Vector=Vector())
    fname = csvreader.name
-   isfile(fname) || error("file does not exist.")
-   csvreader.model = csvreader.args
+   isfile(fname) || throw(ArgumentError("file does not exist."))
 end
 
 # define transform which opens the file and returns a dataframe
 function transform!(csvreader::CSVReader, df::DataFrame=DataFrame())
    fname = csvreader.name
    df = CSV.File(fname) |> DataFrame
-   df != DataFrame() || error("empty dataframe.")
+   df != DataFrame() || throw(ArgumentError("empty dataframe."))
    return df
 end
 end
@@ -123,10 +121,7 @@ modules and create a pipeline that includes the csv reader we just created.
 using DataFrames: DataFrame, nrow,ncol
 
 
-using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline.Utils
-using AutoMLPipeline.SKLearners
+using AutoMLPipeline
 
 using .FileReaders # load from the Main module
 
@@ -137,7 +132,7 @@ pca = SKPreprocessor("PCA")
 ohe = OneHotEncoder()
 
 fname = joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv")
-csvrdr = CSVReader(Dict(:fname=>fname))
+csvrdr = CSVReader(fname)
 
 p1 = @pipeline csvrdr |> (catf + numf)
 df1 = fit_transform!(p1) # empty argument because input coming from csvreader

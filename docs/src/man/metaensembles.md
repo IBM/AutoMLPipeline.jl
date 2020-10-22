@@ -32,6 +32,7 @@ While the init function of StackEnsemble expects an argument of
 Dictionary type, it supports the following convenient function signatures:
 - `StackEnsemble(Dict(:learners=>...,:stacker=>...))`
 - `StackEnsemble([learner1,learner2,...],Dict(:stacker=>...))`
+- `StackEnsemble([learner1,learner2,...],stacker=...)`
 - `StackEnsemble([learner1,learner2,...])`
 
 To illustrate, let's create some bottom-level learners from Scikitlearn and Julia:
@@ -44,7 +45,7 @@ svc = SKLearner("LinearSVC")
 ridge = SKLearner("RidgeClassifier")
 jrf = RandomForest() # julia's rf
 rfstacker = RandomForest()
-stackens = StackEnsemble([gauss,svc,ridge,jrf],Dict(:stacker=>rfstacker))
+stackens = StackEnsemble([gauss,svc,ridge,jrf],stacker=rfstacker)
 nothing #hide
 ```
 Let's load some dataset and create a pipeline with the `stackens`
@@ -99,6 +100,7 @@ type of argument, it also supports the following convenient
 helper functions:
 - `VoteEnsemble(Dict(:learners=>...,:name=>...))`
 - `VoteEnsemble([learner1,learner2,...],Dict(:name=>...))`
+- `VoteEnsemble([learner1,learner2,...],name=...)`
 - `VoteEnsemble([learner1,learner2,...])`
 
 Let's use the same pipeline but substitute the stack ensemble
@@ -137,6 +139,7 @@ The BestLearner supports the following function signatures
 aside from Dictionary type argument:
 - `BestLearner(Dict(:learners=>...,:name=>...))`
 - `BestLearner([learner1,learner2,...],Dict(:name=>...))`
+- `BestLearner([learner1,learner2,...],name=...)`
 - `BestLearner([learner1,learner2,...])`
 
 Let's use the same pipeline as above but substitute the vote ensemble
