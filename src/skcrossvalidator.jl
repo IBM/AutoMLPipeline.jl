@@ -87,12 +87,27 @@ and the following metrics for regression:
 - explained_variance_score
 """
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String,nfolds=10,verbose::Bool=true)
+                       sfunc::String; nfolds=10,verbose::Bool=true)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(a,b) = pfunc(a,b)
     crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
+
+function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,folds::Int)
+   crossvalidate(pl,X,Y,sfunc,nfolds=folds)
+end
+
+function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,verby::Bool)
+   crossvalidate(pl,X,Y,sfunc,verbose=verby)
+end
+
+function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
+                       sfunc::String, folds::Int,verby::Bool)
+   crossvalidate(pl,X,Y,sfunc,nfolds=folds,verbose=verby)
+end
+
+
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String,averagetype::String,nfolds=10,verbose::Bool=true)
