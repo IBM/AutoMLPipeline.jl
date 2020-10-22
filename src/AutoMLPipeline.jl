@@ -23,7 +23,7 @@ export VoteEnsemble, StackEnsemble, BestLearner
 export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscriminator
 export crossvalidate
 export NARemover
-export @pipeline @pipelinex
+export @pipeline, @pipelinex
 export Pipeline, ComboPipeline
 
 import AMLPipelineBase.AbsTypes: fit!, transform!
