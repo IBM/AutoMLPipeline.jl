@@ -16,11 +16,7 @@ julia&gt; show5(profbdata)
 │ 2   │ at_home   │ 17              │ 14              │ 3.0         │ CHI           │ CIN           │ 89    │
 │ 3   │ away      │ 51              │ 0               │ 2.5         │ CLE           │ PIT           │ 89    │
 │ 4   │ at_home   │ 28              │ 0               │ 5.5         │ NO            │ DAL           │ 89    │
-│ 5   │ at_home   │ 38              │ 7               │ 5.5         │ MIN           │ HOU           │ 89    │</code></pre><p>This dataset is a collection of pro football scores with the following variables and their descriptions:</p><ul><li>Home/Away = Favored team is at home or away</li><li>Favorite Points = Points scored by the favored team</li><li>Underdog Points = Points scored by the underdog team</li><li>Pointspread = Oddsmaker&#39;s points to handicap the favored team</li><li>Favorite Name = Code for favored team&#39;s name</li><li>Underdog name = Code for underdog&#39;s name</li><li>Year = 89, 90, or 91</li></ul><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>For the purpose of this tutorial, we will use the first column, Home vs Away, as the target variable to be predicted using the other columns as input features. For this target output, we are trying to ask whether the model can learn the patterns from its input features to predict whether the game was played at home or away. Since the input features have both categorical and numerical features, the dataset is a good basis to describe  how to extract these two types of features, preprocessed them, and learn the mapping using a one-liner pipeline expression.</p></div></div><h3 id="AutoMLPipeline-Modules-and-Instances"><a class="docs-heading-anchor" href="#AutoMLPipeline-Modules-and-Instances">AutoMLPipeline Modules and Instances</a><a id="AutoMLPipeline-Modules-and-Instances-1"></a><a class="docs-heading-anchor-permalink" href="#AutoMLPipeline-Modules-and-Instances" title="Permalink"></a></h3><p>Before continuing further with the tutorial, let us load the  necessary modules of AutoMLPipeline:</p><pre><code class="language-julia">using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
-using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
-using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils, AutoMLPipeline.SKLearners</code></pre><p>Let us also create some instances of filters, transformers, and models that we can use to preprocess and model the dataset.</p><pre><code class="language-julia">#### Decomposition
+│ 5   │ at_home   │ 38              │ 7               │ 5.5         │ MIN           │ HOU           │ 89    │</code></pre><p>This dataset is a collection of pro football scores with the following variables and their descriptions:</p><ul><li>Home/Away = Favored team is at home or away</li><li>Favorite Points = Points scored by the favored team</li><li>Underdog Points = Points scored by the underdog team</li><li>Pointspread = Oddsmaker&#39;s points to handicap the favored team</li><li>Favorite Name = Code for favored team&#39;s name</li><li>Underdog name = Code for underdog&#39;s name</li><li>Year = 89, 90, or 91</li></ul><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>For the purpose of this tutorial, we will use the first column, Home vs Away, as the target variable to be predicted using the other columns as input features. For this target output, we are trying to ask whether the model can learn the patterns from its input features to predict whether the game was played at home or away. Since the input features have both categorical and numerical features, the dataset is a good basis to describe  how to extract these two types of features, preprocessed them, and learn the mapping using a one-liner pipeline expression.</p></div></div><h3 id="AutoMLPipeline-Modules-and-Instances"><a class="docs-heading-anchor" href="#AutoMLPipeline-Modules-and-Instances">AutoMLPipeline Modules and Instances</a><a id="AutoMLPipeline-Modules-and-Instances-1"></a><a class="docs-heading-anchor-permalink" href="#AutoMLPipeline-Modules-and-Instances" title="Permalink"></a></h3><p>Before continuing further with the tutorial, let us load the  necessary modules of AutoMLPipeline:</p><pre><code class="language-julia">using AutoMLPipeline</code></pre><p>Let us also create some instances of filters, transformers, and models that we can use to preprocess and model the dataset.</p><pre><code class="language-julia">#### Decomposition
 pca = SKPreprocessor(&quot;PCA&quot;); fa = SKPreprocessor(&quot;FactorAnalysis&quot;);
 ica = SKPreprocessor(&quot;FastICA&quot;)
 
@@ -85,32 +81,35 @@ tr_com = fit_transform!(pop_com,X,Y)</code></pre><pre><code class="language-juli
 julia&gt; pop_lsvc = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; lsvc;
 
 julia&gt; tr_lsvc = crossvalidate(pop_lsvc,X,Y,&quot;balanced_accuracy_score&quot;,5)
-ERROR: MethodError: no method matching crossvalidate(::Pipeline, ::DataFrames.DataFrame, ::Array{String,1}, ::String, ::Int64)
-Closest candidates are:
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:90
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, !Matched::Function, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/crossvalidator.jl:25
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String; nfolds, verbose) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:97
-  ...</code></pre><p>What about using Gradient Boosting model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+fold: 1, 0.7500750075007501
+fold: 2, 0.6574500768049155
+fold: 3, 0.7400793650793651
+fold: 4, 0.6597042034250129
+fold: 5, 0.6703817219281136
+errors: 0
+(mean = 0.6955380749476314, std = 0.04562293169822702, folds = 5, errors = 0)</code></pre><p>What about using Gradient Boosting model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
 
 julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; gb;
 
 julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)
-ERROR: MethodError: no method matching crossvalidate(::Pipeline, ::DataFrames.DataFrame, ::Array{String,1}, ::String, ::Int64)
-Closest candidates are:
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:90
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, !Matched::Function, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/crossvalidator.jl:25
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String; nfolds, verbose) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:97
-  ...</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+fold: 1, 0.652589240824535
+fold: 2, 0.6602564102564102
+fold: 3, 0.5552291421856639
+fold: 4, 0.5972222222222222
+fold: 5, 0.6715596330275229
+errors: 0
+(mean = 0.6273713297032708, std = 0.04945564077208973, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
 
 julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;
 
 julia&gt; tr_rf = crossvalidate(pop_rf,X,Y,&quot;balanced_accuracy_score&quot;,5)
-ERROR: MethodError: no method matching crossvalidate(::Pipeline, ::DataFrames.DataFrame, ::Array{String,1}, ::String, ::Int64)
-Closest candidates are:
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:90
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, !Matched::Function, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/crossvalidator.jl:25
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String; nfolds, verbose) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:97
-  ...</code></pre><p>Let&#39;s evaluate several learners which is a typical workflow in searching for the optimal model.</p><pre><code class="language-">using Random
+fold: 1, 0.697208538587849
+fold: 2, 0.5883838383838383
+fold: 3, 0.534862385321101
+fold: 4, 0.6095238095238096
+fold: 5, 0.6912972085385878
+errors: 0
+(mean = 0.6242551560710371, std = 0.06948320711828, folds = 5, errors = 0)</code></pre><p>Let&#39;s evaluate several learners which is a typical workflow in searching for the optimal model.</p><pre><code class="language-julia">using Random
 using DataFrames: DataFrame, nrow,ncol
 
 using AutoMLPipeline
@@ -130,38 +129,111 @@ for learner in [jrf,ada,sgd,tree,lsvc]
   println(learner.name)
   mean,sd,_ = crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
-end;
-nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; @show learners;
-learners = 0×0 DataFrame</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters"><a class="docs-heading-anchor" href="#Learners-as-Filters">Learners as Filters</a><a id="Learners-as-Filters-1"></a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+end;</code></pre><pre class="documenter-example-output">rf_M6x
+fold: 1, 0.6567164179104478
+fold: 2, 0.7164179104477612
+fold: 3, 0.6470588235294118
+fold: 4, 0.6865671641791045
+fold: 5, 0.5373134328358209
+fold: 6, 0.6268656716417911
+fold: 7, 0.6716417910447762
+fold: 8, 0.6176470588235294
+fold: 9, 0.582089552238806
+fold: 10, 0.7164179104477612
+errors: 0
+AdaBoostClassifier_KPx
+fold: 1, 0.7761194029850746
+fold: 2, 0.6716417910447762
+fold: 3, 0.6176470588235294
+fold: 4, 0.6567164179104478
+fold: 5, 0.8059701492537313
+fold: 6, 0.7910447761194029
+fold: 7, 0.7014925373134329
+fold: 8, 0.6470588235294118
+fold: 9, 0.7313432835820896
+fold: 10, 0.6865671641791045
+errors: 0
+SGDClassifier_P0n
+fold: 1, 0.6865671641791045
+fold: 2, 0.6865671641791045
+fold: 3, 0.7941176470588235
+fold: 4, 0.6865671641791045
+fold: 5, 0.6417910447761194
+fold: 6, 0.6865671641791045
+fold: 7, 0.6865671641791045
+fold: 8, 0.7352941176470589
+fold: 9, 0.7611940298507462
+fold: 10, 0.5671641791044776
+errors: 0
+prunetree_zzO
+fold: 1, 0.5671641791044776
+fold: 2, 0.5522388059701493
+fold: 3, 0.5882352941176471
+fold: 4, 0.582089552238806
+fold: 5, 0.6268656716417911
+fold: 6, 0.6716417910447762
+fold: 7, 0.6268656716417911
+fold: 8, 0.6176470588235294
+fold: 9, 0.5970149253731343
+fold: 10, 0.6567164179104478
+errors: 0
+LinearSVC_9l7
+fold: 1, 0.6567164179104478
+fold: 2, 0.7014925373134329
+fold: 3, 0.75
+fold: 4, 0.8208955223880597
+fold: 5, 0.6119402985074627
+fold: 6, 0.7761194029850746
+fold: 7, 0.746268656716418
+fold: 8, 0.7352941176470589
+fold: 9, 0.7611940298507462
+fold: 10, 0.7761194029850746
+errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
+learners = 5×3 DataFrame
+│ Row │ name                   │ mean     │ sd        │
+│     │ String                 │ Float64  │ Float64   │
+├─────┼────────────────────────┼──────────┼───────────┤
+│ 1   │ rf_M6x                 │ 0.645874 │ 0.0571583 │
+│ 2   │ AdaBoostClassifier_KPx │ 0.70856  │ 0.0649852 │
+│ 3   │ SGDClassifier_P0n      │ 0.69324  │ 0.0626519 │
+│ 4   │ prunetree_zzO          │ 0.608648 │ 0.0382736 │
+│ 5   │ LinearSVC_9l7          │ 0.733604 │ 0.0616199 │</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters"><a class="docs-heading-anchor" href="#Learners-as-Filters">Learners as Filters</a><a id="Learners-as-Filters-1"></a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
 julia&gt; expr = @pipeline (
                           ((numf |&gt; pca) |&gt; gb) + ((numf |&gt; pca) |&gt; jrf)
                         ) |&gt; ohe |&gt; ada;
 
 julia&gt; crossvalidate(expr,X,Y,&quot;accuracy_score&quot;,5)
-ERROR: MethodError: no method matching crossvalidate(::Pipeline, ::DataFrames.DataFrame, ::Array{String,1}, ::String, ::Int64)
-Closest candidates are:
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:90
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, !Matched::Function, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/crossvalidator.jl:25
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String; nfolds, verbose) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:97
-  ...</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline">Advanced Expressions using Selector Pipeline</a><a id="Advanced-Expressions-using-Selector-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+fold: 1, 0.6268656716417911
+fold: 2, 0.6666666666666666
+fold: 3, 0.6417910447761194
+fold: 4, 0.6148148148148148
+fold: 5, 0.6716417910447762
+errors: 0
+(mean = 0.6443559977888336, std = 0.02463459175414805, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline">Advanced Expressions using Selector Pipeline</a><a id="Advanced-Expressions-using-Selector-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
 julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
                         (jrf * ada * sgd * tree * lsvc);
 
 julia&gt; crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)
-ERROR: MethodError: no method matching crossvalidate(::Pipeline, ::DataFrames.DataFrame, ::Array{String,1}, ::String, ::Int64)
-Closest candidates are:
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:90
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, !Matched::Function, ::Int64, !Matched::Bool) at /home/travis/build/IBM/AutoMLPipeline.jl/src/crossvalidator.jl:25
-  crossvalidate(::Machine, ::DataFrames.DataFrame, ::Array{T,1} where T, ::String; nfolds, verbose) at /home/travis/build/IBM/AutoMLPipeline.jl/src/skcrossvalidator.jl:97
-  ...</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+fold: 1, 0.7164179104477612
+fold: 2, 0.7910447761194029
+fold: 3, 0.6911764705882353
+fold: 4, 0.7761194029850746
+fold: 5, 0.6567164179104478
+fold: 6, 0.7014925373134329
+fold: 7, 0.6417910447761194
+fold: 8, 0.7058823529411765
+fold: 9, 0.746268656716418
+fold: 10, 0.835820895522388
+errors: 0
+(mean = 0.7262730465320456, std = 0.060932268798867976, folds = 10, errors = 0)</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
 julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
                         ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;
 
 julia&gt; crossvalidate(pjrf,X,Y,&quot;accuracy_score&quot;)
-fold: 1, 0.7313432835820896
+fold: 1, 0.7164179104477612
 fold: 2, 0.7910447761194029
 fold: 3, 0.6911764705882353
 fold: 4, 0.7761194029850746
@@ -172,4 +244,4 @@ fold: 8, 0.7058823529411765
 fold: 9, 0.746268656716418
 fold: 10, 0.835820895522388
 errors: 0
-(mean = 0.7262730465320456, std = 0.0633226952356689, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 19 October 2020 23:37">Monday 19 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7247805092186128, std = 0.0633657928349015, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 22 October 2020 21:22">Thursday 22 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

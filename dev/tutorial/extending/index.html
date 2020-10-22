@@ -21,13 +21,12 @@ export CSVReader
 mutable struct CSVReader &lt;: Transformer
    name::String
    model::Dict
-   args::Dict
 
    function CSVReader(args = Dict(:fname=&gt;&quot;&quot;))
       fname = args[:fname]
-      fname != &quot;&quot; || error(&quot;missing filename.&quot;)
-      isfile(fname) || error(&quot;file does not exist.&quot;)
-      new(fname,Dict(),args)
+      fname != &quot;&quot; || throw(ArgumentError(&quot;missing filename.&quot;))
+      isfile(fname) || throw(ArgumentError(&quot;file does not exist.&quot;))
+      new(fname,args)
    end
 end
 
@@ -40,40 +39,50 @@ CSVReader(fname::String) = CSVReader(Dict(:fname=&gt;fname))
 # type which is needed in the pipeline call iteration.
 function fit!(csvreader::CSVReader, df::DataFrame=DataFrame(), target::Vector=Vector())
    fname = csvreader.name
-   isfile(fname) || error(&quot;file does not exist.&quot;)
-   csvreader.model = csvreader.args
+   isfile(fname) || throw(ArgumentError(&quot;file does not exist.&quot;))
 end
 
 # define transform which opens the file and returns a dataframe
 function transform!(csvreader::CSVReader, df::DataFrame=DataFrame())
    fname = csvreader.name
    df = CSV.File(fname) |&gt; DataFrame
-   df != DataFrame() || error(&quot;empty dataframe.&quot;)
+   df != DataFrame() || throw(ArgumentError(&quot;empty dataframe.&quot;))
    return df
 end
-end</code></pre><p>Let&#39;s now load the FileReaders module together with the other AutoMLPipeline modules and create a pipeline that includes the csv reader we just created.</p><pre><code class="language-">using DataFrames: DataFrame, nrow,ncol
+end</code></pre><p>Let&#39;s now load the FileReaders module together with the other AutoMLPipeline modules and create a pipeline that includes the csv reader we just created.</p><pre><code class="language-julia">using DataFrames: DataFrame, nrow,ncol
 
 
-using AutoMLPipeline, AutoMLPipeline.FeatureSelectors, AutoMLPipeline.EnsembleMethods
-using AutoMLPipeline.CrossValidators, AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors, AutoMLPipeline.Utils
-using AutoMLPipeline.SKLearners
+using AutoMLPipeline
 
 using .FileReaders # load from the Main module
 
 #### Column selector
-catf = CatFeatureSelector() 
+catf = CatFeatureSelector()
 numf = NumFeatureSelector()
 pca = SKPreprocessor(&quot;PCA&quot;)
 ohe = OneHotEncoder()
 
 fname = joinpath(dirname(pathof(AutoMLPipeline)),&quot;../data/profb.csv&quot;)
-csvrdr = CSVReader(Dict(:fname=&gt;fname))
+csvrdr = CSVReader(fname)
 
 p1 = @pipeline csvrdr |&gt; (catf + numf)
-df1 = fit_transform!(p1) # empty argument because input coming from csvreader
-nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; first(df1,5)
-ERROR: UndefVarError: df1 not defined</code></pre><pre><code class="language-">p2 = @pipeline csvrdr |&gt; (numf |&gt; pca) + (catf |&gt; ohe)  
-df2 = fit_transform!(p2) # empty argument because input coming from csvreader
-nothing #hide</code></pre><pre><code class="language-julia-repl">julia&gt; first(df2,5)
-ERROR: UndefVarError: df2 not defined</code></pre><p>With the CSVReader extension, csv files can now be directly processed or loaded inside the pipeline and can be used with other existing filters and transformers.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learning/">« Training and Validation</a><a class="docs-footer-nextpage" href="../../man/pipeline/">Pipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 19 October 2020 23:37">Monday 19 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+df1 = fit_transform!(p1) # empty argument because input coming from csvreader</code></pre><pre><code class="language-julia-repl">julia&gt; first(df1,5)
+5×7 DataFrame
+│ Row │ Home.Away │ Favorite_Name │ Underdog_name │ Favorite_Points │ Underdog_Points │ Pointspread │ Year  │
+│     │ String    │ String        │ String        │ Int64           │ Int64           │ Float64     │ Int64 │
+├─────┼───────────┼───────────────┼───────────────┼─────────────────┼─────────────────┼─────────────┼───────┤
+│ 1   │ away      │ BUF           │ MIA           │ 27              │ 24              │ 4.0         │ 89    │
+│ 2   │ at_home   │ CHI           │ CIN           │ 17              │ 14              │ 3.0         │ 89    │
+│ 3   │ away      │ CLE           │ PIT           │ 51              │ 0               │ 2.5         │ 89    │
+│ 4   │ at_home   │ NO            │ DAL           │ 28              │ 0               │ 5.5         │ 89    │
+│ 5   │ at_home   │ MIN           │ HOU           │ 38              │ 7               │ 5.5         │ 89    │</code></pre><pre><code class="language-julia">p2 = @pipeline csvrdr |&gt; (numf |&gt; pca) + (catf |&gt; ohe)
+df2 = fit_transform!(p2) # empty argument because input coming from csvreader</code></pre><pre><code class="language-julia-repl">julia&gt; first(df2,5)
+5×62 DataFrame
+│ Row │ x1       │ x2       │ x3       │ x4       │ x1_1    │ x2_1    │ x3_1    │ x4_1    │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │ x18     │ x19     │ x20     │ x21     │ x22     │ x23     │ x24     │ x25     │ x26     │ x27     │ x28     │ x29     │ x30     │ x31     │ x32     │ x33     │ x34     │ x35     │ x36     │ x37     │ x38     │ x39     │ x40     │ x41     │ x42     │ x43     │ x44     │ x45     │ x46     │ x47     │ x48     │ x49     │ x50     │ x51     │ x52     │ x53     │ x54     │ x55     │ x56     │ x57     │ x58     │
+│     │ Float64  │ Float64  │ Float64  │ Float64  │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
+├─────┼──────────┼──────────┼──────────┼──────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
+│ 1   │ 2.47477  │ 7.87074  │ -1.10495 │ 0.902431 │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 2   │ -5.47113 │ -3.82946 │ -2.08342 │ 1.00524  │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 3   │ 30.4068  │ -10.8073 │ -6.12339 │ 0.883938 │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 4   │ 8.18372  │ -15.507  │ -1.43203 │ 1.08255  │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
+│ 5   │ 16.6176  │ -6.68636 │ -1.66597 │ 0.978243 │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><p>With the CSVReader extension, csv files can now be directly processed or loaded inside the pipeline and can be used with other existing filters and transformers.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learning/">« Training and Validation</a><a class="docs-footer-nextpage" href="../../man/pipeline/">Pipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 22 October 2020 21:22">Thursday 22 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
