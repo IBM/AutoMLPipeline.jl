@@ -38,7 +38,6 @@ documentation:
 
 ```@repl learner
 using AutoMLPipeline
-using AutoMLPipeline.Utils
 
 iris = getiris();
 X = iris[:,1:4];

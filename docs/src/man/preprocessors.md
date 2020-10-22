@@ -41,7 +41,6 @@ as arguments to the Scikitlearn preprocessor.
 Let's try PCA with 2 components decomposition and random state initialized at 0.
 ```@example preprocessor
 using AutoMLPipeline
-using AutoMLPipeline.Utils
 
 iris = getiris()
 X=iris[:,1:4]

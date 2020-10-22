@@ -60,11 +60,7 @@ the maximum number of unique instances in order to consider a particular
 column as categorical. For the sake of this discussion, let us use its 
 default value which is 24.
 ```@example preprocessing
-using AutoMLPipeline, AutoMLPipeline.FeatureSelectors
-using AutoMLPipeline.EnsembleMethods, AutoMLPipeline.CrossValidators
-using AutoMLPipeline.DecisionTreeLearners, AutoMLPipeline.Pipelines
-using AutoMLPipeline.BaseFilters, AutoMLPipeline.SKPreprocessors
-using AutoMLPipeline.Utils, AutoMLPipeline.SKLearners
+using AutoMLPipeline
 
 disc = CatNumDiscriminator(24)
 @pipeline disc
