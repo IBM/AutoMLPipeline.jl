@@ -539,17 +539,16 @@ julia> print_tree(stdout, expr)
 ```
 
 ### Extending AutoMLPipeline
-If you want to add your own filter/transformer/learner,  
-take note that filters and transformers process the first 
-input features and ignores the target output. On the other hand,
+If you want to add your own filter or transformer or learner, 
+take note that filters and transformers process the  
+input features but ignores the output argument. On the other hand,
 learners process both their input and output arguments during `fit!`
 while `transform!` expects one input argument in all cases. 
-
 First step is to import the abstract types and define your own mutable structure 
 as subtype of either Learner or Transformer. Next is to import the `fit!` and
-`transform!` functions so that you can overload it. Also, load the DataFrames package
-as the main format for data interchange. Finally, implement your own `fit`
-and `transform` and export them.
+`transform!` functions so that you can overload them. Also, you must 
+load the DataFrames package because it is the main format for data processing. 
+Finally, implement your own `fit` and `transform` and export them.
 
 ```julia
 using DataFrames
