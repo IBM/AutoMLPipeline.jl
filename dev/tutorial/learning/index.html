@@ -8,25 +8,17 @@ X = cmcdata[:,1:end-1]
 Y = cmcdata[:,end] .|&gt; string
 show5(df) = first(df,5)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(cmcdata)
 5×10 DataFrame
-│ Row │ Wifes_age │ Wifes_education │ Husbands_education │ Number_of_children_ever_born │ Wifes_religion │ Wifes_now_working.3F │ Husbands_occupation │ Standard.of.living_index │ Media_exposure │ Contraceptive_method_used │
-│     │ Int64     │ Int64           │ Int64              │ Int64                        │ Int64          │ Int64                │ Int64               │ Int64                    │ Int64          │ Int64                     │
-├─────┼───────────┼─────────────────┼────────────────────┼──────────────────────────────┼────────────────┼──────────────────────┼─────────────────────┼──────────────────────────┼────────────────┼───────────────────────────┤
-│ 1   │ 24        │ 2               │ 3                  │ 3                            │ 1              │ 1                    │ 2                   │ 3                        │ 0              │ 1                         │
-│ 2   │ 45        │ 1               │ 3                  │ 10                           │ 1              │ 1                    │ 3                   │ 4                        │ 0              │ 1                         │
-│ 3   │ 43        │ 2               │ 3                  │ 7                            │ 1              │ 1                    │ 3                   │ 4                        │ 0              │ 1                         │
-│ 4   │ 42        │ 3               │ 2                  │ 9                            │ 1              │ 1                    │ 3                   │ 3                        │ 0              │ 1                         │
-│ 5   │ 36        │ 3               │ 3                  │ 8                            │ 1              │ 1                    │ 3                   │ 2                        │ 0              │ 1                         │</code></pre><p>Let&#39;s examine the number of unique instances for each column:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in eachcol(cmcdata,true)]
-10-element Array{Pair{Symbol,Int64},1}:
-                         :Wifes_age =&gt; 34
-                   :Wifes_education =&gt; 4
-                :Husbands_education =&gt; 4
-      :Number_of_children_ever_born =&gt; 15
-                    :Wifes_religion =&gt; 2
-     Symbol(&quot;Wifes_now_working.3F&quot;) =&gt; 2
-               :Husbands_occupation =&gt; 4
- Symbol(&quot;Standard.of.living_index&quot;) =&gt; 4
-                    :Media_exposure =&gt; 2
-         :Contraceptive_method_used =&gt; 3</code></pre><p>Except for Wife&#39;s age and Number of children, the other columns have less than five unique instances. Let&#39;s create a pipeline to filter those columns and convert them to hot-bits and  concatenate them with the standardized scale of the numeric columns.</p><pre><code class="language-julia">std = SKPreprocessor(&quot;StandardScaler&quot;)
+ Row │ Wifes_age  Wifes_education  Husbands_education  Number_of_children_ever_born  Wifes_religion  Wifes_now_working.3F  Husbands_occupation  Standard.of.living_index  Media_exposure  Contraceptive_method_used
+     │ Int64      Int64            Int64               Int64                         Int64           Int64                 Int64                Int64                     Int64           Int64
+─────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │        24                2                   3                             3               1                     1                    2                         3               0                          1
+   2 │        45                1                   3                            10               1                     1                    3                         4               0                          1
+   3 │        43                2                   3                             7               1                     1                    3                         4               0                          1
+   4 │        42                3                   2                             9               1                     1                    3                         3               0                          1
+   5 │        36                3                   3                             8               1                     1                    3                         2               0                          1</code></pre><p>Let&#39;s examine the number of unique instances for each column:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in eachcol(cmcdata,true)]
+ERROR: MethodError: no method matching eachcol(::DataFrames.DataFrame, ::Bool)
+Closest candidates are:
+  eachcol(::DataFrames.AbstractDataFrame) at /home/travis/.julia/packages/DataFrames/X0xNW/src/abstractdataframe/iteration.jl:173</code></pre><p>Except for Wife&#39;s age and Number of children, the other columns have less than five unique instances. Let&#39;s create a pipeline to filter those columns and convert them to hot-bits and  concatenate them with the standardized scale of the numeric columns.</p><pre><code class="language-julia">std = SKPreprocessor(&quot;StandardScaler&quot;)
 ohe = OneHotEncoder()
 kohe = SKPreprocessor(&quot;OneHotEncoder&quot;)
 catf = CatFeatureSelector()
@@ -35,14 +27,14 @@ disc = CatNumDiscriminator(5) # unique instances &lt;= 5 are categories
 pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std))
 dfcmc = fit_transform!(pcmc,X)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(dfcmc)
 5×24 DataFrame
-│ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │ x18     │ x19     │ x20     │ x21     │ x22     │ x1_1     │ x2_1      │
-│     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64  │ Float64   │
-├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────┼───────────┤
-│ 1   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ -1.03817 │ -0.110856 │
-│ 2   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.51519  │ 2.85808   │
-│ 3   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.27202  │ 1.58568   │
-│ 4   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.15043  │ 2.43394   │
-│ 5   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.420897 │ 2.00981   │</code></pre><h3 id="Evaluate-Learners-with-Same-Pipeline"><a class="docs-heading-anchor" href="#Evaluate-Learners-with-Same-Pipeline">Evaluate Learners with Same Pipeline</a><a id="Evaluate-Learners-with-Same-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluate-Learners-with-Same-Pipeline" title="Permalink"></a></h3><p>You can get a list of sklearners and skpreprocessors by using the following function calls: </p><pre><code class="language-julia-repl">julia&gt; sklearners()
+ Row │ x1       x2       x3       x4       x5       x6       x7       x8       x9       x10      x11      x12      x13      x14      x15      x16      x17      x18      x19      x20      x21      x22      x1_1       x2_1
+     │ Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64    Float64
+─────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     1.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0      1.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0  -1.03817   -0.110856
+   2 │     0.0      1.0      0.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0      1.0      0.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0      0.0      1.0      0.0   1.51519    2.85808
+   3 │     1.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0      1.0      0.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0      0.0      1.0      0.0   1.27202    1.58568
+   4 │     0.0      0.0      1.0      0.0      0.0      1.0      0.0      0.0      1.0      0.0      1.0      0.0      0.0      1.0      0.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0   1.15043    2.43394
+   5 │     0.0      0.0      1.0      0.0      1.0      0.0      0.0      0.0      1.0      0.0      1.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      1.0      0.0      1.0      0.0   0.420897   2.00981</code></pre><h3 id="Evaluate-Learners-with-Same-Pipeline"><a class="docs-heading-anchor" href="#Evaluate-Learners-with-Same-Pipeline">Evaluate Learners with Same Pipeline</a><a id="Evaluate-Learners-with-Same-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluate-Learners-with-Same-Pipeline" title="Permalink"></a></h3><p>You can get a list of sklearners and skpreprocessors by using the following function calls: </p><pre><code class="language-julia-repl">julia&gt; sklearners()
 syntax: SKLearner(name::String, args::Dict=Dict())
 where &#39;name&#39; can be one of:
 
@@ -86,11 +78,11 @@ fold: 4, 0.5
 fold: 5, 0.576271186440678
 errors: 0
 SGDClassifier_p1H
-fold: 1, 0.49491525423728816
-fold: 2, 0.4217687074829932
-fold: 3, 0.43050847457627117
-fold: 4, 0.46258503401360546
-fold: 5, 0.42033898305084744
+fold: 1, 0.4610169491525424
+fold: 2, 0.47619047619047616
+fold: 3, 0.4610169491525424
+fold: 4, 0.46598639455782315
+fold: 5, 0.5254237288135594
 errors: 0
 prunetree_SaL
 fold: 1, 0.4406779661016949
@@ -100,13 +92,13 @@ fold: 4, 0.48639455782312924
 fold: 5, 0.47796610169491527
 errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
 learners = 4×4 DataFrame
-│ Row │ name                   │ mean     │ sd        │ kfold │
-│     │ String                 │ Float64  │ Float64   │ Int64 │
-├─────┼────────────────────────┼──────────┼───────────┼───────┤
-│ 1   │ rf_ds2                 │ 0.528152 │ 0.0197006 │ 5     │
-│ 2   │ AdaBoostClassifier_CwM │ 0.553276 │ 0.0381887 │ 5     │
-│ 3   │ SGDClassifier_p1H      │ 0.446023 │ 0.0322234 │ 5     │
-│ 4   │ prunetree_SaL          │ 0.469118 │ 0.0180733 │ 5     │</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+ Row │ name                    mean      sd         kfold
+     │ String                  Float64   Float64    Int64
+─────┼────────────────────────────────────────────────────
+   1 │ rf_ds2                  0.528152  0.0197006      5
+   2 │ AdaBoostClassifier_CwM  0.553276  0.0381887      5
+   3 │ SGDClassifier_p1H       0.477927  0.0272646      5
+   4 │ prunetree_SaL           0.469118  0.0180733      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,gb]
@@ -131,10 +123,10 @@ fold: 4, 0.5204081632653061
 fold: 5, 0.5491525423728814
 errors: 0
 SGDClassifier_p1H
-fold: 1, 0.488135593220339
-fold: 2, 0.4387755102040816
-fold: 3, 0.4406779661016949
-fold: 4, 0.445578231292517
+fold: 1, 0.4610169491525424
+fold: 2, 0.43537414965986393
+fold: 3, 0.47796610169491527
+fold: 4, 0.4897959183673469
 fold: 5, 0.48135593220338985
 errors: 0
 prunetree_SaL
@@ -146,17 +138,17 @@ fold: 5, 0.488135593220339
 errors: 0
 GradientBoostingClassifier_fRr
 fold: 1, 0.5932203389830508
-fold: 2, 0.5612244897959183
+fold: 2, 0.5578231292517006
 fold: 3, 0.5898305084745763
 fold: 4, 0.5510204081632653
 fold: 5, 0.5559322033898305
 errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
 learners = 5×4 DataFrame
-│ Row │ name                           │ mean     │ sd        │ kfold │
-│     │ String                         │ Float64  │ Float64   │ Int64 │
-├─────┼────────────────────────────────┼──────────┼───────────┼───────┤
-│ 1   │ rf_ds2                         │ 0.504437 │ 0.0209082 │ 5     │
-│ 2   │ AdaBoostClassifier_CwM         │ 0.541746 │ 0.027248  │ 5     │
-│ 3   │ SGDClassifier_p1H              │ 0.458905 │ 0.0238406 │ 5     │
-│ 4   │ prunetree_SaL                  │ 0.482002 │ 0.0271246 │ 5     │
-│ 5   │ GradientBoostingClassifier_fRr │ 0.570246 │ 0.0197944 │ 5     │</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 31 October 2020 03:00">Saturday 31 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ Row │ name                            mean      sd         kfold
+     │ String                          Float64   Float64    Int64
+─────┼────────────────────────────────────────────────────────────
+   1 │ rf_ds2                          0.504437  0.0209082      5
+   2 │ AdaBoostClassifier_CwM          0.541746  0.027248       5
+   3 │ SGDClassifier_p1H               0.469102  0.0215633      5
+   4 │ prunetree_SaL                   0.482002  0.0271246      5
+   5 │ GradientBoostingClassifier_fRr  0.569565  0.0202354      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 15 November 2020 19:08">Sunday 15 November 2020</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

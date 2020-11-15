@@ -9,14 +9,14 @@ Y = diabetesdf[:,end] |&gt; Vector</code></pre><p>We can check the data by showi
 
 julia&gt; show5(diabetesdf)
 5×9 DataFrame
-│ Row │ preg  │ plas  │ pres  │ skin  │ insu  │ mass    │ pedi    │ age   │ class           │
-│     │ Int64 │ Int64 │ Int64 │ Int64 │ Int64 │ Float64 │ Float64 │ Int64 │ String          │
-├─────┼───────┼───────┼───────┼───────┼───────┼─────────┼─────────┼───────┼─────────────────┤
-│ 1   │ 6     │ 148   │ 72    │ 35    │ 0     │ 33.6    │ 0.627   │ 50    │ tested_positive │
-│ 2   │ 1     │ 85    │ 66    │ 29    │ 0     │ 26.6    │ 0.351   │ 31    │ tested_negative │
-│ 3   │ 8     │ 183   │ 64    │ 0     │ 0     │ 23.3    │ 0.672   │ 32    │ tested_positive │
-│ 4   │ 1     │ 89    │ 66    │ 23    │ 94    │ 28.1    │ 0.167   │ 21    │ tested_negative │
-│ 5   │ 0     │ 137   │ 40    │ 35    │ 168   │ 43.1    │ 2.288   │ 33    │ tested_positive │</code></pre><p>This <a href="https://archive.ics.uci.edu/ml/datasets/diabetes">UCI dataset</a>  is a collection of diagnostic tests among the Pima Indians  to investigate whether the patient shows  sign of diabetes or not based on certain features:</p><ul><li>Number of times pregnant</li><li>Plasma glucose concentration a 2 hours in an oral glucose tolerance test</li><li>Diastolic blood pressure (mm Hg)</li><li>Triceps skin fold thickness (mm)</li><li>2-Hour serum insulin (mu U/ml)</li><li>Body mass index (weight in kg/(height in m)^2)</li><li>Diabetes pedigree function</li><li>Age (years)</li><li>Class variable (0 or 1) indicating diabetic or not</li></ul><p>What is interesting with this dataset is that one or more numeric columns can be categorical and should be hot-bit encoded. One way to verify is  to compute the number of unique instances for each column and look for  columns with relatively smaller count:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in pairs(eachcol(diabetesdf))] |&gt; collect
+ Row │ preg   plas   pres   skin   insu   mass     pedi     age    class
+     │ Int64  Int64  Int64  Int64  Int64  Float64  Float64  Int64  String
+─────┼─────────────────────────────────────────────────────────────────────────────
+   1 │     6    148     72     35      0     33.6    0.627     50  tested_positive
+   2 │     1     85     66     29      0     26.6    0.351     31  tested_negative
+   3 │     8    183     64      0      0     23.3    0.672     32  tested_positive
+   4 │     1     89     66     23     94     28.1    0.167     21  tested_negative
+   5 │     0    137     40     35    168     43.1    2.288     33  tested_positive</code></pre><p>This <a href="https://archive.ics.uci.edu/ml/datasets/diabetes">UCI dataset</a>  is a collection of diagnostic tests among the Pima Indians  to investigate whether the patient shows  sign of diabetes or not based on certain features:</p><ul><li>Number of times pregnant</li><li>Plasma glucose concentration a 2 hours in an oral glucose tolerance test</li><li>Diastolic blood pressure (mm Hg)</li><li>Triceps skin fold thickness (mm)</li><li>2-Hour serum insulin (mu U/ml)</li><li>Body mass index (weight in kg/(height in m)^2)</li><li>Diabetes pedigree function</li><li>Age (years)</li><li>Class variable (0 or 1) indicating diabetic or not</li></ul><p>What is interesting with this dataset is that one or more numeric columns can be categorical and should be hot-bit encoded. One way to verify is  to compute the number of unique instances for each column and look for  columns with relatively smaller count:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in pairs(eachcol(diabetesdf))] |&gt; collect
 9-element Array{Pair{Symbol,Int64},1}:
   :preg =&gt; 17
   :plas =&gt; 136
@@ -32,40 +32,40 @@ disc = CatNumDiscriminator(24)
 @pipeline disc
 tr_disc = fit_transform!(disc,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_disc)
 5×8 DataFrame
-│ Row │ preg   │ plas  │ pres  │ skin  │ insu  │ mass    │ pedi    │ age   │
-│     │ String │ Int64 │ Int64 │ Int64 │ Int64 │ Float64 │ Float64 │ Int64 │
-├─────┼────────┼───────┼───────┼───────┼───────┼─────────┼─────────┼───────┤
-│ 1   │ 6      │ 148   │ 72    │ 35    │ 0     │ 33.6    │ 0.627   │ 50    │
-│ 2   │ 1      │ 85    │ 66    │ 29    │ 0     │ 26.6    │ 0.351   │ 31    │
-│ 3   │ 8      │ 183   │ 64    │ 0     │ 0     │ 23.3    │ 0.672   │ 32    │
-│ 4   │ 1      │ 89    │ 66    │ 23    │ 94    │ 28.1    │ 0.167   │ 21    │
-│ 5   │ 0      │ 137   │ 40    │ 35    │ 168   │ 43.1    │ 2.288   │ 33    │</code></pre><p>You may notice that the <code>preg</code> column is converted by the <code>CatNumDiscriminator</code> into <code>String</code> type which can be fed to hot-bit encoder to preprocess  categorical data:</p><pre><code class="language-julia">disc = CatNumDiscriminator(24)
+ Row │ preg    plas   pres   skin   insu   mass     pedi     age
+     │ String  Int64  Int64  Int64  Int64  Float64  Float64  Int64
+─────┼─────────────────────────────────────────────────────────────
+   1 │ 6         148     72     35      0     33.6    0.627     50
+   2 │ 1          85     66     29      0     26.6    0.351     31
+   3 │ 8         183     64      0      0     23.3    0.672     32
+   4 │ 1          89     66     23     94     28.1    0.167     21
+   5 │ 0         137     40     35    168     43.1    2.288     33</code></pre><p>You may notice that the <code>preg</code> column is converted by the <code>CatNumDiscriminator</code> into <code>String</code> type which can be fed to hot-bit encoder to preprocess  categorical data:</p><pre><code class="language-julia">disc = CatNumDiscriminator(24)
 catf = CatFeatureSelector()
 ohe = OneHotEncoder()
 pohe = @pipeline disc |&gt; catf |&gt; ohe
 tr_pohe = fit_transform!(pohe,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(tr_pohe)
 5×17 DataFrame
-│ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │
-│     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
-├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-│ 1   │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 2   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 3   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 4   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 5   │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><p>We have now converted all categorical data into hot-bit encoded values.</p><p>For a typical scenario, one can consider columns with around 3-10  unique numeric instances to be categorical.  Using <code>CatNumDiscriminator</code>, it is trivial to convert columns of features with small unique instances into categorical and hot-bit encode them as shown below. Let us use 5 as the cut-off and any columns with less than 5 unique instances is converted to hot-bits.</p><pre><code class="language-julia-repl">julia&gt; using DataFrames: DataFrame, nrow,ncol
+ Row │ x1       x2       x3       x4       x5       x6       x7       x8       x9       x10      x11      x12      x13      x14      x15      x16      x17
+     │ Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64
+─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   2 │     0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   3 │     0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   4 │     0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   5 │     0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0</code></pre><p>We have now converted all categorical data into hot-bit encoded values.</p><p>For a typical scenario, one can consider columns with around 3-10  unique numeric instances to be categorical.  Using <code>CatNumDiscriminator</code>, it is trivial to convert columns of features with small unique instances into categorical and hot-bit encode them as shown below. Let us use 5 as the cut-off and any columns with less than 5 unique instances is converted to hot-bits.</p><pre><code class="language-julia-repl">julia&gt; using DataFrames: DataFrame, nrow,ncol
 
 julia&gt; df = rand(1:3,100,3) |&gt; DataFrame;
 
 julia&gt; show5(df)
 5×3 DataFrame
-│ Row │ x1    │ x2    │ x3    │
-│     │ Int64 │ Int64 │ Int64 │
-├─────┼───────┼───────┼───────┤
-│ 1   │ 1     │ 3     │ 2     │
-│ 2   │ 2     │ 1     │ 2     │
-│ 3   │ 2     │ 1     │ 1     │
-│ 4   │ 3     │ 1     │ 3     │
-│ 5   │ 3     │ 3     │ 1     │
+ Row │ x1     x2     x3
+     │ Int64  Int64  Int64
+─────┼─────────────────────
+   1 │     1      3      2
+   2 │     2      1      2
+   3 │     2      1      1
+   4 │     3      1      3
+   5 │     3      3      1
 
 julia&gt; disc = CatNumDiscriminator(5);
 
@@ -75,14 +75,14 @@ julia&gt; tr_pohe = fit_transform!(pohe,df);
 
 julia&gt; show5(tr_pohe)
 5×9 DataFrame
-│ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │
-│     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
-├─────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-│ 1   │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │
-│ 2   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │
-│ 3   │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │
-│ 4   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │
-│ 5   │ 0.0     │ 0.0     │ 1.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │</code></pre><h3 id="Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns"><a class="docs-heading-anchor" href="#Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns">Concatenating Hot-Bits with PCA of Numeric Columns</a><a id="Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns-1"></a><a class="docs-heading-anchor-permalink" href="#Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns" title="Permalink"></a></h3><p>Going back to the original <code>diabetes</code> dataset, we can now use the  <code>CatNumDiscriminator</code> to differentiate between categorical  columns and numerical columns and preprocess them based on their  types (String vs Number). Below is the pipeline to convert <code>preg</code> column to hot-bits and use PCA for the numerical features:</p><pre><code class="language-julia">pca = SKPreprocessor(&quot;PCA&quot;)
+ Row │ x1       x2       x3       x4       x5       x6       x7       x8       x9
+     │ Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64
+─────┼─────────────────────────────────────────────────────────────────────────────────
+   1 │     1.0      0.0      0.0      1.0      0.0      0.0      1.0      0.0      0.0
+   2 │     0.0      1.0      0.0      0.0      1.0      0.0      1.0      0.0      0.0
+   3 │     0.0      1.0      0.0      0.0      1.0      0.0      0.0      1.0      0.0
+   4 │     0.0      0.0      1.0      0.0      1.0      0.0      0.0      0.0      1.0
+   5 │     0.0      0.0      1.0      1.0      0.0      0.0      0.0      1.0      0.0</code></pre><h3 id="Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns"><a class="docs-heading-anchor" href="#Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns">Concatenating Hot-Bits with PCA of Numeric Columns</a><a id="Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns-1"></a><a class="docs-heading-anchor-permalink" href="#Concatenating-Hot-Bits-with-PCA-of-Numeric-Columns" title="Permalink"></a></h3><p>Going back to the original <code>diabetes</code> dataset, we can now use the  <code>CatNumDiscriminator</code> to differentiate between categorical  columns and numerical columns and preprocess them based on their  types (String vs Number). Below is the pipeline to convert <code>preg</code> column to hot-bits and use PCA for the numerical features:</p><pre><code class="language-julia">pca = SKPreprocessor(&quot;PCA&quot;)
 disc = CatNumDiscriminator(24)
 ohe = OneHotEncoder()
 catf = CatFeatureSelector()
@@ -90,14 +90,14 @@ numf = NumFeatureSelector()
 pl = @pipeline disc |&gt; ((numf |&gt; pca) + (catf |&gt; ohe))
 res_pl = fit_transform!(pl,X,Y)</code></pre><pre><code class="language-julia-repl">julia&gt; show5(res_pl)
 5×24 DataFrame
-│ Row │ x1       │ x2       │ x3         │ x4       │ x5       │ x6       │ x7         │ x1_1    │ x2_1    │ x3_1    │ x4_1    │ x5_1    │ x6_1    │ x7_1    │ x8      │ x9      │ x10     │ x11     │ x12     │ x13     │ x14     │ x15     │ x16     │ x17     │
-│     │ Float64  │ Float64  │ Float64    │ Float64  │ Float64  │ Float64  │ Float64    │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
-├─────┼──────────┼──────────┼────────────┼──────────┼──────────┼──────────┼────────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-│ 1   │ -75.7103 │ -35.9097 │ -7.24498   │ 15.8651  │ 16.3111  │ 3.44999  │ 0.0983858  │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 2   │ -82.3643 │ 28.8482  │ -5.54565   │ 8.92881  │ 3.75463  │ 5.57591  │ -0.0757265 │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 3   │ -74.6222 │ -67.8436 │ 19.4901    │ -5.61152 │ -10.7677 │ 7.1707   │ 0.245201   │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 4   │ 11.0716  │ 34.84    │ -0.0969794 │ 1.16049  │ -7.43015 │ 2.58333  │ -0.267739  │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
-│ 5   │ 89.7362  │ -2.84072 │ 25.1258    │ 18.9669  │ 8.76339  │ -9.50796 │ 1.69639    │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │</code></pre><h3 id="Performance-Evaluation"><a class="docs-heading-anchor" href="#Performance-Evaluation">Performance Evaluation</a><a id="Performance-Evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation" title="Permalink"></a></h3><p>Let us compare the RF cross-validation result between two options:</p><ul><li><code>preg</code> column should be categorical vs</li><li><code>preg</code> column is numerical</li></ul><p>in predicting diabetes where numerical values are scaled by robust scaler and decomposed by PCA.</p><h5 id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate"><a class="docs-heading-anchor" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate">Option 1: Assume All Numeric Columns as not Categorical and Evaluate</a><a id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia">pca = SKPreprocessor(&quot;PCA&quot;)
+ Row │ x1        x2         x3          x4        x5         x6        x7          x1_1     x2_1     x3_1     x4_1     x5_1     x6_1     x7_1     x8       x9       x10      x11      x12      x13      x14      x15      x16      x17
+     │ Float64   Float64    Float64     Float64   Float64    Float64   Float64     Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64
+─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │ -75.7103  -35.9097   -7.24498    15.8651    16.3111    3.44999   0.0983858      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   2 │ -82.3643   28.8482   -5.54565     8.92881    3.75463   5.57591  -0.0757265      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   3 │ -74.6222  -67.8436   19.4901     -5.61152  -10.7677    7.1707    0.245201       0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   4 │  11.0716   34.84     -0.0969794   1.16049   -7.43015   2.58333  -0.267739       0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   5 │  89.7362   -2.84072  25.1258     18.9669     8.76339  -9.50796   1.69639        0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0</code></pre><h3 id="Performance-Evaluation"><a class="docs-heading-anchor" href="#Performance-Evaluation">Performance Evaluation</a><a id="Performance-Evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation" title="Permalink"></a></h3><p>Let us compare the RF cross-validation result between two options:</p><ul><li><code>preg</code> column should be categorical vs</li><li><code>preg</code> column is numerical</li></ul><p>in predicting diabetes where numerical values are scaled by robust scaler and decomposed by PCA.</p><h5 id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate"><a class="docs-heading-anchor" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate">Option 1: Assume All Numeric Columns as not Categorical and Evaluate</a><a id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia">pca = SKPreprocessor(&quot;PCA&quot;)
 dt = SKLearner(&quot;DecisionTreeClassifier&quot;)
 rf = SKLearner(&quot;RandomForestClassifier&quot;)
 rbs = SKPreprocessor(&quot;RobustScaler&quot;)
@@ -159,7 +159,7 @@ fold: 15, 0.5769230769230769
 ┌ Warning: Unseen value found in OneHotEncoder,
 │                 for entry (7, 1) = 17.
 │                 Patching value to 6.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/5IKUE/src/basefilters.jl:99
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/fEYi1/src/basefilters.jl:99
 fold: 16, 0.7692307692307693
 fold: 17, 0.72
 fold: 18, 0.7692307692307693
@@ -174,10 +174,10 @@ fold: 26, 0.8461538461538461
 ┌ Warning: Unseen value found in OneHotEncoder,
 │                 for entry (7, 1) = 15.
 │                 Patching value to 6.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/5IKUE/src/basefilters.jl:99
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/fEYi1/src/basefilters.jl:99
 fold: 27, 0.88
 fold: 28, 0.6153846153846154
 fold: 29, 0.76
 fold: 30, 0.7307692307692307
 errors: 0
-(mean = 0.7346153846153848, std = 0.07734499673999644, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 31 October 2020 03:00">Saturday 31 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7346153846153848, std = 0.07734499673999644, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 15 November 2020 19:08">Sunday 15 November 2020</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
