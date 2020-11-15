@@ -15,28 +15,28 @@ X=iris[:,1:4]
 pca = SKPreprocessor(&quot;PCA&quot;,Dict(:n_components=&gt;2,:random_state=&gt;0))
 respca = fit_transform!(pca,X)</code></pre><pre><code class="language-julia-repl">julia&gt; first(respca,5)
 5×4 DataFrame
-│ Row │ x1       │ x2        │ x3         │ x4          │
-│     │ Float64  │ Float64   │ Float64    │ Float64     │
-├─────┼──────────┼───────────┼────────────┼─────────────┤
-│ 1   │ -2.68413 │ 0.319397  │ -0.0279148 │ -0.00226244 │
-│ 2   │ -2.71414 │ -0.177001 │ -0.210464  │ -0.0990266  │
-│ 3   │ -2.88899 │ -0.144949 │ 0.0179003  │ -0.0199684  │
-│ 4   │ -2.74534 │ -0.318299 │ 0.0315594  │ 0.0755758   │
-│ 5   │ -2.72872 │ 0.326755  │ 0.0900792  │ 0.0612586   │</code></pre><p>Let&#39;s try ICA with 3 components decomposition and whitening:</p><pre><code class="language-julia">ica = SKPreprocessor(&quot;FastICA&quot;,Dict(:n_components=&gt;3,:whiten=&gt;true))
+ Row │ x1        x2         x3          x4
+     │ Float64   Float64    Float64     Float64
+─────┼──────────────────────────────────────────────
+   1 │ -2.68413   0.319397  -0.0279148  -0.00226244
+   2 │ -2.71414  -0.177001  -0.210464   -0.0990266
+   3 │ -2.88899  -0.144949   0.0179003  -0.0199684
+   4 │ -2.74534  -0.318299   0.0315594   0.0755758
+   5 │ -2.72872   0.326755   0.0900792   0.0612586</code></pre><p>Let&#39;s try ICA with 3 components decomposition and whitening:</p><pre><code class="language-julia">ica = SKPreprocessor(&quot;FastICA&quot;,Dict(:n_components=&gt;3,:whiten=&gt;true))
 resica = fit_transform!(ica,X)</code></pre><pre><code class="language-julia-repl">julia&gt; first(resica,5)
 5×4 DataFrame
-│ Row │ x1         │ x2         │ x3         │ x4          │
-│     │ Float64    │ Float64    │ Float64    │ Float64     │
-├─────┼────────────┼────────────┼────────────┼─────────────┤
-│ 1   │ -0.0307811 │ -0.113682  │ 0.0212024  │ -0.00217215 │
-│ 2   │ 0.0792647  │ -0.108639  │ 0.0316042  │ 0.00611911  │
-│ 3   │ 0.0285899  │ -0.110175  │ -0.0292199 │ 0.0126138   │
-│ 4   │ 0.0309454  │ -0.0983379 │ -0.0717929 │ -0.0260146  │
-│ 5   │ -0.0602343 │ -0.112028  │ -0.0165509 │ -0.00849653 │</code></pre><p>To get a listing of available preprocessors, use the <code>skpreprocessors()</code> function:</p><pre><code class="language-julia-repl">julia&gt; skpreprocessors()
+ Row │ x1          x2         x3          x4
+     │ Float64     Float64    Float64     Float64
+─────┼────────────────────────────────────────────────
+   1 │ -0.030562   0.11372     0.0213137   0.00219789
+   2 │  0.0794491  0.108533    0.0313462  -0.00688222
+   3 │  0.0285206  0.110119   -0.0292962  -0.0130717
+   4 │  0.0310003  0.0983583  -0.0719202   0.0255159
+   5 │ -0.0600996  0.112115   -0.0163452   0.00870179</code></pre><p>To get a listing of available preprocessors, use the <code>skpreprocessors()</code> function:</p><pre><code class="language-julia-repl">julia&gt; skpreprocessors()
 syntax: SKPreprocessor(name::String, args::Dict=Dict())
 where *name* can be one of:
 
 Binarizer chi2 dict_learning dict_learning_online DictionaryLearning f_classif f_regression FactorAnalysis FastICA fastica FunctionTransformer GenericUnivariateSelect IncrementalPCA KBinsDiscretizer KernelCenterer KernelPCA LabelBinarizer LabelEncoder LatentDirichletAllocation MaxAbsScaler MiniBatchDictionaryLearning MiniBatchSparsePCA MinMaxScaler MissingIndicator MultiLabelBinarizer mutual_info_classif mutual_info_regression NMF non_negative_factorization Normalizer OneHotEncoder OrdinalEncoder PCA PolynomialFeatures PowerTransformer QuantileTransformer RFE RFECV RobustScaler SelectFdr SelectFpr SelectFromModel SelectFwe SelectKBest SelectPercentile SimpleImputer sparse_encode SparseCoder SparsePCA StandardScaler TruncatedSVD VarianceThreshold 
 
 and *args* are the corresponding preprocessor&#39;s initial parameters.
-Note: Please consult Scikitlearn&#39;s online help for more details about the preprocessor&#39;s arguments.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learners/">Learners »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 31 October 2020 03:00">Saturday 31 October 2020</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Note: Please consult Scikitlearn&#39;s online help for more details about the preprocessor&#39;s arguments.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learners/">Learners »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 15 November 2020 19:08">Sunday 15 November 2020</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
