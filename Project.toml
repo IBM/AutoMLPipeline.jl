@@ -1,7 +1,7 @@
 name = "AutoMLPipeline"
 uuid = "08437348-eef5-4817-bc1b-d4e9459680d6"
 authors = ["Paulito Palmes <ppalmes@gmail.com>"]
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 AMLPipelineBase = "e3c3008a-8869-4d53-9f34-c96f99c8a2b6"
