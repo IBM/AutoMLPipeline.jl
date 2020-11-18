@@ -25,18 +25,18 @@ fa = SKPreprocessor(&quot;FactorAnalysis&quot;);
 ica = SKPreprocessor(&quot;FastICA&quot;)
 pplstacks = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
                        (catf |&gt; ohe) + (numf |&gt; rb |&gt; fa) |&gt; stackens</code></pre><pre><code class="language-julia-repl">julia&gt; crossvalidate(pplstacks,X,Y)
-fold: 1, 67.16417910447761
-fold: 2, 73.13432835820896
-fold: 3, 79.41176470588235
-fold: 4, 73.13432835820896
+fold: 1, 68.65671641791045
+fold: 2, 68.65671641791045
+fold: 3, 77.94117647058823
+fold: 4, 67.16417910447761
 fold: 5, 86.56716417910447
-fold: 6, 74.6268656716418
-fold: 7, 70.1492537313433
-fold: 8, 50.0
-fold: 9, 79.1044776119403
-fold: 10, 65.67164179104478
+fold: 6, 65.67164179104478
+fold: 7, 65.67164179104478
+fold: 8, 57.35294117647059
+fold: 9, 77.61194029850746
+fold: 10, 62.68656716417911
 errors: 0
-(mean = 71.89640035118524, std = 9.876094423478992, folds = 10, errors = 0)</code></pre><p>It is worth noting that stack ensemble is dealing with mixture of libraries consisting of Julia&#39;s Random Forest and Scikitlearn learners.</p><h3 id="VoteEnsemble"><a class="docs-heading-anchor" href="#VoteEnsemble">VoteEnsemble</a><a id="VoteEnsemble-1"></a><a class="docs-heading-anchor-permalink" href="#VoteEnsemble" title="Permalink"></a></h3><p>Vote ensemble uses similar idea with the Stack Ensemble  but instead of stacking, it uses voting to get the final prediction. The first stage involves the collection of  bottom-level learners being trained to learn the mapping between input and output. Once they are trained in a classification problem, they are treated as transformers  wherein the final output of the ensemble is based on the  output with the greatest count. It&#39;s equivalent to majority  voting where each learner has one vote based on its prediction output class.</p><p>The VoteEnsemble accepts the following arguments wrapped inside a <code>Dictionary</code> type of argument:</p><ul><li><code>:name</code> -&gt; alias name of ensemble</li><li><code>:learners</code> -&gt; a vector of learners</li></ul><p>While the init function of VoteEnsemble expects a Dictionary type of argument, it also supports the following convenient helper functions:</p><ul><li><code>VoteEnsemble(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...],name=...)</code></li><li><code>VoteEnsemble([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline but substitute the stack ensemble with the vote ensemble:</p><pre><code class="language-julia">Random.seed!(123);
+(mean = 69.79806848112379, std = 8.54804430144081, folds = 10, errors = 0)</code></pre><p>It is worth noting that stack ensemble is dealing with mixture of libraries consisting of Julia&#39;s Random Forest and Scikitlearn learners.</p><h3 id="VoteEnsemble"><a class="docs-heading-anchor" href="#VoteEnsemble">VoteEnsemble</a><a id="VoteEnsemble-1"></a><a class="docs-heading-anchor-permalink" href="#VoteEnsemble" title="Permalink"></a></h3><p>Vote ensemble uses similar idea with the Stack Ensemble  but instead of stacking, it uses voting to get the final prediction. The first stage involves the collection of  bottom-level learners being trained to learn the mapping between input and output. Once they are trained in a classification problem, they are treated as transformers  wherein the final output of the ensemble is based on the  output with the greatest count. It&#39;s equivalent to majority  voting where each learner has one vote based on its prediction output class.</p><p>The VoteEnsemble accepts the following arguments wrapped inside a <code>Dictionary</code> type of argument:</p><ul><li><code>:name</code> -&gt; alias name of ensemble</li><li><code>:learners</code> -&gt; a vector of learners</li></ul><p>While the init function of VoteEnsemble expects a Dictionary type of argument, it also supports the following convenient helper functions:</p><ul><li><code>VoteEnsemble(Dict(:learners=&gt;...,:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...],Dict(:name=&gt;...))</code></li><li><code>VoteEnsemble([learner1,learner2,...],name=...)</code></li><li><code>VoteEnsemble([learner1,learner2,...])</code></li></ul><p>Let&#39;s use the same pipeline but substitute the stack ensemble with the vote ensemble:</p><pre><code class="language-julia">Random.seed!(123);
 
 votingens = VoteEnsemble([gauss,svc,ridge,jrf]);
 pplvote = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
@@ -60,12 +60,12 @@ pplbest = @pipeline  (numf |&gt; rb |&gt; pca) + (numf |&gt; rb |&gt; ica) +
 fold: 1, 71.64179104477611
 fold: 2, 70.1492537313433
 fold: 3, 76.47058823529412
-fold: 4, 77.61194029850746
+fold: 4, 79.1044776119403
 fold: 5, 85.07462686567165
 fold: 6, 65.67164179104478
 fold: 7, 68.65671641791045
-fold: 8, 61.76470588235294
+fold: 8, 64.70588235294117
 fold: 9, 86.56716417910447
 fold: 10, 68.65671641791045
 errors: 0
-(mean = 73.22651448639155, std = 8.098716112586992, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learners/">« Learners</a><a class="docs-footer-nextpage" href="../../lib/typesfunctions/">Types and Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 18 November 2020 14:34">Wednesday 18 November 2020</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 73.66988586479367, std = 7.780914318512783, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../learners/">« Learners</a><a class="docs-footer-nextpage" href="../../lib/typesfunctions/">Types and Functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 18 November 2020 15:27">Wednesday 18 November 2020</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
