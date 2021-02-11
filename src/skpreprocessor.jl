@@ -171,7 +171,7 @@ end
 function transform!(skp::SKPreprocessor, x::DataFrame)
    features = deepcopy(x) |> Array
    model=skp.model[:skpreprocessor]
-   return collect(model.transform(features)) |> DataFrame
+   return collect(model.transform(features)) |> x->DataFrame(x,:auto)
 end
 
 end
