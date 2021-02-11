@@ -9,8 +9,8 @@ using DataFrames: DataFrame, nrow
 Random.seed!(1)
 
 const IRIS = getiris()
-extra = rand(150,3) |> DataFrame
-const X = hcat(IRIS[:,1:4],extra) |> DataFrame
+extra = rand(150,3) |> x->DataFrame(x,:auto)
+const X = hcat(IRIS[:,1:4],extra) 
 const Y = IRIS[:,5] |> Vector
 
 # "KernelCenterer","MissingIndicator","KBinsDiscretizer","OneHotEncoder", 
