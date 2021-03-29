@@ -85,10 +85,14 @@ function pipeline_test()
    ohe=OneHotEncoder()
    regressor = SKLearner("RandomForestRegressor")
    classifier = SKLearner("RandomForestClassifier")
-   plr = @pipeline (catf |> ohe) + (numf |> rb |> pca) |> regressor
-   plc = @pipeline (catf |> ohe) + (numf |> rb |> pca) |> classifier
+   plr   = @pipeline (catf |> ohe) + (numf |> rb |> pca) |> regressor
+   plr1  = (catf |> ohe) + (numf |> rb |> pca) |> regressor
+   plc   = @pipeline (catf |> ohe) + (numf |> rb |> pca) |> classifier
+   plc1  = (catf |> ohe) + (numf |> rb |> pca) |> classifier
    @test crossvalidate(plr,X,Y,"mean_absolute_error",3,false).mean < 0.3
+   @test crossvalidate(plr1,X,Y,"mean_absolute_error",3,false).mean < 0.3
    @test crossvalidate(plc,XC,YC,"accuracy_score",3,false).mean > 0.8
+   @test crossvalidate(plc1,XC,YC,"accuracy_score",3,false).mean > 0.8
 end
 @testset "scikit pipeline" begin
    pipeline_test()

@@ -109,6 +109,10 @@ function skptest()
     fit!(fpipe,features,labels)
     @test ((transform!(fpipe,features) .== labels) |> sum ) / nrow(features) > 0.50
 
+    fpipe1 = ((cat + num) + (num + pca))  |> stack
+    fit!(fpipe1,features,labels)
+    @test ((transform!(fpipe1,features) .== labels) |> sum ) / nrow(features) > 0.50
+
 end
 @testset "scikit preprocessor fit/transform test with real data" begin
     Random.seed!(123)
