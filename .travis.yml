@@ -5,7 +5,7 @@ os:
   - osx
   - windows
 julia:
-  - 1.5
+  - 1.6
   - nightly
 addons:
   apt:
@@ -14,6 +14,15 @@ addons:
       - python3-scipy
 env:
   - PYTHON=Conda LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
+
+branches:
+   only:
+      - master
+      - main
+      - stable
+   except:
+      - experimental
+
 notifications:
   email: false
 

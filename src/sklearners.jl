@@ -39,55 +39,55 @@ function __init__()
    copy!(ISO , pyimport_conda("sklearn.isotonic","scikit-learn"))
 
    # Available scikit-learn learners.
-   learner_dict["AdaBoostClassifier"]          = ENS.AdaBoostClassifier
-   learner_dict["BaggingClassifier"]           = ENS.BaggingClassifier
-   learner_dict["ExtraTreesClassifier"]        = ENS.ExtraTreesClassifier
-   learner_dict["VotingClassifier"]            = ENS.VotingClassifier
-   learner_dict["GradientBoostingClassifier"]  = ENS.GradientBoostingClassifier
-   learner_dict["RandomForestClassifier"]      = ENS.RandomForestClassifier
-   learner_dict["LDA"]                         = DA.LinearDiscriminantAnalysis
-   learner_dict["QDA"]                         = DA.QuadraticDiscriminantAnalysis
-   learner_dict["LogisticRegression"]          = LM.LogisticRegression
-   learner_dict["PassiveAggressiveClassifier"] = LM.PassiveAggressiveClassifier
-   learner_dict["RidgeClassifier"]             = LM.RidgeClassifier
-   learner_dict["RidgeClassifierCV"]           = LM.RidgeClassifierCV
-   learner_dict["SGDClassifier"]               = LM.SGDClassifier
-   learner_dict["KNeighborsClassifier"]        = NN.KNeighborsClassifier
-   learner_dict["RadiusNeighborsClassifier"]   = NN.RadiusNeighborsClassifier
-   learner_dict["NearestCentroid"]             = NN.NearestCentroid
-   learner_dict["SVC"]                         = SVM.SVC
-   learner_dict["LinearSVC"]                   = SVM.LinearSVC
-   learner_dict["NuSVC"]                       = SVM.NuSVC
-   learner_dict["MLPClassifier"]               = ANN.MLPClassifier
-   learner_dict["GaussianProcessClassifier"]   = GP.GaussianProcessClassifier
-   learner_dict["DecisionTreeClassifier"]      = TREE.DecisionTreeClassifier
-   learner_dict["GaussianNB"]                  = NB.GaussianNB
-   learner_dict["MultinomialNB"]               = NB.MultinomialNB
-   learner_dict["ComplementNB"]                = NB.ComplementNB
-   learner_dict["BernoulliNB"]                 = NB.BernoulliNB
-   learner_dict["SVR"]                         = SVM.SVR
-   learner_dict["Ridge"]                       = LM.Ridge
-   learner_dict["RidgeCV"]                     = LM.RidgeCV
-   learner_dict["Lasso"]                       = LM.Lasso
-   learner_dict["ElasticNet"]                  = LM.ElasticNet
-   learner_dict["Lars"]                        = LM.Lars
-   learner_dict["LassoLars"]                   = LM.LassoLars
-   learner_dict["OrthogonalMatchingPursuit"]   = LM.OrthogonalMatchingPursuit
-   learner_dict["BayesianRidge"]               = LM.BayesianRidge
-   learner_dict["ARDRegression"]               = LM.ARDRegression
-   learner_dict["SGDRegressor"]                = LM.SGDRegressor
-   learner_dict["PassiveAggressiveRegressor"]  = LM.PassiveAggressiveRegressor
-   learner_dict["KernelRidge"]                 = KR.KernelRidge
-   learner_dict["KNeighborsRegressor"]         = NN.KNeighborsRegressor
-   learner_dict["RadiusNeighborsRegressor"]    = NN.RadiusNeighborsRegressor
-   learner_dict["GaussianProcessRegressor"]    = GP.GaussianProcessRegressor
-   learner_dict["DecisionTreeRegressor"]       = TREE.DecisionTreeRegressor
-   learner_dict["RandomForestRegressor"]       = ENS.RandomForestRegressor
-   learner_dict["ExtraTreesRegressor"]         = ENS.ExtraTreesRegressor
-   learner_dict["AdaBoostRegressor"]           = ENS.AdaBoostRegressor
-   learner_dict["GradientBoostingRegressor"]   = ENS.GradientBoostingRegressor
-   learner_dict["IsotonicRegression"]          = ISO.IsotonicRegression
-   learner_dict["MLPRegressor"]                = ANN.MLPRegressor
+   learner_dict["AdaBoostClassifier"]             = ENS
+   learner_dict["BaggingClassifier"]              = ENS
+   learner_dict["ExtraTreesClassifier"]           = ENS
+   learner_dict["VotingClassifier"]               = ENS
+   learner_dict["GradientBoostingClassifier"]     = ENS
+   learner_dict["RandomForestClassifier"]         = ENS
+   learner_dict["QuadraticDiscriminantAnalysis"] = DA
+   learner_dict["LinearDiscriminantAnalysis"]     = DA
+   learner_dict["LogisticRegression"]             = LM
+   learner_dict["PassiveAggressiveClassifier"]    = LM
+   learner_dict["RidgeClassifier"]                = LM
+   learner_dict["RidgeClassifierCV"]              = LM
+   learner_dict["SGDClassifier"]                  = LM
+   learner_dict["KNeighborsClassifier"]           = NN
+   learner_dict["RadiusNeighborsClassifier"]      = NN
+   learner_dict["NearestCentroid"]                = NN
+   learner_dict["SVC"]                            = SVM
+   learner_dict["LinearSVC"]                      = SVM
+   learner_dict["NuSVC"]                          = SVM
+   learner_dict["MLPClassifier"]                  = ANN
+   learner_dict["GaussianProcessClassifier"]      = GP
+   learner_dict["DecisionTreeClassifier"]         = TREE
+   learner_dict["GaussianNB"]                     = NB
+   learner_dict["MultinomialNB"]                  = NB
+   learner_dict["ComplementNB"]                   = NB
+   learner_dict["BernoulliNB"]                    = NB
+   learner_dict["SVR"]                            = SVM
+   learner_dict["Ridge"]                          = LM
+   learner_dict["RidgeCV"]                        = LM
+   learner_dict["Lasso"]                          = LM
+   learner_dict["ElasticNet"]                     = LM
+   learner_dict["Lars"]                           = LM
+   learner_dict["LassoLars"]                      = LM
+   learner_dict["OrthogonalMatchingPursuit"]      = LM
+   learner_dict["BayesianRidge"]                  = LM
+   learner_dict["ARDRegression"]                  = LM
+   learner_dict["SGDRegressor"]                   = LM
+   learner_dict["PassiveAggressiveRegressor"]     = LM
+   learner_dict["KernelRidge"]                    = KR
+   learner_dict["KNeighborsRegressor"]            = NN
+   learner_dict["RadiusNeighborsRegressor"]       = NN
+   learner_dict["GaussianProcessRegressor"]       = GP
+   learner_dict["DecisionTreeRegressor"]          = TREE
+   learner_dict["RandomForestRegressor"]          = ENS
+   learner_dict["ExtraTreesRegressor"]            = ENS
+   learner_dict["AdaBoostRegressor"]              = ENS
+   learner_dict["GradientBoostingRegressor"]      = ENS
+   learner_dict["IsotonicRegression"]             = ISO
+   learner_dict["MLPRegressor"]                   = ANN
 end
 
 """
@@ -150,9 +150,9 @@ end
 
 function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
   x = xx |> Array
-  impl_args = copy(skl.model[:impl_args])
-  learner = skl.model[:learner]
-  py_learner = learner_dict[learner]
+  impl_args  = copy(skl.model[:impl_args])
+  learner    = skl.model[:learner]
+  py_learner = getproperty(learner_dict[learner],learner)
 
   # Assign CombineML-specific defaults if required
   if learner == "RadiusNeighborsClassifier"
