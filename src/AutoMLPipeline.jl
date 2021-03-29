@@ -45,7 +45,7 @@ export crossvalidate
 
 export skoperator
 
-function skoperator(name::String; args...)
+function skoperator(name::String; args...)::Machine
    sklr = keys(SKLearners.learner_dict)
    skpr = keys(SKPreprocessors.preprocessor_dict)
    if name ∈ sklr
@@ -56,6 +56,7 @@ function skoperator(name::String; args...)
       skoperator()
       throw(ArgumentError("$name does not exist"))
    end
+   return obj
 end
 
 function skoperator()
