@@ -14,8 +14,8 @@ const Y = IRIS[:,4] |> Vector
 
 
 const classifiers = [
-    "LinearSVC","QDA","MLPClassifier","BernoulliNB",
-    "RandomForestClassifier","LDA",
+    "LinearSVC","QuadraticDiscriminantAnalysis","MLPClassifier","BernoulliNB",
+    "RandomForestClassifier","LinearDiscriminantAnalysis",
     "NearestCentroid","SVC","LinearSVC","NuSVC","MLPClassifier",
     "RidgeClassifierCV","SGDClassifier","KNeighborsClassifier",
     "GaussianProcessClassifier","DecisionTreeClassifier",
