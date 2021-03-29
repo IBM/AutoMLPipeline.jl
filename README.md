@@ -153,15 +153,16 @@ head(profbdata)
 using AutoMLPipeline
 
 #### Decomposition
-pca = SKPreprocessor("PCA")
-fa  = SKPreprocessor("FactorAnalysis")
-ica = SKPreprocessor("FastICA")
+pca = skoperator("PCA")
+fa  = skoperator("FactorAnalysis")
+ica = skoperator("FastICA")
 
 #### Scaler 
-rb   = SKPreprocessor("RobustScaler")
-pt   = SKPreprocessor("PowerTransformer")
-norm = SKPreprocessor("Normalizer")
-mx   = SKPreprocessor("MinMaxScaler")
+rb   = skoperator("RobustScaler")
+pt   = skoperator("PowerTransformer")
+norm = skoperator("Normalizer")
+mx   = skoperator("MinMaxScaler")
+std  = skoperator("StandardScaler")
 
 #### categorical preprocessing
 ohe = OneHotEncoder()
@@ -169,29 +170,31 @@ ohe = OneHotEncoder()
 #### Column selector
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
+disc = CatNumDiscriminator()
 
 #### Learners
-rf       = SKLearner("RandomForestClassifier")
-gb       = SKLearner("GradientBoostingClassifier")
-lsvc     = SKLearner("LinearSVC")
-svc      = SKLearner("SVC")
-mlp      = SKLearner("MLPClassifier")
-ada      = SKLearner("AdaBoostClassifier")
+rf       = skoperator("RandomForestClassifier")
+gb       = skoperator("GradientBoostingClassifier")
+lsvc     = skoperator("LinearSVC")
+svc      = skoperator("SVC")
+mlp      = skoperator("MLPClassifier")
+ada      = skoperator("AdaBoostClassifier")
+sgd      = skoperator("SGDClassifier")
+skrf_reg = skoperator("RandomForestRegressor")
+skgb_reg = skoperator("GradientBoostingRegressor")
 jrf      = RandomForest()
+tree     = PrunedTree()
 vote     = VoteEnsemble()
 stack    = StackEnsemble()
 best     = BestLearner()
-skrf_reg = SKLearner("RandomForestRegressor")
-skgb_reg = SKLearner("GradientBoostingRegressor")
 ```
 
-Note: You can get a listing of available `SKPreprocessors` and `SKLearners` by invoking the following functions, respectively: 
-- `skpreprocessors()`
-- `sklearners()`
+Note: You can get a listing of available `Preprocessors` and `Learners` by invoking the function: 
+- `skoperator()`
 
 #### 3. Filter categories and hot-encode them
 ```julia
-pohe = @pipeline catf |> ohe
+pohe = catf |> ohe
 tr = fit_transform!(pohe,X,Y)
 head(tr)
 
@@ -210,7 +213,7 @@ head(tr)
 
 ##### 4.1 Filter numeric features, compute ica and pca features, and combine both features
 ```julia
-pdec = @pipeline (numf |> pca) + (numf |> ica)
+pdec = (numf |> pca) + (numf |> ica)
 tr = fit_transform!(pdec,X,Y)
 head(tr)
 
@@ -227,7 +230,7 @@ head(tr)
 
 ##### 4.2 Filter numeric features, transform to robust and power transform scaling, perform ica and pca, respectively, and combine both
 ```julia
-ppt = @pipeline (numf |> rb |> ica) + (numf |> pt |> pca)
+ppt = (numf |> rb |> ica) + (numf |> pt |> pca)
 tr = fit_transform!(ppt,X,Y)
 head(tr)
 
@@ -248,7 +251,7 @@ head(tr)
 # concatenate them to the numerical features,
 # and feed them to the voting ensemble
 using AutoMLPipeline.Utils
-pvote = @pipeline  (catf |> ohe) + (numf) |> vote
+pvote = (catf |> ohe) + (numf) |> vote
 pred = fit_transform!(pvote,X,Y)
 sc=score(:accuracy,pred,Y)
 println(sc)
@@ -294,7 +297,7 @@ julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorical features
 # and feed all to the random forest classifier
-prf = @pipeline  (numf |> rb |> pca) + (numf |> rb |> ica) + (numf |> rb |> fa) + (catf |> ohe) |> rf
+prf = (numf |> rb |> pca) + (numf |> rb |> ica) + (numf |> rb |> fa) + (catf |> ohe) |> rf
 pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score")
@@ -314,7 +317,7 @@ errors: 0
 ```
 #### 8. A Pipeline for the Linear Support Vector for Classification (LSVC)
 ```julia
-plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
+plsvc = ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(plsvc,X,Y,"accuracy_score")
@@ -338,7 +341,7 @@ errors: 0
 iris = getiris()
 Xreg = iris[:,1:3]
 Yreg = iris[:,4] |> Vector
-pskrfreg = @pipeline (catf |> ohe) + (numf) |> skrf_reg
+pskrfreg = (catf |> ohe) + (numf) |> skrf_reg
 res=crossvalidate(pskrfreg,Xreg,Yreg,"mean_absolute_error",10)
 
 fold: 1, 0.1827433333333334
@@ -367,13 +370,13 @@ using Random
 using DataFrames
 
 Random.seed!(1)
-jrf = RandomForest()
-ada = SKLearner("AdaBoostClassifier")
-sgd = SKLearner("SGDClassifier")
+jrf  = RandomForest()
 tree = PrunedTree()
-std = SKPreprocessor("StandardScaler")
 disc = CatNumDiscriminator()
-lsvc = SKLearner("LinearSVC")
+ada  = skoperator("AdaBoostClassifier")
+sgd  = skoperator("SGDClassifier")
+std  = skoperator("StandardScaler")
+lsvc = skoperator("LinearSVC")
 
 learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,lsvc]
@@ -405,28 +408,34 @@ nprocs() == 1 && addprocs()
 @everywhere using DataFrames
 @everywhere using AutoMLPipeline
 
-Random.seed!(1)
-jrf = RandomForest()
-ada = SKLearner("AdaBoostClassifier")
-sgd = SKLearner("SGDClassifier")
-tree = PrunedTree()
-std = SKPreprocessor("StandardScaler")
-disc = CatNumDiscriminator()
-lsvc = SKLearner("LinearSVC")
+@everywhere profbdata = getprofb()
+@everywhere X = profbdata[:,2:end] 
+@everywhere Y = profbdata[:,1] |> Vector;
 
-learners = @distributed (vcat) for learner in [jrf,ada,sgd,tree,lsvc]
-   pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
-   println(learner.name)
+@everywhere jrf  = RandomForest()
+@everywhere ohe  = OneHotEncoder()
+@everywhere catf = CatFeatureSelector()
+@everywhere numf = NumFeatureSelector()
+@everywhere tree = PrunedTree()
+@everywhere disc = CatNumDiscriminator()
+@everywhere ada  = skoperator("AdaBoostClassifier")
+@everywhere sgd  = skoperator("SGDClassifier")
+@everywhere std  = skoperator("StandardScaler")
+@everywhere lsvc = skoperator("LinearSVC")
+
+learners = @sync @distributed (vcat) for learner in [jrf,ada,sgd,tree,lsvc]
+   pcmc = disc |> ((catf |> ohe) + (numf |> std)) |> learner
+   println(learner.name[1:end-4])
    mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",10)
-   DataFrame(name=learner.name,mean=mean,sd=sd)
+   DataFrame(name=learner.name[1:end-4],mean=mean,sd=sd)
 end
 @show learners;
 
-      From worker 3:    AdaBoostClassifier_KPx
-      From worker 4:    SGDClassifier_P0n
-      From worker 5:    prunetree_zzO
-      From worker 2:    rf_M6x
-      From worker 6:    LinearSVC_9l7
+      From worker 3:    AdaBoostClassifier
+      From worker 4:    SGDClassifier
+      From worker 5:    prunetree
+      From worker 2:    rf
+      From worker 6:    LinearSVC
       From worker 4:    fold: 1, 0.6716417910447762
       From worker 5:    fold: 1, 0.6567164179104478
       From worker 6:    fold: 1, 0.6865671641791045
@@ -442,11 +451,11 @@ learners = 5×3 DataFrame
 │ Row │ name                   │ mean     │ sd        │
 │     │ String                 │ Float64  │ Float64   │
 ├─────┼────────────────────────┼──────────┼───────────┤
-│ 1   │ rf_M6x                 │ 0.647388 │ 0.0764844 │
-│ 2   │ AdaBoostClassifier_KPx │ 0.712862 │ 0.0471003 │
-│ 3   │ SGDClassifier_P0n      │ 0.710009 │ 0.05173   │
-│ 4   │ prunetree_zzO          │ 0.60428  │ 0.0403121 │
-│ 5   │ LinearSVC_9l7          │ 0.726383 │ 0.0467506 │
+│ 1   │ rf                     │ 0.647388 │ 0.0764844 │
+│ 2   │ AdaBoostClassifier     │ 0.712862 │ 0.0471003 │
+│ 3   │ SGDClassifier          │ 0.710009 │ 0.05173   │
+│ 4   │ prunetree              │ 0.60428  │ 0.0403121 │
+│ 5   │ LinearSVC              │ 0.726383 │ 0.0467506 │
 ```
 
 #### 11. Automatic Selection of Best Learner
@@ -455,7 +464,7 @@ If we use the same pre-processing pipeline in 10, we expect that the average per
 best learner which is `lsvc` will be around 73.0.
 ```julia
 Random.seed!(1)
-pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * tree * lsvc)
+pcmc = disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * tree * lsvc)
 crossvalidate(pcmc,X,Y,"accuracy_score",10)
 
 fold: 1, 0.7164179104477612
@@ -477,7 +486,7 @@ It is also possible to use learners in the middle of expression to serve
 as transformers and their outputs become inputs to the final learner as illustrated
 below.
 ```julia
-expr = @pipeline ( 
+expr = ( 
              ((numf |> rb)+(catf |> ohe) |> gb) + ((numf |> rb)+(catf |> ohe) |> rf) 
        ) |> ohe |> ada;                
 crossvalidate(expr,X,Y,"accuracy_score")
@@ -497,7 +506,7 @@ errors: 0
 ```
 One can even include selector function as part of transformer preprocessing routine:
 ```julia
-pjrf = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> 
+pjrf = disc |> ((catf |> ohe) + (numf |> std)) |> 
          ((jrf * ada ) + (sgd * tree * lsvc)) |> ohe |> ada
 crossvalidate(pjrf,X,Y,"accuracy_score")
 
@@ -557,7 +566,7 @@ julia> print_tree(stdout, expr)
 If you want to add your own filter or transformer or learner, 
 take note that filters and transformers process the  
 input features but ignores the output argument. On the other hand,
-learners process both their input and output arguments during `fit!`
+learners process both their input and output arguments during `fit!` 
 while `transform!` expects one input argument in all cases. 
 First step is to import the abstract types and define your own mutable structure 
 as subtype of either Learner or Transformer. Next is to import the `fit!` and
@@ -633,8 +642,8 @@ Usage questions can be posted in:
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://ibm.github.io/AutoMLPipeline.jl/dev/
 
-[travis-img]: https://travis-ci.com/IBM/AutoMLPipeline.jl.svg?branch=master
-[travis-url]: https://travis-ci.com/IBM/AutoMLPipeline.jl
+[travis-img]: https://www.travis-ci.com/IBM/AutoMLPipeline.jl.svg?branch=master
+[travis-url]: https://www.travis-ci.com/github/IBM/AutoMLPipeline.jl
 
 [codecov-img]: https://codecov.io/gh/IBM/AutoMLPipeline.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/IBM/AutoMLPipeline.jl
