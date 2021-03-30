@@ -21,8 +21,8 @@ jobs:
         python: [3.7]
         os:
           - ubuntu-latest
-          - macOS-latest
-          - windows-latest
+            #- macOS-latest
+            #- windows-latest
         arch:
           - x64
     steps:
@@ -94,7 +94,7 @@ jobs:
           version: '1'
         env: 
           PYTHON: Conda
-          LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
+          #LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
       - run: |
           julia --project=docs -e '
             using Pkg
