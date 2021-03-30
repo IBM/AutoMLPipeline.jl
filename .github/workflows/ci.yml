@@ -21,8 +21,8 @@ jobs:
         python: [3.7]
         os:
           - ubuntu-latest
-            #- macOS-latest
-            #- windows-latest
+          - windows-latest
+            #- macOS-latest # issue with libmkl location
         arch:
           - x64
     steps:
@@ -61,8 +61,6 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
         env: 
           PYTHON: Conda
-          #LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
-
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
@@ -94,7 +92,6 @@ jobs:
           version: '1'
         env: 
           PYTHON: Conda
-          #LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
       - run: |
           julia --project=docs -e '
             using Pkg
