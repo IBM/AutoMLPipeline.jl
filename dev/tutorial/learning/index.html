@@ -18,7 +18,7 @@ show5(df) = first(df,5)</code></pre><pre><code class="language-julia-repl">julia
    5 │        36                3                   3                             8               1                     1                    3                         2               0                          1</code></pre><p>Let&#39;s examine the number of unique instances for each column:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in eachcol(cmcdata,true)]
 ERROR: MethodError: no method matching eachcol(::DataFrames.DataFrame, ::Bool)
 Closest candidates are:
-  eachcol(::DataFrames.AbstractDataFrame) at /home/travis/.julia/packages/DataFrames/zXEKU/src/abstractdataframe/iteration.jl:173</code></pre><p>Except for Wife&#39;s age and Number of children, the other columns have less than five unique instances. Let&#39;s create a pipeline to filter those columns and convert them to hot-bits and  concatenate them with the standardized scale of the numeric columns.</p><pre><code class="language-julia">std = SKPreprocessor(&quot;StandardScaler&quot;)
+  eachcol(::DataFrames.AbstractDataFrame) at /home/runner/.julia/packages/DataFrames/zXEKU/src/abstractdataframe/iteration.jl:173</code></pre><p>Except for Wife&#39;s age and Number of children, the other columns have less than five unique instances. Let&#39;s create a pipeline to filter those columns and convert them to hot-bits and  concatenate them with the standardized scale of the numeric columns.</p><pre><code class="language-julia">std = SKPreprocessor(&quot;StandardScaler&quot;)
 ohe = OneHotEncoder()
 kohe = SKPreprocessor(&quot;OneHotEncoder&quot;)
 catf = CatFeatureSelector()
@@ -63,42 +63,42 @@ for learner in [jrf,ada,sgd,tree]
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;</code></pre><pre class="documenter-example-output">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
 └ @ none:2
-rf_ds2
-fold: 1, 0.5491525423728814
-fold: 2, 0.5068027210884354
-fold: 3, 0.5186440677966102
-fold: 4, 0.5170068027210885
-fold: 5, 0.5491525423728814
+rf_3Of
+fold: 1, 0.5288135593220339
+fold: 2, 0.5306122448979592
+fold: 3, 0.559322033898305
+fold: 4, 0.5034013605442177
+fold: 5, 0.5322033898305085
 errors: 0
-AdaBoostClassifier_CwM
-fold: 1, 0.5254237288135594
-fold: 2, 0.5816326530612245
-fold: 3, 0.5830508474576271
-fold: 4, 0.5
-fold: 5, 0.576271186440678
+AdaBoostClassifier_GDC
+fold: 1, 0.5389830508474577
+fold: 2, 0.5238095238095238
+fold: 3, 0.511864406779661
+fold: 4, 0.5238095238095238
+fold: 5, 0.5864406779661017
 errors: 0
-SGDClassifier_p1H
-fold: 1, 0.48135593220338985
-fold: 2, 0.43197278911564624
-fold: 3, 0.43389830508474575
-fold: 4, 0.47959183673469385
-fold: 5, 0.4847457627118644
+SGDClassifier_XxZ
+fold: 1, 0.4440677966101695
+fold: 2, 0.46598639455782315
+fold: 3, 0.4440677966101695
+fold: 4, 0.48299319727891155
+fold: 5, 0.559322033898305
 errors: 0
-prunetree_SaL
-fold: 1, 0.4406779661016949
-fold: 2, 0.46258503401360546
-fold: 3, 0.47796610169491527
-fold: 4, 0.48639455782312924
-fold: 5, 0.47796610169491527
+prunetree_eOz
+fold: 1, 0.4915254237288136
+fold: 2, 0.4897959183673469
+fold: 3, 0.4406779661016949
+fold: 4, 0.47619047619047616
+fold: 5, 0.488135593220339
 errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
 learners = 4×4 DataFrame
  Row │ name                    mean      sd         kfold
      │ String                  Float64   Float64    Int64
 ─────┼────────────────────────────────────────────────────
-   1 │ rf_ds2                  0.528152  0.0197006      5
-   2 │ AdaBoostClassifier_CwM  0.553276  0.0381887      5
-   3 │ SGDClassifier_p1H       0.462313  0.0268903      5
-   4 │ prunetree_SaL           0.469118  0.0180733      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+   1 │ rf_3Of                  0.530871  0.0198124      5
+   2 │ AdaBoostClassifier_GDC  0.536981  0.0292749      5
+   3 │ SGDClassifier_XxZ       0.479287  0.0476367      5
+   4 │ prunetree_eOz           0.477265  0.0213209      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,gb]
@@ -108,47 +108,47 @@ for learner in [jrf,ada,sgd,tree,gb]
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;</code></pre><pre class="documenter-example-output">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
 └ @ none:2
-rf_ds2
-fold: 1, 0.4915254237288136
-fold: 2, 0.5034013605442177
-fold: 3, 0.4915254237288136
-fold: 4, 0.5408163265306123
+rf_3Of
+fold: 1, 0.49830508474576274
+fold: 2, 0.4557823129251701
+fold: 3, 0.511864406779661
+fold: 4, 0.5102040816326531
+fold: 5, 0.4915254237288136
+errors: 0
+AdaBoostClassifier_GDC
+fold: 1, 0.5186440677966102
+fold: 2, 0.5306122448979592
+fold: 3, 0.5627118644067797
+fold: 4, 0.6020408163265306
 fold: 5, 0.49491525423728816
 errors: 0
-AdaBoostClassifier_CwM
-fold: 1, 0.576271186440678
-fold: 2, 0.5544217687074829
-fold: 3, 0.5084745762711864
-fold: 4, 0.5204081632653061
-fold: 5, 0.5491525423728814
-errors: 0
-SGDClassifier_p1H
-fold: 1, 0.47796610169491527
-fold: 2, 0.4931972789115646
-fold: 3, 0.43389830508474575
-fold: 4, 0.5306122448979592
-fold: 5, 0.4610169491525424
-errors: 0
-prunetree_SaL
-fold: 1, 0.488135593220339
-fold: 2, 0.5136054421768708
-fold: 3, 0.48135593220338985
-fold: 4, 0.4387755102040816
-fold: 5, 0.488135593220339
-errors: 0
-GradientBoostingClassifier_fRr
-fold: 1, 0.5932203389830508
-fold: 2, 0.5544217687074829
+SGDClassifier_XxZ
+fold: 1, 0.49491525423728816
+fold: 2, 0.46938775510204084
 fold: 3, 0.5898305084745763
-fold: 4, 0.5510204081632653
-fold: 5, 0.5559322033898305
+fold: 4, 0.40816326530612246
+fold: 5, 0.4406779661016949
+errors: 0
+prunetree_eOz
+fold: 1, 0.49491525423728816
+fold: 2, 0.4523809523809524
+fold: 3, 0.44745762711864406
+fold: 4, 0.47619047619047616
+fold: 5, 0.5322033898305085
+errors: 0
+GradientBoostingClassifier_Lck
+fold: 1, 0.576271186440678
+fold: 2, 0.5680272108843537
+fold: 3, 0.5457627118644067
+fold: 4, 0.5850340136054422
+fold: 5, 0.5491525423728814
 errors: 0</pre><pre><code class="language-julia-repl">julia&gt; @show learners;
 learners = 5×4 DataFrame
  Row │ name                            mean      sd         kfold
      │ String                          Float64   Float64    Int64
 ─────┼────────────────────────────────────────────────────────────
-   1 │ rf_ds2                          0.504437  0.0209082      5
-   2 │ AdaBoostClassifier_CwM          0.541746  0.027248       5
-   3 │ SGDClassifier_p1H               0.479338  0.0361367      5
-   4 │ prunetree_SaL                   0.482002  0.0271246      5
-   5 │ GradientBoostingClassifier_fRr  0.568885  0.0207788      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 30 March 2021 19:44">Tuesday 30 March 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   1 │ rf_3Of                          0.493536  0.022726       5
+   2 │ AdaBoostClassifier_GDC          0.541785  0.0416107      5
+   3 │ SGDClassifier_XxZ               0.480595  0.0691064      5
+   4 │ prunetree_eOz                   0.48063   0.034576       5
+   5 │ GradientBoostingClassifier_Lck  0.56485   0.0170196      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 30 March 2021 19:55">Tuesday 30 March 2021</span>. Using Julia version 1.6.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
