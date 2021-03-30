@@ -29,7 +29,7 @@ the hot-bit encoding (`ohe`) of categorical
 features (`catf`) of a given data for `rf` (Random Forest) modeling:
 
 ```julia
-model = @pipeline (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
+model = (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
 fit!(model,Xtrain,Ytrain)
 prediction = transform!(model,Xtest)
 score(:accuracy,prediction,Ytest)
@@ -39,10 +39,10 @@ Just take note that `+` has higher priority than `|>` so if you
 are not sure, enclose the operations inside parentheses.
 ```julia
 ### these two expressions are the same
-@pipeline a |> b + c; @pipeline a |> (b + c)
+a |> b + c; a |> (b + c)
 
 ### these two expressions are the same
-@pipeline a + b |> c; @pipeline (a + b) |> c
+a + b |> c; (a + b) |> c
 ```
 
 More examples can be found in the 
@@ -86,15 +86,11 @@ programming (discrete choices of POP elements),
 tree/graph search, and hyper-parameter search.
 
 ### Package Features
-- Symbolic pipeline API for easy expression and high-level description 
-  of complex pipeline structures and processing workflow
+- Symbolic pipeline API for easy expression and high-level description of complex pipeline structures and processing workflow
 - Common API wrappers for ML libs including Scikitlearn, DecisionTree, etc
 - Easily extensible architecture by overloading just two main interfaces: fit! and transform!
-- Meta-ensembles that allow composition of
-    ensembles of ensembles (recursively if needed)
-    for robust prediction routines
-- Categorical and numerical feature selectors for
-    specialized preprocessing routines based on types
+- Meta-ensembles that allow composition of ensembles of ensembles (recursively if needed) for robust prediction routines
+- Categorical and numerical feature selectors for specialized preprocessing routines based on types
 
 ### Installation
 
@@ -381,9 +377,9 @@ lsvc = skoperator("LinearSVC")
 learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,lsvc]
    pcmc = @pipeline disc |> ((catf |> ohe) + (numf |> std)) |> learner
-   println(learner.name)
+   println(learner.name[1:end-4])
    mean,sd,_ = crossvalidate(pcmc,X,Y,"accuracy_score",10)
-   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd))
+   global learners = vcat(learners,DataFrame(name=learner.name[1:end-4],mean=mean,sd=sd))
 end;
 @show learners;
 
@@ -391,11 +387,11 @@ learners = 5×3 DataFrame
 │ Row │ name                   │ mean     │ sd        │
 │     │ String                 │ Float64  │ Float64   │
 ├─────┼────────────────────────┼──────────┼───────────┤
-│ 1   │ rf_M6x                 │ 0.653424 │ 0.0754433 │
-│ 2   │ AdaBoostClassifier_KPx │ 0.69504  │ 0.0514792 │
-│ 3   │ SGDClassifier_P0n      │ 0.694908 │ 0.0641564 │
-│ 4   │ prunetree_zzO          │ 0.621927 │ 0.0578242 │
-│ 5   │ LinearSVC_9l7          │ 0.726097 │ 0.0498317 │
+│ 1   │ rf                     │ 0.653424 │ 0.0754433 │
+│ 2   │ AdaBoostClassifier     │ 0.69504  │ 0.0514792 │
+│ 3   │ SGDClassifier          │ 0.694908 │ 0.0641564 │
+│ 4   │ prunetree              │ 0.621927 │ 0.0578242 │
+│ 5   │ LinearSVC              │ 0.726097 │ 0.0498317 │
 ```
 
 ##### 10.2 Parallel Processing
