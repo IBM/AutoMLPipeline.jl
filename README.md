@@ -1,3 +1,4 @@
+### AutoMLPipeline
 
 | **Documentation** | **Build Status** | **Help** |
 |:---:|:---:|:---:|
@@ -7,8 +8,6 @@
 
 [![Stargazers over time](https://starchart.cc/IBM/AutoMLPipeline.jl.svg)](https://starchart.cc/IBM/AutoMLPipeline.jl)
 
-
-### AutoMLPipeline
 ------------------
 **AutoMLPipeline** is a package 
 that makes it trivial 
