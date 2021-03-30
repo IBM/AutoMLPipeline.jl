@@ -638,8 +638,8 @@ Usage questions can be posted in:
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://ibm.github.io/AutoMLPipeline.jl/dev/
 
-[travis-img]: https://www.travis-ci.com/IBM/AutoMLPipeline.jl.svg?branch=master
-[travis-url]: https://www.travis-ci.com/github/IBM/AutoMLPipeline.jl
+[travis-img]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml/badge.svg
+[travis-url]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml
 
 [codecov-img]: https://codecov.io/gh/IBM/AutoMLPipeline.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/IBM/AutoMLPipeline.jl
