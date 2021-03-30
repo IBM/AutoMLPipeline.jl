@@ -4,15 +4,16 @@ using Conda
 function installpypackage()
 	try
 		pyimport_conda("sklearn", "scikit-learn")
-      println("scikit-learn successfully installed")
+		pyimport_conda("mkl", "mkl")
+      println("mkl and scikit-learn successfully installed")
 	catch
 		try
 			Conda.add("scikit-learn")
 			pyimport_conda("sklearn", "scikit-learn")
 			pyimport_conda("sklearn.decomposition", "scikit-learn")
-			println("scikit-learn successfully installed")
+			println("mkl and scikit-learn successfully installed")
 		catch
-			println("scikit-learn failed to install")
+			println("mkl and scikit-learn failed to install")
 		end
 	end
 end
