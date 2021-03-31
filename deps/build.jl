@@ -1,4 +1,5 @@
 using PyCall: pyimport_conda, pycall
+using Pkg
 using Conda
 
 function installpypackage()
@@ -8,8 +9,9 @@ function installpypackage()
       println("mkl and scikit-learn successfully installed")
 	catch
 		try
-			Conda.add("mkl")
-			Conda.add("scikit-learn")
+         Conda.add("nomkl")
+         Conda.add("scikit-learn")
+         Conda.rm("mkl")
 			pyimport_conda("sklearn", "scikit-learn")
 			pyimport_conda("sklearn.decomposition", "scikit-learn")
          pyimport_conda("mkl", "mkl")

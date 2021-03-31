@@ -12,3 +12,4 @@ version.js
 latest
 *.back
 Session.vim
+build.log
