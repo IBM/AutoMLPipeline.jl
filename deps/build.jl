@@ -1,15 +1,15 @@
 using PyCall: pyimport_conda, pycall
-using Pkg
 using Conda
 
 function installpypackage()
 	try
-		pyimport_conda("mkl", "mkl")
+		pyimport_conda("nomkl", "nomkl")
 		pyimport_conda("sklearn", "scikit-learn")
       println("mkl and scikit-learn successfully installed")
 	catch
 		try
-         #https://github.com/JuliaPy/Conda.jl/issues/182
+         # https://github.com/JuliaPy/Conda.jl/issues/182
+         # https://docs.anaconda.com/mkl-optimizations/
          Conda.add("nomkl")
          Conda.add("scikit-learn")
          Conda.rm("mkl")
