@@ -9,6 +9,7 @@ function installpypackage()
       println("mkl and scikit-learn successfully installed")
 	catch
 		try
+         #https://github.com/JuliaPy/Conda.jl/issues/182
          Conda.add("nomkl")
          Conda.add("scikit-learn")
          Conda.rm("mkl")
