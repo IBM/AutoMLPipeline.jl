@@ -3,8 +3,8 @@ using Conda
 
 function installpypackage()
 	try
-		pyimport_conda("sklearn", "scikit-learn")
 		pyimport_conda("mkl", "mkl")
+		pyimport_conda("sklearn", "scikit-learn")
       println("mkl and scikit-learn successfully installed")
 	catch
 		try
