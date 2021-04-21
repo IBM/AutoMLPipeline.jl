@@ -15,7 +15,11 @@ export holdout, kfold, score, infer_eltype, nested_dict_to_tuples,
        nested_dict_set!, nested_dict_merge, create_transformer,
        mergedict, getiris, getprofb,
        skipmean,skipmedian,skipstd,
-       aggregatorclskipmissing
+       aggregatorclskipmissing,
+       find_catnum_columns,
+       train_test_split
+
+
 export Baseline, Identity
 export Imputer,OneHotEncoder,Wrapper
 export PrunedTree,RandomForest,Adaboost
