@@ -8,8 +8,8 @@ using Random
 using ..AbsTypes
 using ..Utils
 
-import ..AbsTypes: fit!, transform!
-export fit!, transform!
+import ..AbsTypes: fit, fit!, transform, transform!
+export fit, fit!, transform, transform!
 export SKPreprocessor, skpreprocessors
 
 const preprocessor_dict = Dict{String,PyObject}()
@@ -146,7 +146,7 @@ function skpreprocessors()
   println("Note: Please consult Scikitlearn's online help for more details about the preprocessor's arguments.")
 end
 
-function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])
+function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::Nothing
    features = x |> Array
    impl_args = copy(skp.model[:impl_args])
    autocomp = skp.model[:autocomponent]
@@ -166,13 +166,21 @@ function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])
    preproc.fit(features)
    skp.model[:skpreprocessor] = preproc
    skp.model[:impl_args] = impl_args
+   return nothing
 end
 
-function transform!(skp::SKPreprocessor, x::DataFrame)
+function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
+   fit!(skp,x,y)
+   return deepcopy(skp)
+end
+
+function transform!(skp::SKPreprocessor, x::DataFrame)::DataFrame
    features = deepcopy(x) |> Array
    model=skp.model[:skpreprocessor]
    return collect(model.transform(features)) |> x->DataFrame(x,:auto)
 end
+
+transform(skp::SKPreprocessor, x::DataFrame)::DataFrame = transform!(skp,x)
 
 end
 

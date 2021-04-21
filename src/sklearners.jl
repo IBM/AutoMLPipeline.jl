@@ -8,8 +8,8 @@ using Random
 using ..AbsTypes
 using ..Utils
 
-import ..AbsTypes: fit!, transform!
-export fit!, transform!
+import ..AbsTypes: fit, fit!, transform, transform!
+export fit, fit!, transform, transform!
 export SKLearner, sklearners
 
 const learner_dict = Dict{String,PyObject}() 
@@ -148,7 +148,7 @@ function sklearners()
   println("Note: Consult Scikitlearn's online help for more details about the learner's arguments.")
 end
 
-function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
+function fit!(skl::SKLearner, xx::DataFrame, y::Vector)::Nothing
   x = xx |> Array
   impl_args  = copy(skl.model[:impl_args])
   learner    = skl.model[:learner]
@@ -166,15 +166,22 @@ function fit!(skl::SKLearner, xx::DataFrame, y::Vector)
   modelobj.fit(x,y)
   skl.model[:sklearner] = modelobj
   skl.model[:impl_args] = impl_args
+  return nothing
 end
 
+function fit(skl::SKLearner, xx::DataFrame, y::Vector)::SKLearner
+   fit!(skl,xx,y)
+   return deepcopy(skl)
+end
 
-function transform!(skl::SKLearner, xx::DataFrame)
+function transform!(skl::SKLearner, xx::DataFrame)::Vector
 	x = deepcopy(xx) |> Array
   #return collect(skl.model[:predict](x))
   sklearner = skl.model[:sklearner]
   return collect(sklearner.predict(x))
 end
+
+transform(skl::SKLearner, xx::DataFrame)::Vector = transform!(skl,xx)
 
 end
 

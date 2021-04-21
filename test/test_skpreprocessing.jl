@@ -26,28 +26,30 @@ const preprocessors = [
      "OrdinalEncoder", "PolynomialFeatures", "PowerTransformer", 
      "QuantileTransformer", "RobustScaler", "StandardScaler"
  ]
-    	
 
 function fit_test(preproc::String,in::DataFrame,out::Vector)
 	_preproc=SKPreprocessor(Dict(:preprocessor=>preproc))
 	fit!(_preproc,in,out)
+	prep = fit(_preproc,in,out)
 	@test _preproc.model != Dict()
+	@test prep.model != Dict()
 	return _preproc
 end
 
 function transform_test(preproc::String,in::DataFrame,out::Vector)
 	_preproc=SKPreprocessor(Dict(:preprocessor=>preproc))
-	fit!(_preproc,in,out)
-	res = transform!(_preproc,in)
+	res = fit_transform!(_preproc,in)
+	res1 = fit_transform(_preproc,in)
 	@test size(res)[1] == size(out)[1]
+	@test size(res1)[1] == size(out)[1]
 end
 
 @testset "scikit preprocessors fit test" begin
-    Random.seed!(123)
-    for cl in preprocessors
-	#println(cl)
-	fit_test(cl,X,Y)
-    end
+   Random.seed!(123)
+   for cl in preprocessors
+      #println(cl)
+      fit_test(cl,X,Y)
+   end
 end
 
 @testset "scikit preprocessors transform test" begin
@@ -63,32 +65,25 @@ function skptest()
     labels = Y
 
     pca = SKPreprocessor(Dict(:preprocessor=>"PCA",:impl_args=>Dict(:n_components=>3)))
-    fit!(pca,features)
-    @test transform!(pca,features) |> x->size(x,2) == 3
+    @test fit_transform!(pca,features) |> x->size(x,2) == 3
 
     pca = SKPreprocessor("PCA",Dict(:autocomponent=>true))
-    fit!(pca,features)
-    @test transform!(pca,features) |> x->size(x,2) == 3
+    @test fit_transform!(pca,features) |> x->size(x,2) == 3
 
     pca = SKPreprocessor("PCA",Dict(:impl_args=> Dict(:n_components=>3)))
-    fit!(pca,features)
-    @test transform!(pca,features) |> x->size(x,2) == 3
+    @test fit_transform!(pca,features) |> x->size(x,2) == 3
 
     svd = SKPreprocessor(Dict(:preprocessor=>"TruncatedSVD",:impl_args=>Dict(:n_components=>2)))
-    fit!(svd,features)
-    @test transform!(svd,features) |> x->size(x,2) == 2
+    @test fit_transform!(svd,features) |> x->size(x,2) == 2
 
     ica = SKPreprocessor(Dict(:preprocessor=>"FastICA",:impl_args=>Dict(:n_components=>2)))
-    fit!(ica,features)
-    @test transform!(ica,features) |> x->size(x,2) == 2
+    @test fit_transform!(ica,features) |> x->size(x,2) == 2
 
     stdsc = SKPreprocessor("StandardScaler")
-    fit!(stdsc,features)
-    @test abs(mean(transform!(stdsc,features) |> Matrix)) < 0.00001
+    @test abs(mean(fit_transform!(stdsc,features) |> Matrix)) < 0.00001
 
     minmax = SKPreprocessor("MinMaxScaler")
-    fit!(minmax,features)
-    @test mean(transform!(minmax,features) |> Matrix) > 0.30
+    @test mean(fit_transform!(minmax,features) |> Matrix) > 0.30
 
     vote = VoteEnsemble()
     stack = StackEnsemble()
@@ -101,23 +96,19 @@ function skptest()
     mpipeline = Pipeline(Dict(
             :machines => [stdsc,pca,best]
     ))
-    fit!(mpipeline,features,labels)
-    pred = transform!(mpipeline,features)
+    pred = fit_transform!(mpipeline,features,labels)
     @test score(:accuracy,pred,labels) > 50.0
 
     fpipe = @pipeline ((cat + num) + (num + pca))  |> stack
-    fit!(fpipe,features,labels)
-    @test ((transform!(fpipe,features) .== labels) |> sum ) / nrow(features) > 0.50
+    @test ((fit_transform!(fpipe,features,labels) .== labels) |> sum ) / nrow(features) > 0.50
 
-    fpipe1 = ((cat + num) + (num + pca))  |> stack
-    fit!(fpipe1,features,labels)
-    @test ((transform!(fpipe1,features) .== labels) |> sum ) / nrow(features) > 0.50
+    fpipe1 = ((cat + num) + (num + pca))  >> stack
+    @test ((fit_transform!(fpipe1,features,labels) .== labels) |> sum ) / nrow(features) > 0.50
 
 end
 @testset "scikit preprocessor fit/transform test with real data" begin
     Random.seed!(123)
     skptest()
 end
-
 
 end

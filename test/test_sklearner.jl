@@ -12,7 +12,6 @@ const XC = IRIS[:,1:4] |> DataFrame
 const YC = IRIS[:,5] |> Vector
 const Y = IRIS[:,4] |> Vector
 
-
 const classifiers = [
     "LinearSVC","QuadraticDiscriminantAnalysis","MLPClassifier","BernoulliNB",
     "RandomForestClassifier","LinearDiscriminantAnalysis",
@@ -50,16 +49,18 @@ const regressors = [
     "AdaBoostRegressor"
 ]
     	
-
 function fit_test(learner::String,in::DataFrame,out::Vector)
    _learner=SKLearner(Dict(:learner=>learner))
    fit!(_learner,in,out)
+   lr = fit(_learner,in,out)
    @test _learner.model != Dict()
+   @test lr.model != Dict()
    return _learner
 end
 
 function fit_transform_reg(model::Learner,in::DataFrame,out::Vector)
    @test sum((transform!(model,in) .- out).^2)/length(out) < 2.0
+   @test sum((transform(model,in) .- out).^2)/length(out) < 2.0
 end
 
 @testset "scikit classifiers" begin
@@ -87,8 +88,8 @@ function pipeline_test()
    classifier = SKLearner("RandomForestClassifier")
    plr   = @pipeline (catf |> ohe) + (numf |> rb |> pca) |> regressor
    plr1  = (catf |> ohe) + (numf |> rb |> pca) |> regressor
-   plc   = @pipeline (catf |> ohe) + (numf |> rb |> pca) |> classifier
-   plc1  = (catf |> ohe) + (numf |> rb |> pca) |> classifier
+   plc   = @pipeline (catf >> ohe) + (numf >> rb >> pca) |> classifier
+   plc1  = (catf >> ohe) + (numf >> rb >> pca) |> classifier
    @test crossvalidate(plr,X,Y,"mean_absolute_error",3,false).mean < 0.3
    @test crossvalidate(plr1,X,Y,"mean_absolute_error",3,false).mean < 0.3
    @test crossvalidate(plc,XC,YC,"accuracy_score",3,false).mean > 0.8
