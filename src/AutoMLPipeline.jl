@@ -2,7 +2,7 @@ module AutoMLPipeline
 
 using AMLPipelineBase
 using AMLPipelineBase.AbsTypes
-export fit!, transform!,fit_transform!
+export fit, fit!, transform, transform!,fit_transform, fit_transform!
 
 using AMLPipelineBase
 using AMLPipelineBase: AbsTypes, Utils, BaselineModels, Pipelines
@@ -24,7 +24,7 @@ export FeatureSelector, CatFeatureSelector, NumFeatureSelector, CatNumDiscrimina
 export crossvalidate
 export NARemover
 export @pipeline, @pipelinex
-export +, |>, *, |
+export +, |>, *, |, >>
 export Pipeline, ComboPipeline
 
 import AMLPipelineBase.AbsTypes: fit!, transform!
