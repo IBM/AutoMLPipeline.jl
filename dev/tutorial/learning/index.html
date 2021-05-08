@@ -18,7 +18,7 @@ show5(df) = first(df,5)</code></pre><pre><code class="language-julia-repl">julia
    5 │        36                3                   3                             8               1                     1                    3                         2               0                          1</code></pre><p>Let&#39;s examine the number of unique instances for each column:</p><pre><code class="language-julia-repl">julia&gt; [n=&gt;length(unique(x)) for (n,x) in eachcol(cmcdata,true)]
 ERROR: MethodError: no method matching eachcol(::DataFrames.DataFrame, ::Bool)
 Closest candidates are:
-  eachcol(::DataFrames.AbstractDataFrame) at /home/runner/.julia/packages/DataFrames/3mEXm/src/abstractdataframe/iteration.jl:173</code></pre><p>Except for Wife&#39;s age and Number of children, the other columns have less than five unique instances. Let&#39;s create a pipeline to filter those columns and convert them to hot-bits and  concatenate them with the standardized scale of the numeric columns.</p><pre><code class="language-julia">std = SKPreprocessor(&quot;StandardScaler&quot;)
+  eachcol(::DataFrames.AbstractDataFrame) at /home/runner/.julia/packages/DataFrames/nxjiD/src/abstractdataframe/iteration.jl:173</code></pre><p>Except for Wife&#39;s age and Number of children, the other columns have less than five unique instances. Let&#39;s create a pipeline to filter those columns and convert them to hot-bits and  concatenate them with the standardized scale of the numeric columns.</p><pre><code class="language-julia">std = SKPreprocessor(&quot;StandardScaler&quot;)
 ohe = OneHotEncoder()
 kohe = SKPreprocessor(&quot;OneHotEncoder&quot;)
 catf = CatFeatureSelector()
@@ -78,11 +78,11 @@ fold: 4, 0.5238095238095238
 fold: 5, 0.5864406779661017
 errors: 0
 SGDClassifier_XxZ
-fold: 1, 0.43050847457627117
-fold: 2, 0.42857142857142855
-fold: 3, 0.4542372881355932
-fold: 4, 0.445578231292517
-fold: 5, 0.5050847457627119
+fold: 1, 0.49830508474576274
+fold: 2, 0.4897959183673469
+fold: 3, 0.49491525423728816
+fold: 4, 0.48639455782312924
+fold: 5, 0.44745762711864406
 errors: 0
 prunetree_eOz
 fold: 1, 0.4915254237288136
@@ -97,7 +97,7 @@ learners = 4×4 DataFrame
 ─────┼────────────────────────────────────────────────────
    1 │ rf_3Of                  0.530871  0.0198124      5
    2 │ AdaBoostClassifier_GDC  0.536981  0.0292749      5
-   3 │ SGDClassifier_XxZ       0.452796  0.0311121      5
+   3 │ SGDClassifier_XxZ       0.483374  0.0205942      5
    4 │ prunetree_eOz           0.477265  0.0213209      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
@@ -123,11 +123,11 @@ fold: 4, 0.6020408163265306
 fold: 5, 0.49491525423728816
 errors: 0
 SGDClassifier_XxZ
-fold: 1, 0.5016949152542373
-fold: 2, 0.445578231292517
-fold: 3, 0.511864406779661
-fold: 4, 0.4965986394557823
-fold: 5, 0.46779661016949153
+fold: 1, 0.5152542372881356
+fold: 2, 0.4557823129251701
+fold: 3, 0.4847457627118644
+fold: 4, 0.45918367346938777
+fold: 5, 0.4711864406779661
 errors: 0
 prunetree_eOz
 fold: 1, 0.49491525423728816
@@ -137,7 +137,7 @@ fold: 4, 0.47619047619047616
 fold: 5, 0.5322033898305085
 errors: 0
 GradientBoostingClassifier_Lck
-fold: 1, 0.576271186440678
+fold: 1, 0.5728813559322034
 fold: 2, 0.5680272108843537
 fold: 3, 0.5457627118644067
 fold: 4, 0.5850340136054422
@@ -149,6 +149,6 @@ learners = 5×4 DataFrame
 ─────┼────────────────────────────────────────────────────────────
    1 │ rf_3Of                          0.493536  0.022726       5
    2 │ AdaBoostClassifier_GDC          0.541785  0.0416107      5
-   3 │ SGDClassifier_XxZ               0.484707  0.0273155      5
+   3 │ SGDClassifier_XxZ               0.47723   0.0241067      5
    4 │ prunetree_eOz                   0.48063   0.034576       5
-   5 │ GradientBoostingClassifier_Lck  0.56485   0.0170196      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 21 April 2021 23:09">Wednesday 21 April 2021</span>. Using Julia version 1.6.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   5 │ GradientBoostingClassifier_Lck  0.564172  0.0165108      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 8 May 2021 02:40">Saturday 8 May 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
