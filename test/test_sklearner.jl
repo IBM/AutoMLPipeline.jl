@@ -85,11 +85,13 @@ function pipeline_test()
    rb = SKPreprocessor("RobustScaler")
    ohe=OneHotEncoder()
    regressor = SKLearner("RandomForestRegressor")
-   classifier = SKLearner("RandomForestClassifier")
+   classifier = SKLearner("RandomForestClassifier",n_estimators=100)
+   classifier1 = SKLearner("RandomForestClassifier")(n_estimators=200)
    plr   = @pipeline (catf |> ohe) + (numf |> rb |> pca) |> regressor
    plr1  = (catf |> ohe) + (numf |> rb |> pca) |> regressor
    plc   = @pipeline (catf >> ohe) + (numf >> rb >> pca) |> classifier
    plc1  = (catf >> ohe) + (numf >> rb >> pca) |> classifier
+   plc2  = (catf >> ohe) + (numf >> rb >> pca) |> classifier1
    @test crossvalidate(plr,X,Y,"mean_absolute_error",3,false).mean < 0.3
    @test crossvalidate(plr1,X,Y,"mean_absolute_error",3,false).mean < 0.3
    @test crossvalidate(plc,XC,YC,"accuracy_score",3,false).mean > 0.8

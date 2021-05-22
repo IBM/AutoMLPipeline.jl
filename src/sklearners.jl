@@ -131,6 +131,15 @@ function SKLearner(learner::String; args...)
    SKLearner(Dict(:learner => learner,:name=>learner,:impl_args=>Dict(pairs(args))))
 end
 
+function (skl::SKLearner)(;objargs...)
+   skl.model[:impl_args] = Dict(pairs(objargs))
+   skname = skl.model[:learner] 
+   skobj = getproperty(learner_dict[skname],skname)
+   newskobj = skobj(;objargs...)
+   skl.model[:sklearner] = newskobj
+   return skl
+end
+
 """
     function sklearners()
 
