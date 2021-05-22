@@ -67,6 +67,9 @@ function skptest()
     pca = SKPreprocessor(Dict(:preprocessor=>"PCA",:impl_args=>Dict(:n_components=>3)))
     @test fit_transform!(pca,features) |> x->size(x,2) == 3
 
+    pca(;n_components = 5)
+    @test fit_transform!(pca,features) |> x->size(x,2) == 5
+
     pca = SKPreprocessor("PCA",Dict(:autocomponent=>true))
     @test fit_transform!(pca,features) |> x->size(x,2) == 3
 
