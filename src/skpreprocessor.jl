@@ -134,6 +134,15 @@ function SKPreprocessor(prep::String; args...)
    SKPreprocessor(Dict(:preprocessor => prep,:name=>prep,:impl_args=>Dict(pairs(args))))
 end
 
+function (skp::SKPreprocessor)(;objargs...)
+   skp.model[:impl_args] = Dict(pairs(objargs))
+   prepname = skp.model[:preprocessor]
+   skobj = getproperty(preprocessor_dict[prepname],prepname)
+   newskobj = skobj(;objargs...)
+   skp.model[:skpreprocessor] = newskobj
+   return skp
+end
+
 function skpreprocessors()
   processors = keys(preprocessor_dict) |> collect |> x-> sort(x,lt=(x,y)->lowercase(x)<lowercase(y))
   println("syntax: SKPreprocessor(name::String, args::Dict=Dict())")
