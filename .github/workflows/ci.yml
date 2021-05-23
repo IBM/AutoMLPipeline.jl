@@ -77,13 +77,17 @@ jobs:
           python-version: 3.7
       - name: Set ENV Variables in Python
         run: |
+          sudo apt-get update
           echo ENV["PYTHON"] = "" >> $GITHUB_ENV
 
       - name: Install APT packages
-        run: sudo apt-get install python3-numpy python3-scipy
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-numpy python3-scipy
 
       - name: Install dependencies
         run: |
+          sudo apt-get update
           python -m pip install --upgrade pip
           pip install numpy scipy sklearn
        
