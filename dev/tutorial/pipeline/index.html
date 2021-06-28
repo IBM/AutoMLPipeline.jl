@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Pipeline · AutoMLPipeline Documentation</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">AutoMLPipeline Documentation</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li class="is-active"><a class="tocitem" href>Pipeline</a></li><li><a class="tocitem" href="../preprocessing/">Preprocessing</a></li><li><a class="tocitem" href="../learning/">Training and Validation</a></li><li><a class="tocitem" href="../extending/">Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../man/preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../../man/learners/">Learners</a></li><li><a class="tocitem" href="../../man/metaensembles/">Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Pipeline</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Pipeline</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/tutorial/pipeline.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="PipelineUsage"><a class="docs-heading-anchor" href="#PipelineUsage">Pipeline</a><a id="PipelineUsage-1"></a><a class="docs-heading-anchor-permalink" href="#PipelineUsage" title="Permalink"></a></h1><p><em>A tutorial for using the <code>@pipeline</code> expression</em></p><h3 id="Dataset"><a class="docs-heading-anchor" href="#Dataset">Dataset</a><a id="Dataset-1"></a><a class="docs-heading-anchor-permalink" href="#Dataset" title="Permalink"></a></h3><p>Let us start the tutorial by loading the dataset.</p><pre><code class="language-julia">using AutoMLPipeline
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Pipeline · AutoMLPipeline Documentation</title><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">AutoMLPipeline Documentation</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">HOME</a></li><li><span class="tocitem">Tutorial</span><ul><li class="is-active"><a class="tocitem" href>Pipeline</a></li><li><a class="tocitem" href="../preprocessing/">Preprocessing</a></li><li><a class="tocitem" href="../learning/">Training and Validation</a></li><li><a class="tocitem" href="../extending/">Extending AutoMLPipeline</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/pipeline/">Pipeline</a></li><li><a class="tocitem" href="../../man/preprocessors/">Preprocessors</a></li><li><a class="tocitem" href="../../man/learners/">Learners</a></li><li><a class="tocitem" href="../../man/metaensembles/">Meta-Ensembles</a></li></ul></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/typesfunctions/">Types and Functions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorial</a></li><li class="is-active"><a href>Pipeline</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Pipeline</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/IBM/AutoMLPipeline.jl/blob/master/docs/src/tutorial/pipeline.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="PipelineUsage"><a class="docs-heading-anchor" href="#PipelineUsage">Pipeline</a><a id="PipelineUsage-1"></a><a class="docs-heading-anchor-permalink" href="#PipelineUsage" title="Permalink"></a></h1><p><em>A tutorial for using the <code>@pipeline</code> expression</em></p><h3 id="Dataset"><a class="docs-heading-anchor" href="#Dataset">Dataset</a><a id="Dataset-1"></a><a class="docs-heading-anchor-permalink" href="#Dataset" title="Permalink"></a></h3><p>Let us start the tutorial by loading the dataset.</p><pre><code class="language-julia">using AutoMLPipeline
 using CSV
 using DataFrames
 
@@ -94,11 +94,11 @@ julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; 
 julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)
 fold: 1, 0.6331417624521073
 fold: 2, 0.6602564102564102
-fold: 3, 0.581472777124951
-fold: 4, 0.5972222222222222
-fold: 5, 0.6588319088319088
+fold: 3, 0.5700757575757576
+fold: 4, 0.5982433311646064
+fold: 5, 0.6598484848484849
 errors: 0
-(mean = 0.6261850161775199, std = 0.03575298437888197, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
+(mean = 0.6243131492594733, std = 0.0395409678990506, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(12345);
 
 julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;
 
@@ -154,16 +154,16 @@ fold: 9, 0.7014925373134329
 fold: 10, 0.6268656716417911
 errors: 0
 SGDClassifier_g4m
-fold: 1, 0.7611940298507462
-fold: 2, 0.7164179104477612
-fold: 3, 0.6911764705882353
-fold: 4, 0.7611940298507462
-fold: 5, 0.6865671641791045
-fold: 6, 0.6417910447761194
-fold: 7, 0.7761194029850746
-fold: 8, 0.6911764705882353
-fold: 9, 0.6119402985074627
-fold: 10, 0.746268656716418
+fold: 1, 0.6716417910447762
+fold: 2, 0.7761194029850746
+fold: 3, 0.6617647058823529
+fold: 4, 0.5223880597014925
+fold: 5, 0.8059701492537313
+fold: 6, 0.6567164179104478
+fold: 7, 0.7164179104477612
+fold: 8, 0.6323529411764706
+fold: 9, 0.5671641791044776
+fold: 10, 0.7313432835820896
 errors: 0
 prunetree_COs
 fold: 1, 0.5522388059701493
@@ -195,7 +195,7 @@ learners = 5×3 DataFrame
 ─────┼─────────────────────────────────────────────
    1 │ rf_eq7                  0.677195  0.0589206
    2 │ AdaBoostClassifier_14y  0.720105  0.0623111
-   3 │ SGDClassifier_g4m       0.708385  0.0542319
+   3 │ SGDClassifier_g4m       0.674188  0.0878889
    4 │ prunetree_COs           0.601097  0.0487303
    5 │ LinearSVC_vrM           0.730707  0.0425931</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters"><a class="docs-heading-anchor" href="#Learners-as-Filters">Learners as Filters</a><a id="Learners-as-Filters-1"></a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
@@ -221,13 +221,13 @@ fold: 2, 0.7910447761194029
 fold: 3, 0.6911764705882353
 fold: 4, 0.7761194029850746
 fold: 5, 0.6567164179104478
-fold: 6, 0.7313432835820896
+fold: 6, 0.7014925373134329
 fold: 7, 0.6417910447761194
 fold: 8, 0.7058823529411765
-fold: 9, 0.746268656716418
+fold: 9, 0.7611940298507462
 fold: 10, 0.835820895522388
 errors: 0
-(mean = 0.7292581211589113, std = 0.0603114135044362, folds = 10, errors = 0)</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
+(mean = 0.7277655838454785, std = 0.06165499565393184, folds = 10, errors = 0)</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl">julia&gt; Random.seed!(1);
 
 julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
                         ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;
@@ -237,11 +237,11 @@ fold: 1, 0.7164179104477612
 fold: 2, 0.7910447761194029
 fold: 3, 0.6911764705882353
 fold: 4, 0.7761194029850746
-fold: 5, 0.6865671641791045
+fold: 5, 0.6567164179104478
 fold: 6, 0.5970149253731343
 fold: 7, 0.6268656716417911
 fold: 8, 0.7058823529411765
 fold: 9, 0.746268656716418
 fold: 10, 0.835820895522388
 errors: 0
-(mean = 0.7173178226514486, std = 0.07317357628709166, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 23 May 2021 15:11">Sunday 23 May 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7143327480245829, std = 0.07514960704754638, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 28 June 2021 11:14">Monday 28 June 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
