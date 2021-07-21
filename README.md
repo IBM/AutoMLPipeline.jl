@@ -9,9 +9,9 @@
 [![Stargazers over time](https://starchart.cc/IBM/AutoMLPipeline.jl.svg)](https://starchart.cc/IBM/AutoMLPipeline.jl)
 
 ------------------
-**AutoMLPipeline** is a package 
-that makes it trivial 
-to create complex ML pipeline structures 
+**AutoMLPipeline** (AMLP) is a package 
+that makes it trivial to create 
+complex ML pipeline structures 
 using simple expressions. It leverages on 
 the built-in macro programming features of 
 Julia to symbolically process, manipulate 
@@ -45,7 +45,7 @@ a |> b + c; a |> (b + c)
 a + b |> c; (a + b) |> c
 ```
 
-[AutoMLPipeline Paper](https://arxiv.org/abs/2107.01253)
+See [AutoMLPipeline Paper](https://arxiv.org/abs/2107.01253) for benchmark comparisons.
 
 More examples can be found in the 
 [examples](https://github.com/IBM/AutoMLPipeline.jl/tree/master/examples) 
