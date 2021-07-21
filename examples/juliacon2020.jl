@@ -51,6 +51,11 @@ using AutoMLPipeline
 using Distributed
 using DataFrames
 
+# disable truncation of dataframes columns
+import Base.show
+show(df::AbstractDataFrame) = show(df,truncate=0)
+show(io::IO,df::AbstractDataFrame) = show(io,df;truncate=0)
+
 # Add workers
 nprocs() == 1 && addprocs();
 workers()
@@ -142,7 +147,6 @@ function prpsearch()
     dftable
 end
 runtime = @elapsed begin
-
     df = prpsearch()
 end;
 serialtime = df.time |> sum;
