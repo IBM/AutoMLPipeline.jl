@@ -45,6 +45,8 @@ a |> b + c; a |> (b + c)
 a + b |> c; (a + b) |> c
 ```
 
+[AutoMLPipeline Paper](https://arxiv.org/abs/2107.01253)
+
 More examples can be found in the 
 [examples](https://github.com/IBM/AutoMLPipeline.jl/tree/master/examples) 
 folder including optimizing pipelines by multi-threading or distributed computing.
