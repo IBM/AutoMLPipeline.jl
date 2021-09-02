@@ -13,7 +13,7 @@ using AutoMLPipeline
 using CSV
 using DataFrames
 
-profbdata = CSV.File(joinpath(dirname(pathof(AutoMLPipeline)),"../data/profb.csv")) |> DataFrame
+profbdata = getprofb()
 X = profbdata[:,2:end] 
 Y = profbdata[:,1] |> Vector
 nothing #hide
@@ -47,7 +47,7 @@ following variables and their descriptions:
 
 ### AutoMLPipeline Modules and Instances
 Before continuing further with the tutorial, let us load the 
-necessary modules of AutoMLPipeline:
+necessary AutoMLPipeline package:
 ```@example pipeline
 using AutoMLPipeline
 nothing #hide
