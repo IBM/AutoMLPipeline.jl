@@ -26,7 +26,7 @@ show5(cmcdata)
 ```
 Let's examine the number of unique instances for each column:
 ```@repl learning
-[n=>length(unique(x)) for (n,x) in eachcol(cmcdata,true)]
+DataFrame(hcat([length(unique(n)) for n in eachcol(cmcdata)],names(cmcdata)),:auto)
 ```
 Except for Wife's age and Number of children, the other columns
 have less than five unique instances. Let's create a pipeline
