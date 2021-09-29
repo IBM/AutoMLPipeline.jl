@@ -1,0 +1,163 @@
+\begin{thebibliography}{10}
+
+\bibitem{pymfe2020}
+Edesio Alcobaça, Felipe Siqueira, Adriano Rivolli, Luís P.~F. Garcia,
+  Jefferson~T. Oliva, and André C. P. L.~F. de~Carvalho.
+Mfe: Towards reproducible meta-feature extraction.
+{\em Journal of Machine Learning Research}, 21(111):1--5, 2020.
+
+\bibitem{anderson1953}
+Richard~Loree Anderson.
+Recent advances in finding best operating conditions.
+{\em Journal of the American Statistical Association}, 48(264):789--798, 1953.
+
+\bibitem{rcall}
+Douglas Bates, Randy Lai, and Simon Byrne.
+{RCall}: Call r from julia.
+\url{https://github.com/JuliaInterop/RCall.jl}, 2015.
+
+\bibitem{bergstra2012}
+J.~Bergstra and Y.~Bengio.
+Random search for hyper-parameter optimization.
+{\em Journal of Machine Learning Research}, 13(1):281--305, 2012.
+
+\bibitem{bergstra2011nips}
+J.~S. Bergstra, R.~Bardenet, Y.~Bengio, and B.~Kegl.
+Algorithms for hyper-parameter optimization.
+In {\em Advances in Neural Information Processing Systems (NIPS)}, pages
+  2546--2554, 2011.
+
+\bibitem{bezanson2017julia}
+Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B Shah.
+Julia: A fresh approach to numerical computing.
+{\em SIAM review}, 59(1):65--98, 2017.
+\href{http://dx.doi.org/10.1137/141000671}{doi:10.1137/141000671}.
+
+\bibitem{openmlcc18}
+Bernd Bischl, Giuseppe Casalicchio, Matthias Feurer, Frank Hutter, Michel Lang,
+  Rafael~G. Mantovani, Jan~N. van Rijn, and Joaquin Vanschoren.
+Openml benchmarking suites, 2019.
+1708.03731.
+
+\bibitem{anthony_blaom_2019_3541506}
+Anthony Blaom, Franz Kiraly, Thibaut Lienart, and Sebastian Vollmer.
+alan-turing-institute/mlj.jl: v0.5.3, November 2019.
+\href{http://dx.doi.org/10.5281/zenodo.3541506}{doi:10.5281/zenodo.3541506}.
+
+\bibitem{feurer2015askl}
+M.~Feurer, A.~Klein, K.~Eggensperger, J.~Springenberg, M.~Blum, and F.~Hutter.
+Efficient and robust automated machine learning.
+In {\em Advances in Neural Information Processing Systems}, pages 2962--2970,
+  2015.
+
+\bibitem{Feurer:NIPS2015}
+M.~Feurer, A.~Klein, K.~Eggensperger, J.~T. Springenberg, M.~Blum, and
+  F.~Hutter.
+Auto-sklearn: Efficient and robust automated machine learning.
+In {\em NeurIPS}, pages 2962--2970, 2015.
+
+\bibitem{Feurer:AML2019Chp6}
+M.~Feurer, A.~Klein, K.~Eggensperger, J.~T. Springenberg, M.~Blum, and
+  F.~Hutter.
+{\em Auto-sklearn: Efficient and robust automated machine learning}, volume~8,
+  chapter Challenges in Machine Learning -- Methods, Systems, Challenges, pages
+  113--134.
+Springer, 2019.
+
+\bibitem{lale}
+Martin Hirzel, Kiran Kate, Avraham Shinnar, Subhrajit Roy, and Parikshit Ram.
+Type-driven automated learning with {Lale}.
+{\em CoRR}, abs/1906.03957, May 2019.
+
+\bibitem{hutter2011smac}
+F.~Hutter, H.~Hoos, and K.~Leyton-Brown.
+Sequential model-based optimization for general algorithm configuration.
+In {\em International Conference on Learning and Intelligent Optimization
+  (LION)}, pages 507--523, 2011.
+
+\bibitem{orchestra2014}
+S.~Jenkins.
+Orchestra: Heterogeneous ensemble learning for julia.
+\url{https://github.com/svs14/Orchestra.jl}, 2014.
+
+\bibitem{pycall}
+Steven~G. Johnson.
+{PyCall}: Calling python functions from the julia language.
+\url{https://github.com/JuliaPy/PyCall.jl}, 2013.
+
+\bibitem{unix84}
+Brian~W. Kernighan and Rob Pike.
+{\em The {UNIX} Programming Environment}.
+Prentice-Hall, 1984.
+
+\bibitem{caret2008}
+Max Kuhn.
+Building predictive models in r using the caret package.
+{\em Journal of Statistical Software, Articles}, 28(5):1--26, 2008.
+\href{http://dx.doi.org/10.18637/jss.v028.i05}{doi:10.18637/jss.v028.i05}.
+
+\bibitem{Liu:AAAI2020}
+S.~Liu, P.~Ram, D.~Vijaykeerthy, D.~Bouneffouf, G.~Bramble, H.~Samulowitz,
+  D.~Wang, A.~Conn, and A.~Gray.
+An {ADMM} based framework for {AutoML} pipeline configuration.
+In {\em AAAI}, 2020.
+Their preprint available at \url{https://arxiv.org/pdf/1905.00424.pdf}.
+
+\bibitem{avatar2020}
+Tien-Dung Nguyen, Tomasz Maszczyk, Katarzyna Musial, Marc-Andre Z{\"o}ller, and
+  Bogdan Gabrys.
+Avatar - machine learning pipeline evaluation using surrogate model.
+In {\em Advances in Intelligent Data Analysis XVIII}, pages 352--365. Springer
+  International Publishing, 2020.
+
+\bibitem{tpot2016}
+R.~Olson, N.~Bartley, R.~Urbanowicz, and J.~Moore.
+Evaluation of a tree-based pipeline optimization tool for automating data
+  science.
+In {\em Genetic and Evolutionary Computation Conference (GECO)}, pages
+  485--492, 2016.
+
+\bibitem{pedregosa2011}
+F.~Pedregosa, G.~Varoquaux, and A.~Gramfort.
+Scikit-learn: Machine learning in python.
+{\em Journal of Machine Learning Research}, 12(1):2825--2830, 2011.
+
+\bibitem{r13}
+{R Core Team}.
+{\em R: A Language and Environment for Statistical Computing}.
+R Foundation for Statistical Computing, Vienna, Austria, 2013.
+
+\bibitem{profb2014}
+H.~Stern and R~Lock.
+Pro football scores.
+\url{http://lib.stat.cmu.edu/datasets/profb}, 2014.
+
+\bibitem{atm2017}
+Thomas Swearingen, Will Drevo, Bennett Cyphers, Alfredo Cuesta-Infante, Arun
+  Ross, and Kalyan Veeramachaneni.
+Atm: A distributed, collaborative, scalable system for automated machine
+  learning.
+{\em IEEE International Conference on Big Data}, pages 151--162, 2017.
+
+\bibitem{Thornton:KDD2013}
+C.~Thornton, F.~Hutter, H.~Hoos, and K.~Leyton-Brown.
+Auto-{WEKA}: combined selection and hyperparameter optimization of
+  classification algorithms.
+In {\em KDD}, pages 847--855, 2013.
+
+\bibitem{python95}
+Guido Van~Rossum and Fred~L Drake~Jr.
+{\em Python reference manual}.
+Centrum voor Wiskunde en Informatica Amsterdam, 1995.
+
+\bibitem{openml}
+J.~Vanschoren, J.N. van Rijn, B.~Bischl, and L.~Torgo.
+Openml: Networked science in machine learning.
+{\em SIGKDD Expl.}, 15(2):49--60, 2013.
+
+\bibitem{zoller2019}
+M.A. Zoller and M.~F. Huber.
+Survey on automated machine learning.
+\url{https://arxiv.org/pdf/1904.12054.pdf}, 4 2019.
+
+\end{thebibliography}

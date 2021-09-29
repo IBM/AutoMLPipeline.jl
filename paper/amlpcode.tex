@@ -1,0 +1,19 @@
+using AMLP           # load package
+(X,Y) = getprofb()   # load dataset
+
+# Instantiate the pipeline elements
+pca  = SKPreprocessor("PCA") 
+mx   = SKPreprocessor("MinMaxScaler")  
+ohe  = OneHotEncoder()
+catf = CatFeatureSelector()  # categorical columns
+numf = NumFeatureSelector()  # numerical columns
+rf   = SKLearner("RandomForestClassifier")
+
+# Setup the ML pipeline 
+pipe = @pipeline ((catf |> ohe) + (numf |> mx |> pca)) |> rf
+
+# train and predict
+prediction = fit_transform!(pipe,X,Y) 
+ 
+# compute avg accuracy by 10-fold cv
+performance = crossvalidate(pipe,X,Y)  
