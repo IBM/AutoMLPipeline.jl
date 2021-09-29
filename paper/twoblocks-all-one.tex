@@ -1,0 +1,28 @@
+\begin{table*}[htbp]
+  \tbl{\emph{All-one} (two-block)}{
+  \label{tab:twoblocks-all-one}
+  \centering
+  \tiny
+  \begin{tabular}{{@{} rcrrr|ll|ll|l @{}}}
+	 \toprule
+	 & & & & & \multicolumn{2}{|c|}{Block 1} & \multicolumn{2}{c|}{Block 2} \\
+	 \cmidrule(r){6-9}
+	 Dataset      & Rank & AvgErr & Std  & Time  & Sc1      & Fx1   & Sc2      & Fx2   & Lr\\
+	 \midrule
+	 analcatdata  & 2    & 75.54  & 4.91 & 0.56  & minmax   & noop  & powertf  & factA & ada\\
+	 breast-w     & 2    & 2.11   & 1.65 & 0.41  & norm     & noop  & minmax   & noop  & rbfsvc\\
+	 cmc          & 1    & 42.57  & 3.45 & 2.28  & stdsc    & noop  & robustsc & noop  & gb\\
+	 credit-app   & 1    & 11.03  & 4.59 & 0.50  & stdsc    & noop  & powertf  & factA & lsvc\\
+	 eucalyptus   & 1    & 33.40  & 6.13 & 2.78  & stdsc    & noop  & noop     & factA & gb\\
+	 first-order  & 1    & 36.37  & 2.49 & 5.51  & noop     & ica   & noop     & noop  & rf\\
+	 GestureSeg   & 1    & 30.46  & 1.03 & 9.69  & norm     & ica   & stdsc    & noop  & rf\\
+	 jm1          & 1    & 17.67  & 0.79 & 16.62 & robustsc & noop  & norm     & pca   & rf\\
+	 profb        & 1    & 24.69  & 5.29 & 0.61  & stdsc    & ica   & stdsc    & noop  & lsvc\\
+	 plants-shape & 1    & 26.05  & 2.77 & 3.97  & stdsc    & factA & norm     & pca   & rf\\
+	 sick         & 4    & 6.26   & 1.01 & 2.65  & robustsc & pca   & noop     & noop  & gb\\
+	 soybean      & 5    & 13.24  & 2.62 & 0.57  & robustsc & noop  & noop     & noop  & lsvc\\
+	 \midrule
+	 Median/Mode  & 1.0  & 25.37  & 2.70 & 2.62  & stdsc    & noop  & noop     & noop  & rf\\
+	 \bottomrule
+  \end{tabular}}
+\end{table*}

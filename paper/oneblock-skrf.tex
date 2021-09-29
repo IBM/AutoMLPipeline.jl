@@ -1,0 +1,28 @@
+\begin{table*}[htbp]
+  \centering
+  \tbl{\emph{One-all} (one-block)}{
+  \label{tab:oneblock-skrf}
+  \tiny
+  \begin{tabular}{{@{} rcrrrlll @{}}}
+	 \toprule
+	 & & & & & \multicolumn{2}{c}{Block} \\
+	 \cmidrule(r){6-7}
+	 Dataset          & Rank & AvgErr & Std  & Time & Sc       & Fx    & Lr \\
+	 \midrule
+	 analcatdata-dmf  & 3    & 78.42  & 5.77 & 0.35 & minmax   & factA & ada\\
+	 breast-w         & 3    & 2.78   & 1.88 & 0.02 & stdsc    & pca   & rbfsvc\\
+	 cmc              & 4    & 45.76  & 2.94 & 0.02 & norm     & noop  & gb\\
+	 credit-approval  & 2    & 11.34  & 4.98 & 0.09 & norm     & noop  & rf\\
+	 eucalyptus       & 3    & 36.79  & 7.61 & 0.09 & noop     & noop  & rf\\
+	 first-order-theo & 1    & 36.89  & 1.68 & 0.32 & powertf  & noop  & rf\\
+	 GestureSeg       & 1    & 32.04  & 1.16 & 0.15 & noop     & noop  & rf\\
+	 jm1              & 1    & 18.01  & 0.51 & 0.34 & powertf  & noop  & rf\\
+	 profb            & 1    & 28.87  & 4.86 & 0.09 & noop     & ica   & rf\\
+	 plants-shape     & 1    & 30.80  & 4.44 & 0.13 & powertf  & pca   & rf\\
+	 sick             & 4    & 6.60   & 0.66 & 0.06 & robustsc & pca   & rf\\
+	 soybean          & 5    & 15.29  & 4.78 & 0.34 & robustsc & noop  & lsvc\\
+	 \cmidrule{2-5}
+	 Median           & 2.50 & 29.84  & 3.69 & 0.11 &          &       & \\
+	 \bottomrule
+  \end{tabular}}
+\end{table*}

@@ -1,0 +1,31 @@
+title: "Designing Machine Learning Pipeline Toolkit for AutoML Surrogate Modeling Optimization"
+keywords:
+  - Julia
+  - Optimization
+  - AutoML
+  - ML Pipeline
+  - Classification
+  - Prediction
+  - Regression
+authors:
+  - name: Paulito P. Palmes
+    orcid: 0000-0002-3145-6356 
+    affiliation: 1
+  - name: Akihiro Kishimoto
+    affiliation: 2
+  - name: Radu Marinescu
+    affiliation: 1
+  - name: Parikshit Ram
+    affiliation: 3
+  - name: Elizabeth Daly
+    affiliation: 1
+affiliations:
+  - name: IBM Research Europe, Dublin Research Lab
+    index: 1
+  - name: IBM Research Japan
+    index: 2
+  - name: IBM Research USA
+    index: 3 
+date: 29 September 2021
+date: 24 April 2019
+bibliography: amlp.bib
