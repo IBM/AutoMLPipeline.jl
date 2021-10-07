@@ -1,7 +1,6 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.5.19)  6 OCT 2021 22:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.5.19)  7 OCT 2021 09:05
 entering extended mode
- restricted \write18 enabled.
- file:line:error style messages enabled.
+ \write18 enabled.
  %&-line parsing enabled.
 **paper.tex
 (./paper.tex
@@ -404,15 +403,6 @@ Package: multicol 2019/12/09 v1.8y multicolumn formatting (FMi)
 \colbreak@box=\box102
 \mc@col@check@num=\count291
 )
-(/usr/local/texlive/2021/texmf-dist/tex/latex/units/nicefrac.sty
-Package: nicefrac 1998/08/04 v0.9b Nice fractions
-\L@UnitsRaiseDisplaystyle=\skip60
-\L@UnitsRaiseTextstyle=\skip61
-\L@UnitsRaiseScriptstyle=\skip62
-
-(/usr/local/texlive/2021/texmf-dist/tex/latex/base/ifthen.sty
-Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
-))
 (/usr/local/texlive/2021/texmf-dist/tex/latex/microtype/microtype.sty
 Package: microtype 2021/03/14 v2.8c Micro-typographical refinements (RS)
 \MT@toks=\toks20
@@ -427,7 +417,7 @@ File: microtype-pdftex.def 2021/03/14 v2.8c Definitions specific to pdftex (RS)
 
 LaTeX Info: Redefining \lsstyle on input line 915.
 LaTeX Info: Redefining \lslig on input line 915.
-\MT@outer@space=\skip63
+\MT@outer@space=\skip60
 )
 Package microtype Info: Loading configuration file microtype.cfg.
 
@@ -459,12 +449,12 @@ Package subfigure Warning: Your document class has a bad definition
  can't take effect on \endtable.
  Please complain to your document class author.
 
-\subfigtopskip=\skip64
-\subfigcapskip=\skip65
+\subfigtopskip=\skip61
+\subfigcapskip=\skip62
 \subfigcaptopadj=\dimen171
-\subfigbottomskip=\skip66
+\subfigbottomskip=\skip63
 \subfigcapmargin=\dimen172
-\subfiglabelskip=\skip67
+\subfiglabelskip=\skip64
 \c@subfigure=\count294
 \c@lofdepth=\count295
 \c@subtable=\count296
@@ -473,8 +463,8 @@ Package subfigure Warning: Your document class has a bad definition
 * Local config file subfigure.cfg used *
 ****************************************
 (/usr/local/texlive/2021/texmf-dist/tex/latex/subfigure/subfigure.cfg)
-\subfig@top=\skip68
-\subfig@bottom=\skip69
+\subfig@top=\skip65
+\subfig@bottom=\skip66
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/booktabs/booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
@@ -505,8 +495,8 @@ Package: array 2020/10/01 v2.5c Tabular extension package (FMi)
 \ar@mcellbox=\box103
 \extrarowheight=\dimen187
 \NC@list=\toks21
-\extratabsurround=\skip70
-\backup@length=\skip71
+\extratabsurround=\skip67
+\backup@length=\skip68
 \ar@cellbox=\box104
 )
 \TX@col@width=\dimen188
@@ -823,10 +813,10 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: B442897511C0FAEA7F4A8033A3B0EC38;1371.
  ) 
 Here is how much of TeX's memory you used:
- 14626 strings out of 478994
- 210706 string characters out of 5858184
- 784455 words of memory out of 5000000
- 31455 multiletter control sequences out of 15000+600000
+ 14557 strings out of 478994
+ 209682 string characters out of 5858184
+ 783170 words of memory out of 5000000
+ 31393 multiletter control sequences out of 15000+600000
  464189 words of font info for 291 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  86i,12n,88p,429b,1806s stack positions out of 5000i,500n,10000p,200000b,80000s
