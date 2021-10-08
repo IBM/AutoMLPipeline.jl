@@ -2,8 +2,11 @@ title: "Designing Machine Learning Pipeline Toolkit for AutoML Surrogate Modelin
 keywords:
   - Julia
   - Optimization
-  - AutoML
-  - ML Pipeline
+  - AutoMLPipeline
+  - AutoML 
+  - ML Pipeline Search
+  - Feature Engineering
+  - Modeling
   - Classification
   - Prediction
   - Regression
