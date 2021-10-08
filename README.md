@@ -48,14 +48,16 @@ a + b |> c; (a + b) |> c
 #### Please read this [AutoMLPipeline Paper](https://arxiv.org/abs/2107.01253) for benchmark comparisons.
 
 ### Recorded Video/Conference Presentations:
-- [2021 JuliaCon (Finding an Effective Strategy for AutoML Pipeline Optimization)](https://www.youtube.com/watch?v=ZRFIMGW88Co)
-- [2021 PyData Ireland Virtual Summer Meetup (Symbolic Pipeline Expression)](https://www.youtube.com/watch?v=EQm5fj-4Hrw)
-- [2020 JuliaCon (AutoMLPipeline: A ToolBox for Building ML Pipelines)](https://www.youtube.com/watch?v=6-hJnMO0oDs)
+- [2021 JuliaCon (**Finding an Effective Strategy for AutoML Pipeline Optimization**)](https://www.youtube.com/watch?v=ZRFIMGW88Co)
+- [2020 JuliaCon (**AutoMLPipeline: A ToolBox for Building ML Pipelines**)](https://www.youtube.com/watch?v=6-hJnMO0oDs)
+- [2021 PyData Ireland Meetup (**Symbolic ML Pipeline Expression and Benchmarking**)](https://www.youtube.com/watch?v=EQm5fj-4Hrw)
+
 
 ### Related Video/Conference Presentations:
-- [2021 JuliaCon (Lale in Julia: A package for semi-automated data science)](https://www.youtube.com/watch?v=4ayA_EWWlqk)
-- [2021 OpenSource Guild (Overview of HPC and Data Science in Julia Programming with AutoML)](https://www.youtube.com/watch?v=zkks1_SrUx0)
-- [2019 JuliaCon (TSML (Time Series Machine Learning Pipeline)](https://www.youtube.com/watch?v=RRY0OXc52Ns)
+- [2021 JuliaCon (**Lale in Julia: A package for semi-automated data science**)](https://www.youtube.com/watch?v=4ayA_EWWlqk)
+- [2019 JuliaCon (**TSML: Time Series Machine Learning Pipeline**)](https://www.youtube.com/watch?v=RRY0OXc52Ns)
+- [2021 OpenSource Guild in IBM (**Overview of HPC and Data Science in Julia Programming with AutoML**)](https://www.youtube.com/watch?v=zkks1_SrUx0)
+
 
 More examples can be found in the 
 [examples](https://github.com/IBM/AutoMLPipeline.jl/tree/master/examples) 
