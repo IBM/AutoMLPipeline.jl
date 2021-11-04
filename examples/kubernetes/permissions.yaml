@@ -1,0 +1,36 @@
+# Minimal set of permissions required by K8sClusterManagers.jl
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: julia-manager-role
+rules:
+- apiGroups: [""]  # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["create", "delete", "get", "patch"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+
+---
+# https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: julia-manager-serviceaccount
+automountServiceAccountToken: true
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: julia-manager-role-binding
+roleRef:
+  kind: Role
+  name: julia-manager-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: julia-manager-serviceaccount
