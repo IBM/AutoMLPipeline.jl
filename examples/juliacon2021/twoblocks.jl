@@ -62,9 +62,9 @@ function oneblock_pipeline_factory(scalers,extractors,learners)
    return results
 end
 
-function evaluate_pipeline(dfpipelines,X,Y;folds=3)
+function evaluate_pipeline(dfpipelines,X,Y;folds=10)
    res=@distributed (vcat) for prow in eachrow(dfpipelines)
-      perf = crossvalidate(prow.Pipeline,X,Y;nfolds=folds)
+      perf = crossvalidate(prow.Pipeline,X,Y,"balanced_accuracy_score";nfolds=folds)
       DataFrame(;Description=prow.Description,mean=perf.mean,sd=perf.std,prow.Pipeline)
    end
    return res
@@ -105,10 +105,10 @@ function lname(n::Learner)
    n.name[1:end-4]
 end
 
-function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extractors=vextractors,learners=vlearners)
+function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extractors=vextractors,learners=vlearners,nfolds=10)
    dfpipes = model_selection_pipeline(vlearners)
    # find the best model by evaluating the models
-   modelsperf = evaluate_pipeline(dfpipes,X,Y;folds=10)
+   modelsperf = evaluate_pipeline(dfpipes,X,Y;folds=nfolds)
    sort!(modelsperf,:mean, rev = true)
    # get the string name of the top model
    bestm =  filter(x->occursin(x,modelsperf.Description[1]),lname.(vlearners))[1]
@@ -117,12 +117,12 @@ function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extract
    # use the best model to generate pipeline search
    dfp = twoblock_pipeline_factory(vscalers,vextractors,[bestmodel])
    # evaluate the pipeline
-   bestp=evaluate_pipeline(dfp,X,Y;folds=3)
+   bestp=evaluate_pipeline(dfp,X,Y;folds=nfolds)
    sort!(bestp,:mean, rev = true)
    show(bestp;allrows=false,truncate=1,allcols=false)
    println()
    optmodel = bestp[1,:]
-   return (optmodel.Description,optmodel.mean,optmodel.sd,optmodel.Pipeline)
+   return bestp
 end
 
 end
