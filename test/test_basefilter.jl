@@ -26,6 +26,7 @@ function test_basefilter()
   wrp = Wrapper(Dict(:transformer => Imputer()))
   @test fit_transform!(wrp,data) |> Matrix |> x->x[:,[(1:4)...,6]]  |> sum |> round == 9054.0
   @test fit_transform(wrp,data) |> Matrix |> x->x[:,[(1:4)...,6]]  |> sum |> round == 9054.0
+  @test fit_transform(wrp,data) |> Matrix |> x->x[:,[(1:4)...,6]]  |> sum |> round != 9054.0
 end
 @testset "BaseFilter" begin
   Random.seed!(123)
