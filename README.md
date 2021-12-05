@@ -2,7 +2,7 @@
 
 | **Documentation** | **Build Status** | **Help** |
 |:---:|:---:|:---:|
-| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][travis-img]][travis-url] |[![][travis-img]][travis-url] [![][codecov-img]][codecov-url]  | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
+| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][gha-img]][gha-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
 ### Stargazers over time
 
@@ -652,8 +652,8 @@ Usage questions can be posted in:
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://ibm.github.io/AutoMLPipeline.jl/dev/
 
-[travis-img]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml/badge.svg
-[travis-url]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml
+[gha-img]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml/badge.svg
+[gha-url]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml
 
 [codecov-img]: https://codecov.io/gh/IBM/AutoMLPipeline.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/IBM/AutoMLPipeline.jl
