@@ -57,7 +57,7 @@ show(df::AbstractDataFrame) = show(df,truncate=0)
 show(io::IO,df::AbstractDataFrame) = show(io,df;truncate=0)
 
 # Add workers
-nprocs() == 1 && addprocs();
+nprocs() == 1 && addprocs(;  exeflags="--project");
 workers()
 
 @sync @everywhere using AutoMLPipeline
@@ -115,7 +115,7 @@ pipe = @pipeline (numf |> norm) + (catf |> ohe);
 pred = fit_transform!(pipe, X, Y)
 
 pipe = @pipeline (numf |> norm) + (catf |> ohe) |> rf;
-pred = fit_transform!(pipe, X, Y)
+pred = fit_transform!(pipe, X, Y);
 crossvalidate(pipe,X,Y)
 
 pipe = @pipeline (numf |> norm) + (catf |> ohe)  |> sgd;
