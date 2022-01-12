@@ -13,5 +13,4 @@ include("test_skpreprocessing.jl")
 include("test_sklearner.jl")
 include("test_skcrossvalidator.jl")
 
-include("test_basefilter.jl")
 end
