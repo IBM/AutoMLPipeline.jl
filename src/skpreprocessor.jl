@@ -1,6 +1,7 @@
 module SKPreprocessors
 
-using PyCall
+import PythonCall
+PYC=PythonCall
 
 # standard included modules
 using DataFrames
@@ -12,18 +13,18 @@ import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
 export SKPreprocessor, skpreprocessors
 
-const preprocessor_dict = Dict{String,PyObject}()
-const DEC  = PyNULL()
-const FS   = PyNULL()
-const IMP  = PyNULL()
-const PREP = PyNULL()
+const preprocessor_dict = Dict{String,PYC.Py}()
+const DEC  = PYC.pynew()
+const FS   = PYC.pynew()
+const IMP  = PYC.pynew()
+const PREP = PYC.pynew()
 
 
 function __init__()
-   copy!(DEC , pyimport_conda("sklearn.decomposition","scikit-learn"))
-   copy!(FS  , pyimport_conda("sklearn.feature_selection","scikit-learn"))
-   copy!(IMP , pyimport_conda("sklearn.impute","scikit-learn"))
-   copy!(PREP, pyimport_conda("sklearn.preprocessing","scikit-learn"))
+   PYC.pycopy!(DEC , PYC.pyimport("sklearn.decomposition"))
+   PYC.pycopy!(FS  , PYC.pyimport("sklearn.feature_selection",))
+   PYC.pycopy!(IMP , PYC.pyimport("sklearn.impute"))
+   PYC.pycopy!(PREP, PYC.pyimport("sklearn.preprocessing"))
 
    # Available scikit-learn learners.
    preprocessor_dict["DictionaryLearning"]          = DEC
@@ -184,9 +185,11 @@ function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
 end
 
 function transform!(skp::SKPreprocessor, x::DataFrame)::DataFrame
+   println("hello")
    features = deepcopy(x) |> Array
    model=skp.model[:skpreprocessor]
-   return collect(model.transform(features)) |> x->DataFrame(x,:auto)
+   res = (model.transform(features))
+   PYC.pyconvert(Matrix,res) |> x->DataFrame(x,:auto)
 end
 
 transform(skp::SKPreprocessor, x::DataFrame)::DataFrame = transform!(skp,x)
