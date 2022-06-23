@@ -39,35 +39,35 @@ include("skpreprocessor.jl")
 using .SKPreprocessors
 export SKPreprocessor, skpreprocessors
 
-include("sklearners.jl")
-using .SKLearners
-export SKLearner, sklearners
-
-include("skcrossvalidator.jl")
-using .SKCrossValidators
-export crossvalidate
-
-export skoperator
-
-function skoperator(name::String; args...)::Machine
-   sklr = keys(SKLearners.learner_dict)
-   skpr = keys(SKPreprocessors.preprocessor_dict)
-   if name ∈ sklr
-      obj = SKLearner(name; args...)
-   elseif name ∈ skpr
-      obj = SKPreprocessor(name; args...)
-   else
-      skoperator()
-      throw(ArgumentError("$name does not exist"))
-   end
-   return obj
-end
-
-function skoperator()
-   sklr = keys(SKLearners.learner_dict)
-   skpr = keys(SKPreprocessors.preprocessor_dict)
-   println("Please choose among these pipeline elements:")
-   println([sklr..., skpr...])
-end
-
+#include("sklearners.jl")
+#using .SKLearners
+#export SKLearner, sklearners
+#
+#include("skcrossvalidator.jl")
+#using .SKCrossValidators
+#export crossvalidate
+#
+#export skoperator
+#
+#function skoperator(name::String; args...)::Machine
+#   sklr = keys(SKLearners.learner_dict)
+#   skpr = keys(SKPreprocessors.preprocessor_dict)
+#   if name ∈ sklr
+#      obj = SKLearner(name; args...)
+#   elseif name ∈ skpr
+#      obj = SKPreprocessor(name; args...)
+#   else
+#      skoperator()
+#      throw(ArgumentError("$name does not exist"))
+#   end
+#   return obj
+#end
+#
+#function skoperator()
+#   sklr = keys(SKLearners.learner_dict)
+#   skpr = keys(SKPreprocessors.preprocessor_dict)
+#   println("Please choose among these pipeline elements:")
+#   println([sklr..., skpr...])
+#end
+#
 end # module
