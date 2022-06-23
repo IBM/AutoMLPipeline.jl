@@ -39,10 +39,10 @@ include("skpreprocessor.jl")
 using .SKPreprocessors
 export SKPreprocessor, skpreprocessors
 
-#include("sklearners.jl")
-#using .SKLearners
-#export SKLearner, sklearners
-#
+include("sklearners.jl")
+using .SKLearners
+export SKLearner, sklearners
+
 #include("skcrossvalidator.jl")
 #using .SKCrossValidators
 #export crossvalidate
