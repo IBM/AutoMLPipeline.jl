@@ -9,8 +9,8 @@ using DataFrames: DataFrame
 const IRIS = getiris()
 const X = IRIS[:,1:3] |> DataFrame
 const XC = IRIS[:,1:4] |> DataFrame
-const YC = IRIS[:,5] |> Vector
-const Y = IRIS[:,4] |> Vector
+const YC = IRIS[:,5] |> Vector{String}
+const Y = IRIS[:,4] |> Vector{Float64}
 
 const classifiers = [
     "LinearSVC","QuadraticDiscriminantAnalysis","MLPClassifier","BernoulliNB",

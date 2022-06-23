@@ -1,6 +1,7 @@
 module SKLearners
 
-using PyCall
+import PythonCall
+PYC=PythonCall
 
 # standard included modules
 using DataFrames
@@ -12,31 +13,31 @@ import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
 export SKLearner, sklearners
 
-const learner_dict = Dict{String,PyObject}() 
-const ENS   = PyNULL()
-const LM    = PyNULL()
-const DA    = PyNULL()
-const NN    = PyNULL()
-const SVM   = PyNULL()
-const TREE  = PyNULL()
-const ANN   = PyNULL()
-const GP    = PyNULL()
-const KR    = PyNULL()
-const NB    = PyNULL()
-const ISO   = PyNULL()
+const learner_dict = Dict{String,PYC.Py}()
+const ENS   = PYC.pynew()
+const LM    = PYC.pynew()
+const DA    = PYC.pynew()
+const NN    = PYC.pynew()
+const SVM   = PYC.pynew()
+const TREE  = PYC.pynew()
+const ANN   = PYC.pynew()
+const GP    = PYC.pynew()
+const KR    = PYC.pynew()
+const NB    = PYC.pynew()
+const ISO   = PYC.pynew()
 
 function __init__()
-   copy!(ENS , pyimport_conda("sklearn.ensemble","scikit-learn"))
-   copy!(LM  , pyimport_conda("sklearn.linear_model","scikit-learn"))
-   copy!(DA  , pyimport_conda("sklearn.discriminant_analysis","scikit-learn"))
-   copy!(NN  , pyimport_conda("sklearn.neighbors","scikit-learn"))
-   copy!(SVM , pyimport_conda("sklearn.svm","scikit-learn"))
-   copy!(TREE, pyimport_conda("sklearn.tree","scikit-learn"))
-   copy!(ANN , pyimport_conda("sklearn.neural_network","scikit-learn"))
-   copy!(GP  , pyimport_conda("sklearn.gaussian_process","scikit-learn"))
-   copy!(KR  , pyimport_conda("sklearn.kernel_ridge","scikit-learn"))
-   copy!(NB  , pyimport_conda("sklearn.naive_bayes","scikit-learn"))
-   copy!(ISO , pyimport_conda("sklearn.isotonic","scikit-learn"))
+   PYC.pycopy!(ENS , PYC.pyimport("sklearn.ensemble"))
+   PYC.pycopy!(LM  , PYC.pyimport("sklearn.linear_model"))
+   PYC.pycopy!(DA  , PYC.pyimport("sklearn.discriminant_analysis"))
+   PYC.pycopy!(NN  , PYC.pyimport("sklearn.neighbors"))
+   PYC.pycopy!(SVM , PYC.pyimport("sklearn.svm"))
+   PYC.pycopy!(TREE, PYC.pyimport("sklearn.tree"))
+   PYC.pycopy!(ANN , PYC.pyimport("sklearn.neural_network"))
+   PYC.pycopy!(GP  , PYC.pyimport("sklearn.gaussian_process"))
+   PYC.pycopy!(KR  , PYC.pyimport("sklearn.kernel_ridge"))
+   PYC.pycopy!(NB  , PYC.pyimport("sklearn.naive_bayes"))
+   PYC.pycopy!(ISO , PYC.pyimport("sklearn.isotonic"))
 
    # Available scikit-learn learners.
    learner_dict["AdaBoostClassifier"]             = ENS
@@ -170,6 +171,13 @@ function fit!(skl::SKLearner, xx::DataFrame, y::Vector)::Nothing
     end
   end
 
+  if eltype(y) <: Real
+      skl.model[:predtype] = :numeric
+  else
+      skl.model[:predtype] = :alpha
+  end
+
+
   # Train
   modelobj = py_learner(;impl_args...)
   modelobj.fit(x,y)
@@ -185,9 +193,15 @@ end
 
 function transform!(skl::SKLearner, xx::DataFrame)::Vector
 	x = deepcopy(xx) |> Array
-  #return collect(skl.model[:predict](x))
   sklearner = skl.model[:sklearner]
-  return collect(sklearner.predict(x))
+  res = sklearner.predict(x) 
+  if skl.model[:predtype] == :numeric
+      predn =  PYC.pyconvert(Vector{Float64},res) 
+      return predn
+  else
+      predc =  PYC.pyconvert(Vector{String},res) 
+      return predc
+  end
 end
 
 transform(skl::SKLearner, xx::DataFrame)::Vector = transform!(skl,xx)
