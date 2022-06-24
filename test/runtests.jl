@@ -1,10 +1,10 @@
 module TestAutoMLPipeline
 using Test
 
-# suppress warnings
-@info "suppressing PyCall warnings"
-using PyCall
-warnings = pyimport("warnings")
+# @info "suppressing Python warnings"
+import PythonCall
+const PYC=PythonCall
+warnings = PYC.pyimport("warnings")
 warnings.filterwarnings("ignore")
 
 include("test_skpreprocessing.jl")

@@ -1,0 +1,5 @@
+channels = ["mkl", "scikit-learn"]
+
+[deps]
+scikit-learn = ""
+python = ""
