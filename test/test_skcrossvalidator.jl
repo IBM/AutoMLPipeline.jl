@@ -4,17 +4,17 @@ using Test
 using Random
 using AutoMLPipeline
 
-function crossval_class(ppl,X,Y,folds,verbose)
-  @test crossvalidate(ppl,X,Y,"accuracy_score",folds,verbose).mean > 0.80
-  @test crossvalidate(ppl,X,Y,"balanced_accuracy_score",folds,verbose).mean > 0.80
-  @test crossvalidate(ppl,X,Y,"cohen_kappa_score",folds,verbose).mean > 0.80
-  @test crossvalidate(ppl,X,Y,"jaccard_score","weighted",folds,verbose).mean > 0.80
-  @test crossvalidate(ppl,X,Y,"matthews_corrcoef",folds,verbose).mean > 0.80
-  @test crossvalidate(ppl,X,Y,"hamming_loss",folds,verbose).mean < 0.1
-  @test crossvalidate(ppl,X,Y,"zero_one_loss",folds,verbose).mean < 0.1
-  @test crossvalidate(ppl,X,Y,"f1_score","weighted",folds,verbose).mean > 0.80
-  @test crossvalidate(ppl,X,Y,"precision_score","weighted",folds,verbose).mean > 0.80
-  @test crossvalidate(ppl,X,Y,"recall_score","weighted",folds,verbose).mean > 0.80
+function crossval_class(ppl,X,Y,nfolds,verbose)
+  @test crossvalidate(ppl,X,Y,"accuracy_score",nfolds,verbose).mean > 0.80
+  @test crossvalidate(ppl,X,Y,"balanced_accuracy_score",nfolds,verbose).mean > 0.80
+  @test crossvalidate(ppl,X,Y,"cohen_kappa_score",nfolds,verbose).mean > 0.80
+  @test crossvalidate(ppl,X,Y,"matthews_corrcoef",nfolds,verbose).mean > 0.80
+  @test crossvalidate(ppl,X,Y,"hamming_loss",nfolds,verbose).mean < 0.1
+  @test crossvalidate(ppl,X,Y,"zero_one_loss",nfolds,verbose).mean < 0.1
+  @test crossvalidate(ppl,X,Y,"jaccard_score","weighted";nfolds,verbose).mean > 0.80
+  @test crossvalidate(ppl,X,Y,"f1_score","weighted";nfolds,verbose).mean > 0.80
+  @test crossvalidate(ppl,X,Y,"precision_score","weighted";nfolds,verbose).mean > 0.80
+  @test crossvalidate(ppl,X,Y,"recall_score","weighted";nfolds,verbose).mean > 0.80
 end
 
 function crossval_reg(ppl,X,Y,folds,verbose)
@@ -75,7 +75,7 @@ end
 function test_crossval_options()
   data=getiris()
   X=data[:,1:4]
-  Y=data[:,5] |> collect
+  Y=data[:,5] |> Vector{String}
   acc(x,y)=score(:accuracy,x,y)
   ppl1 = Pipeline(RandomForest())
   @test crossvalidate(ppl1,X,Y,"accuracy_score",10,false).mean > 0.90
