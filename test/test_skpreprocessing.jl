@@ -7,11 +7,10 @@ using Statistics
 using DataFrames: DataFrame, nrow
 
 Random.seed!(1)
-
 const IRIS = getiris()
 extra = rand(150,3) |> x->DataFrame(x,:auto)
 const X = hcat(IRIS[:,1:4],extra) 
-const Y = IRIS[:,5] |> Vector
+const Y = IRIS[:,5] |> Vector{String}
 
 # "KernelCenterer","MissingIndicator","KBinsDiscretizer","OneHotEncoder", 
 const preprocessors = [
@@ -22,9 +21,10 @@ const preprocessors = [
      "VarianceThreshold",
      "SimpleImputer",  
      "Binarizer", "FunctionTransformer",
-     "MultiLabelBinarizer", "MaxAbsScaler", "MinMaxScaler", "Normalizer",
+     "MaxAbsScaler", "MinMaxScaler", "Normalizer",
      "OrdinalEncoder", "PolynomialFeatures", "PowerTransformer", 
-     "QuantileTransformer", "RobustScaler", "StandardScaler"
+     "QuantileTransformer", "RobustScaler", "StandardScaler",
+     #"MultiLabelBinarizer", 
  ]
 
 function fit_test(preproc::String,in::DataFrame,out::Vector)
@@ -47,7 +47,6 @@ end
 @testset "scikit preprocessors fit test" begin
    Random.seed!(123)
    for cl in preprocessors
-      #println(cl)
       fit_test(cl,X,Y)
    end
 end
@@ -55,7 +54,6 @@ end
 @testset "scikit preprocessors transform test" begin
    Random.seed!(123)
    for cl in preprocessors
-      #println(cl)
       transform_test(cl,X,Y)
    end
 end

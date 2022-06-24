@@ -1,6 +1,7 @@
 module SKCrossValidators
 
-using PyCall
+import PythonCall
+const PYC=PythonCall
 
 # standard included modules
 using DataFrames
@@ -11,11 +12,11 @@ using ..Utils
 import ..CrossValidators: crossvalidate
 export crossvalidate
 
-const metric_dict = Dict{String,PyObject}()
-const SKM = PyNULL()
+const metric_dict = Dict{String,PYC.Py}()
+const SKM = PYC.pynew()
 
 function __init__()
-   copy!(SKM, pyimport_conda("sklearn.metrics","scikit-learn"))
+   PYC.pycopy!(SKM, PYC.pyimport("sklearn.metrics"))
 
    metric_dict["roc_auc_score"]                   = SKM.roc_auc_score
    metric_dict["accuracy_score"]                  = SKM.accuracy_score
@@ -67,30 +68,30 @@ end
 
 Runs K-fold cross-validation using balanced accuracy as the default. It support the 
 following metrics for classification:
-- accuracy_score
-- balanced_accuracy_score
-- cohen_kappa_score
-- jaccard_score
-- matthews_corrcoef
-- hamming_loss
-- zero_one_loss
-- f1_score
-- precision_score
-- recall_score
+- "accuracy_score"
+- "balanced_accuracy_score"
+- "cohen_kappa_score"
+- "jaccard_score"
+- "matthews_corrcoef"
+- "hamming_loss"
+- "zero_one_loss"
+- "f1_score"
+- "precision_score"
+- "recall_score"
 
 and the following metrics for regression:
-- mean_squared_error
-- mean_squared_log_error
-- median_absolute_error
-- r2_score
-- max_error
-- explained_variance_score
+- "mean_squared_error"
+- "mean_squared_log_error"
+- "median_absolute_error"
+- "r2_score"
+- "max_error"
+- "explained_variance_score"
 """
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String; nfolds=10,verbose::Bool=true)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
-    metric(a,b) = pfunc(a,b)
+    metric(a,b) = pfunc(a,b) |> (x -> PYC.pyconvert(Float64,x))
     crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
 

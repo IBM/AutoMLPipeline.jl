@@ -1,7 +1,7 @@
 module SKPreprocessors
 
 import PythonCall
-PYC=PythonCall
+const PYC=PythonCall
 
 # standard included modules
 using DataFrames
@@ -185,7 +185,6 @@ function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
 end
 
 function transform!(skp::SKPreprocessor, x::DataFrame)::DataFrame
-   println("hello")
    features = deepcopy(x) |> Array
    model=skp.model[:skpreprocessor]
    res = (model.transform(features))
