@@ -95,26 +95,24 @@ function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
     crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
 
-function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,folds::Int)
-   crossvalidate(pl,X,Y,sfunc,nfolds=folds)
+function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,nfolds::Int)
+   crossvalidate(pl,X,Y,sfunc; nfolds)
 end
 
-function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,verby::Bool)
-   crossvalidate(pl,X,Y,sfunc,verbose=verby)
+function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,verbose::Bool)
+   crossvalidate(pl,X,Y,sfunc; verbose)
 end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String, folds::Int,verby::Bool)
-   crossvalidate(pl,X,Y,sfunc,nfolds=folds,verbose=verby)
+                       sfunc::String, nfolds::Int,verbose::Bool)
+   crossvalidate(pl,X,Y,sfunc; nfolds,verbose)
 end
 
-
-
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
-                       sfunc::String,averagetype::String,nfolds=10,verbose::Bool=true)
+                       sfunc::String,averagetype::String;nfolds=10,verbose::Bool=true)
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
-    metric(a,b) = pfunc(a,b,average=averagetype)
+    metric(a,b) = pfunc(a,b,average=averagetype) |> (x -> PYC.pyconvert(Float64,x))
     crossvalidate(pl,X,Y,metric,nfolds,verbose)
 end
 
