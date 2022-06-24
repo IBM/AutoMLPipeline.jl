@@ -1,7 +1,7 @@
 module SKLearners
 
 import PythonCall
-PYC=PythonCall
+const PYC=PythonCall
 
 # standard included modules
 using DataFrames
