@@ -2,5 +2,4 @@ channels = ["mkl", "scikit-learn"]
 
 [deps]
 scikit-learn = ""
-nomkl = ""
 python = ""
