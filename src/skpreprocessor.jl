@@ -156,8 +156,13 @@ function skpreprocessors()
   println("Note: Please consult Scikitlearn's online help for more details about the preprocessor's arguments.")
 end
 
-function fit!(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::Nothing
+function fit!(skp::SKPreprocessor, x::DataFrame, yc::Vector=[])::Nothing
    features = x |> Array
+   y = yc
+   if !(eltype(yc) <: Real)
+      y = yc |> Vector{String}
+   end
+
    impl_args = copy(skp.model[:impl_args])
    autocomp = skp.model[:autocomponent]
    if autocomp == true

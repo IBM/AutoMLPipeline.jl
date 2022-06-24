@@ -89,10 +89,16 @@ and the following metrics for regression:
 """
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String; nfolds=10,verbose::Bool=true)
+
+    YC=Y
+    if !(eltype(YC) <: Real)
+       YC = Y |> Vector{String}
+    end
+
     checkfun(sfunc)
     pfunc = metric_dict[sfunc]
     metric(a,b) = pfunc(a,b) |> (x -> PYC.pyconvert(Float64,x))
-    crossvalidate(pl,X,Y,metric,nfolds,verbose)
+    crossvalidate(pl,X,YC,metric,nfolds,verbose)
 end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,nfolds::Int)
