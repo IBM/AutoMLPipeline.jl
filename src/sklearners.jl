@@ -158,8 +158,16 @@ function sklearners()
   println("Note: Consult Scikitlearn's online help for more details about the learner's arguments.")
 end
 
-function fit!(skl::SKLearner, xx::DataFrame, y::Vector)::Nothing
+function fit!(skl::SKLearner, xx::DataFrame, yy::Vector)::Nothing
+  # normalize inputs
   x = xx |> Array
+  y = yy
+  skl.model[:predtype] = :numeric
+  if !(eltype(yy) <: Real)
+     y = yy |> Vector{String}
+     skl.model[:predtype] = :alpha
+  end
+
   impl_args  = copy(skl.model[:impl_args])
   learner    = skl.model[:learner]
   py_learner = getproperty(learner_dict[learner],learner)
@@ -170,13 +178,6 @@ function fit!(skl::SKLearner, xx::DataFrame, y::Vector)::Nothing
       impl_options[:outlier_label] = labels[rand(1:size(labels, 1))]
     end
   end
-
-  if eltype(y) <: Real
-      skl.model[:predtype] = :numeric
-  else
-      skl.model[:predtype] = :alpha
-  end
-
 
   # Train
   modelobj = py_learner(;impl_args...)
