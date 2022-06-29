@@ -17,7 +17,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: manager
-        image: ppalmes/amlp:latest
+        image: ppalmes/automlpipeline-intel:latest
         stdin: true
         tty: true
 

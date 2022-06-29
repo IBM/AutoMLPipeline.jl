@@ -105,7 +105,7 @@ function lname(n::Learner)
    n.name[1:end-4]
 end
 
-function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extractors=vextractors,learners=vlearners,nfolds=10)
+function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extractors=vextractors,learners=vlearners,nfolds=3)
    dfpipes = model_selection_pipeline(vlearners)
    # find the best model by evaluating the models
    modelsperf = evaluate_pipeline(dfpipes,X,Y;folds=nfolds)
