@@ -1,0 +1,37 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/job/
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: interactive-session
+spec:
+  # Stop the job from spawning a new pod if the container exits in error
+  backoffLimit: 0
+
+  # Clean up completed jobs automatically after 10 seconds
+  ttlSecondsAfterFinished: 10
+
+  template:
+    spec:
+      # Previously created service account
+      serviceAccountName: julia-manager-serviceaccount
+      restartPolicy: Never
+      containers:
+      - name: manager
+        image: ppalmes/automlpipeline-arm:latest
+        stdin: true
+        tty: true
+
+        # Enough resources to handle package precompilation
+        resources:
+          requests:
+            cpu: 1
+            memory: 500Mi
+
+        # Avoid hitting resource limits during package precompilation
+        env:
+          - name: JULIA_NUM_PRECOMPILE_TASKS
+            value: "1"
+
+        # Automatically install K8sClusterManagers.jl on "julia" Docker image
+        # command: ["bash", "-c", "julia -e 'using Pkg; Pkg.add(\"K8sClusterManagers\")'; exec julia"]
+        command: ["bash", "-c", "exec julia --project"]
