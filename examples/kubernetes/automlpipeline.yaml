@@ -7,7 +7,7 @@ spec:
   restartPolicy: Never
   containers:
   - name: manager
-    image: "ppalmes/amlp:latest"
+    image: "ppalmes/automlpipeline-intel:latest"
     imagePullPolicy: Always
-    command: ["bash","-c","export JULIA_WORKER_TIMEOUT=500; julia --project main.jl 10 1"]
+    command: ["bash","-c","export JULIA_WORKER_TIMEOUT=500; julia --project main.jl 5 1"]
     #args: ["${ARG}"]
