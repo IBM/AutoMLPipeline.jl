@@ -62,7 +62,7 @@ function oneblock_pipeline_factory(scalers,extractors,learners)
    return results
 end
 
-function evaluate_pipeline(dfpipelines,X,Y;folds=10)
+function evaluate_pipeline(dfpipelines,X,Y;folds=3)
    res=@distributed (vcat) for prow in eachrow(dfpipelines)
       perf = crossvalidate(prow.Pipeline,X,Y,"balanced_accuracy_score";nfolds=folds)
       DataFrame(;Description=prow.Description,mean=perf.mean,sd=perf.std,prow.Pipeline)
