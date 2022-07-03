@@ -62,7 +62,7 @@ function oneblock_pipeline_factory(scalers,extractors,learners)
    return results
 end
 
-function evaluate_pipeline(dfpipelines,X,Y;folds=10)
+function evaluate_pipeline(dfpipelines,X,Y;folds=3)
    res=@distributed (vcat) for prow in eachrow(dfpipelines)
       perf = crossvalidate(prow.Pipeline,X,Y,"balanced_accuracy_score";nfolds=folds)
       DataFrame(;Description=prow.Description,mean=perf.mean,sd=perf.std,prow.Pipeline)
@@ -105,7 +105,7 @@ function lname(n::Learner)
    n.name[1:end-4]
 end
 
-function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extractors=vextractors,learners=vlearners,nfolds=10)
+function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extractors=vextractors,learners=vlearners,nfolds=3)
    dfpipes = model_selection_pipeline(vlearners)
    # find the best model by evaluating the models
    modelsperf = evaluate_pipeline(dfpipes,X,Y;folds=nfolds)
