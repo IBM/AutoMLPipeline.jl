@@ -1,5 +1,4 @@
 From arm64v8/julia
-#From julia
 MAINTAINER Paulito Palmes "paulpalmes@ie.ibm.com"
 RUN mkdir /amlp
 WORKDIR /amlp
