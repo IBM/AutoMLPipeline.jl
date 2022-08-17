@@ -20,7 +20,7 @@ pipeline expressions, and makes it easy to
 discover optimal structures for machine 
 learning regression and classification.
 
-To illustrate, here is a pipeline expression 
+To illustrate, here's a pipeline expression 
 and evaluation of a typical machine learning 
 workflow that extracts numerical features (`numf`) 
 for `ica` (Independent Component Analysis) 
