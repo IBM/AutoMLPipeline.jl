@@ -193,9 +193,9 @@ function fit(skl::SKLearner, xx::DataFrame, y::Vector)::SKLearner
 end
 
 function transform!(skl::SKLearner, xx::DataFrame)::Vector
-  x = deepcopy(xx) |> Array
+  xk = deepcopy(xx) |> Array
   sklearner = skl.model[:sklearner]
-  res = sklearner.predict(x) 
+  res = sklearner.predict(xk) 
   if skl.model[:predtype] == :numeric
       predn =  PYC.pyconvert(Vector{Float64},res) 
       return predn
