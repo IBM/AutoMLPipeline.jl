@@ -119,22 +119,6 @@ pkg> update
 pkg> add AutoMLPipeline
 ```
 
-Note:
-- If you encounter error related to `libmkl_intel_thread.dylib`, it's related to 
-PyCall/Conda installation
-- One way to fix this based on [github issue 315](https://github.com/JuliaPy/PyPlot.jl/issues/315)
-```julia
-# from shell
-> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.julia/conda/3/lib
-> export PYTHON=Conda
-
-> julia
-julia> using Pkg
-julia> Pkg.build("Conda")  # assuming Conda is already installed
-julia> Pkg.build("PyCall") # assuming PyCall is already installed
-julia> Pkg.add("AutoMLPipeline")
-```
-
 ### Sample Usage
 Below outlines some typical way to preprocess and model any dataset.
 
