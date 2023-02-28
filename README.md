@@ -1,6 +1,10 @@
 ### AutoMLPipeline
 
 
+![Overall Stats](https://github-readme-stats.vercel.app/api?username=ppalmes&count_private=true&show_icons=true&hide=contribs)
+![Visitor](https://visitor-badge.laobi.icu/badge?page_id=ppalmes.AutoMLPipeline.jl)
+
+------------------
 | **Documentation** | **Build Status** | **Help** |
 |:---:|:---:|:---:|
 | [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][gha-img]][gha-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
