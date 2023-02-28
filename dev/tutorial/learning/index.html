@@ -67,41 +67,41 @@ for learner in [jrf,ada,sgd,tree]
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
 └ @ learning.md:70
-rf_fvh
-fold: 1, 0.4406779661016949
-fold: 2, 0.45918367346938777
-fold: 3, 0.49830508474576274
+rf_Hwe
+fold: 1, 0.4711864406779661
+fold: 2, 0.41496598639455784
+fold: 3, 0.45084745762711864
 fold: 4, 0.5068027210884354
-fold: 5, 0.5186440677966102
+fold: 5, 0.535593220338983
 errors: 0
-AdaBoostClassifier_hsP
-fold: 1, 0.5559322033898305
-fold: 2, 0.5306122448979592
-fold: 3, 0.5288135593220339
-fold: 4, 0.5578231292517006
-fold: 5, 0.5525423728813559
+AdaBoostClassifier_XGH
+fold: 1, 0.5661016949152542
+fold: 2, 0.5850340136054422
+fold: 3, 0.5389830508474577
+fold: 4, 0.48639455782312924
+fold: 5, 0.5694915254237288
 errors: 0
-SGDClassifier_RCa
-fold: 1, 0.511864406779661
-fold: 2, 0.42517006802721086
-fold: 3, 0.4406779661016949
-fold: 4, 0.5408163265306123
-fold: 5, 0.43728813559322033
+SGDClassifier_mfi
+fold: 1, 0.46779661016949153
+fold: 2, 0.41836734693877553
+fold: 3, 0.5016949152542373
+fold: 4, 0.4387755102040816
+fold: 5, 0.46440677966101696
 errors: 0
-prunetree_YSp
-fold: 1, 0.4745762711864407
+prunetree_0S0
+fold: 1, 0.4542372881355932
 fold: 2, 0.48639455782312924
-fold: 3, 0.46779661016949153
-fold: 4, 0.47619047619047616
-fold: 5, 0.4610169491525424
+fold: 3, 0.5084745762711864
+fold: 4, 0.47959183673469385
+fold: 5, 0.5220338983050847
 errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; @show learners;</code><code class="nohighlight hljs ansi" style="display:block;">learners = 4×4 DataFrame
- Row │ name                    mean      sd          kfold
-     │ String                  Float64   Float64     Int64
-─────┼─────────────────────────────────────────────────────
-   1 │ rf_fvh                  0.484723  0.0332222       5
-   2 │ AdaBoostClassifier_hsP  0.545145  0.0142279       5
-   3 │ SGDClassifier_RCa       0.471163  0.0517213       5
-   4 │ prunetree_YSp           0.473195  0.00952046      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia hljs">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+ Row │ name                    mean      sd         kfold
+     │ String                  Float64   Float64    Int64
+─────┼────────────────────────────────────────────────────
+   1 │ rf_Hwe                  0.475879  0.0471197      5
+   2 │ AdaBoostClassifier_XGH  0.549201  0.0388278      5
+   3 │ SGDClassifier_mfi       0.458208  0.0315689      5
+   4 │ prunetree_0S0           0.490146  0.0263043      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia hljs">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,gb]
@@ -111,46 +111,46 @@ for learner in [jrf,ada,sgd,tree,gb]
   global learners = vcat(learners,DataFrame(name=learner.name,mean=mean,sd=sd,kfold=folds))
 end;</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌ Warning: Assignment to `pcmc` in soft scope is ambiguous because a global variable by the same name exists: `pcmc` will be treated as a new local. Disambiguate by using `local pcmc` to suppress this warning or `global pcmc` to assign to the existing global variable.
 └ @ learning.md:89
-rf_fvh
-fold: 1, 0.5152542372881356
-fold: 2, 0.4217687074829932
-fold: 3, 0.43050847457627117
-fold: 4, 0.4523809523809524
-fold: 5, 0.48135593220338985
-errors: 0
-AdaBoostClassifier_hsP
-fold: 1, 0.5457627118644067
-fold: 2, 0.5306122448979592
-fold: 3, 0.5525423728813559
-fold: 4, 0.54421768707483
-fold: 5, 0.576271186440678
-errors: 0
-SGDClassifier_RCa
-fold: 1, 0.5050847457627119
-fold: 2, 0.46258503401360546
-fold: 3, 0.4847457627118644
-fold: 4, 0.445578231292517
+rf_Hwe
+fold: 1, 0.5288135593220339
+fold: 2, 0.4523809523809524
+fold: 3, 0.4610169491525424
+fold: 4, 0.4557823129251701
 fold: 5, 0.49491525423728816
 errors: 0
-prunetree_YSp
-fold: 1, 0.4711864406779661
-fold: 2, 0.47619047619047616
-fold: 3, 0.488135593220339
-fold: 4, 0.46598639455782315
-fold: 5, 0.44745762711864406
+AdaBoostClassifier_XGH
+fold: 1, 0.5661016949152542
+fold: 2, 0.5374149659863946
+fold: 3, 0.5423728813559322
+fold: 4, 0.5340136054421769
+fold: 5, 0.5152542372881356
 errors: 0
-GradientBoostingClassifier_7Fa
-fold: 1, 0.5898305084745763
-fold: 2, 0.5578231292517006
-fold: 3, 0.5525423728813559
-fold: 4, 0.5918367346938775
-fold: 5, 0.5389830508474577
+SGDClassifier_mfi
+fold: 1, 0.48135593220338985
+fold: 2, 0.46938775510204084
+fold: 3, 0.5457627118644067
+fold: 4, 0.43197278911564624
+fold: 5, 0.46440677966101696
+errors: 0
+prunetree_0S0
+fold: 1, 0.4576271186440678
+fold: 2, 0.4897959183673469
+fold: 3, 0.5186440677966102
+fold: 4, 0.445578231292517
+fold: 5, 0.4711864406779661
+errors: 0
+GradientBoostingClassifier_ZlX
+fold: 1, 0.5423728813559322
+fold: 2, 0.5782312925170068
+fold: 3, 0.511864406779661
+fold: 4, 0.5884353741496599
+fold: 5, 0.5661016949152542
 errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; @show learners;</code><code class="nohighlight hljs ansi" style="display:block;">learners = 5×4 DataFrame
  Row │ name                            mean      sd         kfold
      │ String                          Float64   Float64    Int64
 ─────┼────────────────────────────────────────────────────────────
-   1 │ rf_fvh                          0.460254  0.0383999      5
-   2 │ AdaBoostClassifier_hsP          0.549881  0.0167619      5
-   3 │ SGDClassifier_RCa               0.478582  0.0242503      5
-   4 │ prunetree_YSp                   0.469791  0.0149389      5
-   5 │ GradientBoostingClassifier_7Fa  0.566203  0.0235218      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Wednesday 7 December 2022 23:51">Wednesday 7 December 2022</span>. Using Julia version 1.8.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   1 │ rf_Hwe                          0.478582  0.0328056      5
+   2 │ AdaBoostClassifier_XGH          0.539031  0.0182833      5
+   3 │ SGDClassifier_mfi               0.478577  0.0417697      5
+   4 │ prunetree_0S0                   0.476566  0.0286943      5
+   5 │ GradientBoostingClassifier_ZlX  0.557401  0.030709       5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 28 February 2023 12:27">Tuesday 28 February 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
