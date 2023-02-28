@@ -1,8 +1,6 @@
-### AutoMLPipeline
-
+### AutoMLPipeline ![Visitor](https://visitor-badge.laobi.icu/badge?page_id=ppalmes.AutoMLPipeline.jl)
 
 ![Overall Stats](https://github-readme-stats.vercel.app/api?username=ppalmes&count_private=true&show_icons=true&hide=contribs)
-![Visitor](https://visitor-badge.laobi.icu/badge?page_id=ppalmes.AutoMLPipeline.jl)
 
 ------------------
 | **Documentation** | **Build Status** | **Help** |
