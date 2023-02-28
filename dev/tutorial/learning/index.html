@@ -82,11 +82,11 @@ fold: 4, 0.48639455782312924
 fold: 5, 0.5694915254237288
 errors: 0
 SGDClassifier_mfi
-fold: 1, 0.4440677966101695
-fold: 2, 0.4523809523809524
-fold: 3, 0.4542372881355932
-fold: 4, 0.5204081632653061
-fold: 5, 0.5084745762711864
+fold: 1, 0.45084745762711864
+fold: 2, 0.4217687074829932
+fold: 3, 0.4847457627118644
+fold: 4, 0.47619047619047616
+fold: 5, 0.4576271186440678
 errors: 0
 prunetree_0S0
 fold: 1, 0.4542372881355932
@@ -100,7 +100,7 @@ errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display
 ─────┼────────────────────────────────────────────────────
    1 │ rf_Hwe                  0.475879  0.0471197      5
    2 │ AdaBoostClassifier_XGH  0.549201  0.0388278      5
-   3 │ SGDClassifier_mfi       0.475914  0.0356293      5
+   3 │ SGDClassifier_mfi       0.458236  0.0245456      5
    4 │ prunetree_0S0           0.490146  0.0263043      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia hljs">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
@@ -126,11 +126,11 @@ fold: 4, 0.5340136054421769
 fold: 5, 0.5152542372881356
 errors: 0
 SGDClassifier_mfi
-fold: 1, 0.43050847457627117
-fold: 2, 0.4965986394557823
-fold: 3, 0.45084745762711864
-fold: 4, 0.4557823129251701
-fold: 5, 0.4440677966101695
+fold: 1, 0.4542372881355932
+fold: 2, 0.41496598639455784
+fold: 3, 0.5559322033898305
+fold: 4, 0.42857142857142855
+fold: 5, 0.41694915254237286
 errors: 0
 prunetree_0S0
 fold: 1, 0.4576271186440678
@@ -143,7 +143,7 @@ GradientBoostingClassifier_ZlX
 fold: 1, 0.5423728813559322
 fold: 2, 0.5782312925170068
 fold: 3, 0.511864406779661
-fold: 4, 0.5884353741496599
+fold: 4, 0.5850340136054422
 fold: 5, 0.5661016949152542
 errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; @show learners;</code><code class="nohighlight hljs ansi" style="display:block;">learners = 5×4 DataFrame
  Row │ name                            mean      sd         kfold
@@ -151,6 +151,6 @@ errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display
 ─────┼────────────────────────────────────────────────────────────
    1 │ rf_Hwe                          0.478582  0.0328056      5
    2 │ AdaBoostClassifier_XGH          0.539031  0.0182833      5
-   3 │ SGDClassifier_mfi               0.455561  0.0248298      5
+   3 │ SGDClassifier_mfi               0.454131  0.0590194      5
    4 │ prunetree_0S0                   0.476566  0.0286943      5
-   5 │ GradientBoostingClassifier_ZlX  0.557401  0.030709       5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 28 February 2023 12:59">Tuesday 28 February 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   5 │ GradientBoostingClassifier_ZlX  0.556721  0.029876       5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 28 February 2023 15:34">Tuesday 28 February 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
