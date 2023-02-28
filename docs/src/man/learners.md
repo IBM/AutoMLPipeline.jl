@@ -1,9 +1,9 @@
 # Learners
 ```@setup learner
 ENV["COLUMNS"]=1000
-using PyCall
-warnings = pyimport("warnings")
-warnings.filterwarnings("ignore")
+#using PythonCall
+#warnings = pyimport("warnings")
+#warnings.filterwarnings("ignore")
 ```
 Similar to `SKPreprocessor`, most of the `Learners` in AMLP
 for its initial release are based on Scikitlearn libraries.
