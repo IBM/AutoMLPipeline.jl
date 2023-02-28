@@ -78,75 +78,75 @@ ohe = OneHotEncoder()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
 disc = CatNumDiscriminator(0) # disable turning numeric to categorical features
-pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.7692307692307693
-fold: 2, 0.68
-fold: 3, 0.6153846153846154
-fold: 4, 0.6
-fold: 5, 0.7307692307692307
-fold: 6, 0.8461538461538461
-fold: 7, 0.76
-fold: 8, 0.6538461538461539
-fold: 9, 0.64
-fold: 10, 0.6153846153846154
-fold: 11, 0.6923076923076923
-fold: 12, 0.76
-fold: 13, 0.6538461538461539
-fold: 14, 0.68
-fold: 15, 0.6923076923076923
-fold: 16, 0.6153846153846154
-fold: 17, 0.64
-fold: 18, 0.6923076923076923
-fold: 19, 0.8
-fold: 20, 0.8076923076923077
-fold: 21, 0.6538461538461539
-fold: 22, 0.76
-fold: 23, 0.6538461538461539
-fold: 24, 0.76
-fold: 25, 0.6923076923076923
-fold: 26, 0.6923076923076923
-fold: 27, 0.64
-fold: 28, 0.5769230769230769
-fold: 29, 0.8
-fold: 30, 0.7307692307692307
-errors: 0
-(mean = 0.696820512820513, std = 0.06967547513781153, folds = 30, errors = 0)</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia hljs">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
-pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">┌ Warning: Unseen value found in OneHotEncoder,
-│                for entry (4, 1) = 15.
-│                Patching value to 6.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/sH55F/src/basefilters.jl:106
-fold: 1, 0.6923076923076923
-fold: 2, 0.8
+pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6538461538461539
+fold: 2, 0.56
 fold: 3, 0.7307692307692307
-fold: 4, 0.8
-fold: 5, 0.7692307692307693
-fold: 6, 0.8076923076923077
+fold: 4, 0.64
+fold: 5, 0.7307692307692307
+fold: 6, 0.6538461538461539
 fold: 7, 0.6
-fold: 8, 0.5769230769230769
-fold: 9, 0.56
-fold: 10, 0.8076923076923077
-fold: 11, 0.6538461538461539
+fold: 8, 0.6153846153846154
+fold: 9, 0.68
+fold: 10, 0.7692307692307693
+fold: 11, 0.46153846153846156
 fold: 12, 0.56
 fold: 13, 0.6538461538461539
-fold: 14, 0.6
-fold: 15, 0.7692307692307693
-fold: 16, 0.7692307692307693
-fold: 17, 0.68
-fold: 18, 0.6153846153846154
-┌ Warning: Unseen value found in OneHotEncoder,
-│                for entry (8, 1) = 17.
-│                Patching value to 1.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/sH55F/src/basefilters.jl:106
-fold: 19, 0.64
-fold: 20, 0.9230769230769231
-fold: 21, 0.6538461538461539
-fold: 22, 0.64
-fold: 23, 0.5384615384615384
-fold: 24, 0.6
+fold: 14, 0.88
+fold: 15, 0.7307692307692307
+fold: 16, 0.6538461538461539
+fold: 17, 0.92
+fold: 18, 0.8076923076923077
+fold: 19, 0.56
+fold: 20, 0.5384615384615384
+fold: 21, 0.6153846153846154
+fold: 22, 0.84
+fold: 23, 0.6153846153846154
+fold: 24, 0.68
 fold: 25, 0.7307692307692307
-fold: 26, 0.6538461538461539
-fold: 27, 0.68
-fold: 28, 0.7692307692307693
-fold: 29, 0.8
+fold: 26, 0.8461538461538461
+fold: 27, 0.84
+fold: 28, 0.6923076923076923
+fold: 29, 0.68
 fold: 30, 0.5769230769230769
 errors: 0
-(mean = 0.6884102564102564, std = 0.09636929355341897, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Wednesday 7 December 2022 23:51">Wednesday 7 December 2022</span>. Using Julia version 1.8.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.6838974358974359, std = 0.11072260537526586, folds = 30, errors = 0)</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia hljs">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
+pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6923076923076923
+fold: 2, 0.76
+fold: 3, 0.7692307692307693
+fold: 4, 0.72
+fold: 5, 0.7692307692307693
+fold: 6, 0.6923076923076923
+fold: 7, 0.72
+fold: 8, 0.7692307692307693
+fold: 9, 0.76
+fold: 10, 0.7692307692307693
+fold: 11, 0.6923076923076923
+fold: 12, 0.72
+┌ Warning: Unseen value found in OneHotEncoder,
+│                for entry (5, 1) = 15.
+│                Patching value to 6.
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/sH55F/src/basefilters.jl:106
+fold: 13, 0.6153846153846154
+fold: 14, 0.68
+fold: 15, 0.6923076923076923
+fold: 16, 0.6538461538461539
+fold: 17, 0.64
+fold: 18, 0.7692307692307693
+fold: 19, 0.72
+fold: 20, 0.6153846153846154
+fold: 21, 0.7307692307692307
+fold: 22, 0.8
+fold: 23, 0.7692307692307693
+fold: 24, 0.76
+┌ Warning: Unseen value found in OneHotEncoder,
+│                for entry (6, 1) = 17.
+│                Patching value to 6.
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/sH55F/src/basefilters.jl:106
+fold: 25, 0.8076923076923077
+fold: 26, 0.6923076923076923
+fold: 27, 0.64
+fold: 28, 0.7692307692307693
+fold: 29, 0.72
+fold: 30, 0.5384615384615384
+errors: 0
+(mean = 0.714923076923077, std = 0.0623267155031871, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 28 February 2023 12:27">Tuesday 28 February 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
