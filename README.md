@@ -5,9 +5,9 @@
 |:---:|:---:|:---:|
 | [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][gha-img]][gha-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
-### Stargazers over time
+## Star History
 
-[![Stargazers over time](https://starchart.cc/IBM/AutoMLPipeline.jl.svg)](https://starchart.cc/IBM/AutoMLPipeline.jl)
+[![Star History Chart](https://api.star-history.com/svg?repos=IBM/AutoMLPipeline.jl&type=Date)](https://star-history.com/#IBM/AutoMLPipeline.jl&Date)
 
 ------------------
 **AutoMLPipeline** (AMLP) is a package 
