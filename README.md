@@ -133,7 +133,9 @@ X = profbdata[:,2:end]
 Y = profbdata[:,1] |> Vector;
 head(x)=first(x,5)
 head(profbdata)
+```
 
+```julia
 5×7 DataFrame. Omitted printing of 1 columns
 │ Row │ Home.Away │ Favorite_Points │ Underdog_Points │ Pointspread │ Favorite_Name │ Underdog_name │
 │     │ String    │ Int64           │ Int64           │ Float64     │ String        │ String        │
@@ -194,7 +196,9 @@ Note: You can get a listing of available `Preprocessors` and `Learners` by invok
 pohe = catf |> ohe
 tr = fit_transform!(pohe,X,Y)
 head(tr)
+```
 
+```julia
 5×56 DataFrame. Omitted printing of 47 columns
 │ Row │ x1      │ x2      │ x3      │ x4      │ x5      │ x6      │ x7      │ x8      │ x9      │
 │     │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │ Float64 │
@@ -213,7 +217,9 @@ head(tr)
 pdec = (numf |> pca) + (numf |> ica)
 tr = fit_transform!(pdec,X,Y)
 head(tr)
+```
 
+```julia
 5×8 DataFrame
 │ Row │ x1       │ x2       │ x3       │ x4       │ x1_1       │ x2_1       │ x3_1       │ x4_1       │
 │     │ Float64  │ Float64  │ Float64  │ Float64  │ Float64    │ Float64    │ Float64    │ Float64    │
@@ -230,7 +236,9 @@ head(tr)
 ppt = (numf |> rb |> ica) + (numf |> pt |> pca)
 tr = fit_transform!(ppt,X,Y)
 head(tr)
+```
 
+```julia
 5×8 DataFrame
 │ Row │ x1          │ x2          │ x3         │ x4        │ x1_1      │ x2_1     │ x3_1       │ x4_1      │
 │     │ Float64     │ Float64     │ Float64    │ Float64   │ Float64   │ Float64  │ Float64    │ Float64   │
@@ -253,7 +261,9 @@ pred = fit_transform!(pvote,X,Y)
 sc=score(:accuracy,pred,Y)
 println(sc)
 crossvalidate(pvote,X,Y,"accuracy_score")
+```
 
+```julia
 fold: 1, 0.5373134328358209
 fold: 2, 0.7014925373134329
 fold: 3, 0.5294117647058824
@@ -298,7 +308,9 @@ prf = (numf |> rb |> pca) + (numf |> rb |> ica) + (numf |> rb |> fa) + (catf |> 
 pred = fit_transform!(prf,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(prf,X,Y,"accuracy_score")
+```
 
+```julia
 fold: 1, 0.6119402985074627
 fold: 2, 0.7611940298507462
 fold: 3, 0.6764705882352942
@@ -318,7 +330,9 @@ plsvc = ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe
 pred = fit_transform!(plsvc,X,Y)
 score(:accuracy,pred,Y) |> println
 crossvalidate(plsvc,X,Y,"accuracy_score")
+```
 
+```julia
 fold: 1, 0.6567164179104478
 fold: 2, 0.7164179104477612
 fold: 3, 0.8235294117647058
@@ -340,7 +354,9 @@ Xreg = iris[:,1:3]
 Yreg = iris[:,4] |> Vector
 pskrfreg = (catf |> ohe) + (numf) |> skrf_reg
 res=crossvalidate(pskrfreg,Xreg,Yreg,"mean_absolute_error",10)
+```
 
+```julia
 fold: 1, 0.1827433333333334
 fold: 2, 0.18350888888888886
 fold: 3, 0.11627222222222248
@@ -383,7 +399,9 @@ for learner in [jrf,ada,sgd,tree,lsvc]
    global learners = vcat(learners,DataFrame(name=learner.name[1:end-4],mean=mean,sd=sd))
 end;
 @show learners;
+```
 
+```julia
 learners = 5×3 DataFrame
 │ Row │ name                   │ mean     │ sd        │
 │     │ String                 │ Float64  │ Float64   │
@@ -427,7 +445,9 @@ learners = @sync @distributed (vcat) for learner in [jrf,ada,sgd,tree,lsvc]
    DataFrame(name=learner.name[1:end-4],mean=mean,sd=sd)
 end
 @show learners;
+```
 
+```julia
       From worker 3:    AdaBoostClassifier
       From worker 4:    SGDClassifier
       From worker 5:    prunetree
@@ -443,7 +463,7 @@ end
       From worker 2:    fold: 2, 0.6716417910447762
       From worker 4:    fold: 3, 0.6764705882352942
       ....
-      
+
 learners = 5×3 DataFrame
 │ Row │ name                   │ mean     │ sd        │
 │     │ String                 │ Float64  │ Float64   │
@@ -463,7 +483,9 @@ best learner which is `lsvc` will be around 73.0.
 Random.seed!(1)
 pcmc = disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * tree * lsvc)
 crossvalidate(pcmc,X,Y,"accuracy_score",10)
+```
 
+```julia
 fold: 1, 0.7164179104477612
 fold: 2, 0.7910447761194029
 fold: 3, 0.6911764705882353
@@ -487,7 +509,9 @@ expr = (
              ((numf |> rb)+(catf |> ohe) |> gb) + ((numf |> rb)+(catf |> ohe) |> rf) 
        ) |> ohe |> ada;                
 crossvalidate(expr,X,Y,"accuracy_score")
+```
 
+```julia
 fold: 1, 0.6567164179104478
 fold: 2, 0.5522388059701493
 fold: 3, 0.7205882352941176
@@ -506,7 +530,9 @@ One can even include selector function as part of transformer preprocessing rout
 pjrf = disc |> ((catf |> ohe) + (numf |> std)) |> 
          ((jrf * ada ) + (sgd * tree * lsvc)) |> ohe |> ada
 crossvalidate(pjrf,X,Y,"accuracy_score")
+```
 
+```julia
 fold: 1, 0.7164179104477612
 fold: 2, 0.7164179104477612
 fold: 3, 0.7941176470588235
@@ -528,18 +554,21 @@ values that need to be hot-bit encoded before feeding to the final `ada` learner
 You can visualize the pipeline by using AbstractTrees Julia package. 
 ```julia
 # package installation 
-julia> using Pkg
-julia> Pkg.update()
-julia> Pkg.add("AbstractTrees") 
+using Pkg
+Pkg.update()
+Pkg.add("AbstractTrees") 
 
 # load the packages
-julia> using AbstractTrees
-julia> using AutoMLPipeline
+using AbstractTrees
+using AutoMLPipeline
 
-julia> expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
+expr = @pipelinex (catf |> ohe) + (numf |> pca) + (numf |> ica) |> rf
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
 
-julia> print_tree(stdout, expr)
+print_tree(stdout, expr)
+```
+
+```julia
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)), rf))
 ├─ :Pipeline
 ├─ :(ComboPipeline(Pipeline(catf, ohe), Pipeline(numf, pca), Pipeline(numf, ica)))
