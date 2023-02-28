@@ -506,7 +506,8 @@ as transformers and their outputs become inputs to the final learner as illustra
 below.
 ```julia
 expr = ( 
-             ((numf |> rb)+(catf |> ohe) |> gb) + ((numf |> rb)+(catf |> ohe) |> rf) 
+             ((numf |> rb)+(catf |> ohe) |> gb) + 
+             ((numf |> rb)+(catf |> ohe) |> rf) 
        ) |> ohe |> ada;                
 crossvalidate(expr,X,Y,"accuracy_score")
 ```
