@@ -11,3 +11,6 @@ attacks and abusive comments.
 
 # Merge Approval
 Make sure the PR has good documentation of the why/what issues are being addressed or features added.
+
+# Vulnerability Report
+For security and vulnerability issues, please send email to Paulito Palmes.
