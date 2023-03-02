@@ -2,9 +2,21 @@
 # Implementation
 # ----------------------------------
 
+# make sure local environment is activated
+using Pkg
+Pkg.activate(".")
+
 using Distributed
-nprocs() == 1 && addprocs(; exeflags = "--project")
+
+# add workers
+nprocs() ==1 && addprocs(exeflags=["--project=$(Base.active_project())"])
 workers()
+
+# disable warnings
+@everywhere import PythonCall
+@everywhere const PYC=PythonCall
+@everywhere warnings = PYC.pyimport("warnings")
+@everywhere warnings.filterwarnings("ignore")
 
 @everywhere using AutoMLPipeline
 @everywhere using DataFrames
@@ -85,7 +97,7 @@ crossvalidate(res_oneblock.Pipeline[1],X,Y)
 function evaluate_pipeline(dfpipelines,X,Y;folds=3)
    res=@distributed (vcat) for prow in eachrow(dfpipelines)
       perf = crossvalidate(prow.Pipeline,X,Y;nfolds=folds)
-      DataFrame(Description=prow.Description,mean=perf.mean,sd=perf.std)
+      DataFrame(Description=prow.Description,mean=perf.mean,sd=perf.std,Pipeline=prow.Pipeline,)
    end
    return res
 end
@@ -139,7 +151,7 @@ dfp = twoblock_pipeline_factory(vscalers,vextractors,[rbfsvc])
 @everywhere Random.seed!(10)
 bestp=evaluate_pipeline(dfp,X,Y;folds=3)
 sort!(bestp,:mean, rev = true)
-show(bestp;allrows=true,truncate=0,allcols=true)
+show(bestp;allrows=false,truncate=0,allcols=false)
 
 # create pipeline factory
 #   - create oneblock factory

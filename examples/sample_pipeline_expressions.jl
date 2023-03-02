@@ -1,13 +1,25 @@
+# activate local env
+using Pkg
+Pkg.activate(".")
+
 # load packages/modules
 using DataFrames
 using AutoMLPipeline
+using AbstractTrees
 
-# get data
+# disable warnings
+import PythonCall
+const PYC=PythonCall
+warnings = PYC.pyimport("warnings")
+warnings.filterwarnings("ignore")
+
+## get data
 profbdata = getprofb()
 X = profbdata[:,2:end];
 Y = profbdata[:,1] |> Vector;
 topdf(x)=first(x,5)
 topdf(profbdata)
+##
 
 # load filters
 #### Decomposition
@@ -45,7 +57,6 @@ best = BestLearner();
 pohe = @pipeline catf |> ohe;
 tr = fit_transform!(pohe,X,Y)
 
-
 pohe = @pipeline numf |> pca;
 tr = fit_transform!(pohe,X,Y)
 
@@ -70,4 +81,5 @@ plsvc = @pipeline ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(c
 pred = fit_transform!(plsvc,X,Y)
 crossvalidate(plsvc,X,Y)
 
-@pipelinex ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
+expressiontree = @pipelinex ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
+print_tree(expressiontree)

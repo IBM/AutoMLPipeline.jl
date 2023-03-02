@@ -3,9 +3,20 @@
 # PyCall functions are not thread-safe and cannot be used inside
 # the threads loop.
 
+# activate local env
+using Pkg
+Pkg.activate(".")
+
 using AutoMLPipeline
 using AutoMLPipeline.Utils
 using Base.Threads
+using DataFrames
+
+# disable warnings
+import PythonCall
+const PYC=PythonCall
+warnings = PYC.pyimport("warnings")
+warnings.filterwarnings("ignore")
 
 begin
   profbdata = getprofb()
@@ -37,4 +48,6 @@ learners=[rf,ada,dt]
     println(m)
   end
 end
-acc
+res = DataFrame(acc)
+sort!(res, :mean, rev=true)
+res

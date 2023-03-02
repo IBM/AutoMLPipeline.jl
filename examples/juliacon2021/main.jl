@@ -1,10 +1,23 @@
+# make sure local environment is activated
+using Pkg
+Pkg.activate(".")
+
 using Distributed
 using DataFrames
 using CSV
 using Random
 
+# add workers
+nprocs() ==1 && addprocs(exeflags=["--project=$(Base.active_project())"])
+workers()
+
+# disable warnings
+@everywhere import PythonCall
+@everywhere const PYC=PythonCall
+@everywhere warnings = PYC.pyimport("warnings")
+@everywhere warnings.filterwarnings("ignore")
+
 Random.seed!(10)
-nprocs() == 1 && addprocs(; exeflags = "--project")
 @everywhere include("twoblocks.jl")
 @everywhere using Main.TwoBlocksPipeline
 

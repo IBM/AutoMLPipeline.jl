@@ -1,16 +1,28 @@
+# activate local env
+using Pkg
+Pkg.activate(".")
+
 # load packages/modules
+using Base.Threads
+using Distributed
 using CSV
 using DataFrames
 using AutoMLPipeline
 using Random
-using Base.Threads
-using Distributed
 
-nprocs() ==1 && addprocs()
-@everywhere using AutoMLPipeline
-@everywhere using DataFrames
-
+nprocs() ==1 && addprocs(exeflags=["--project=$(Base.active_project())"])
 workers()
+
+# disable warnings
+@everywhere import PythonCall
+@everywhere const PYC=PythonCall
+@everywhere warnings = PYC.pyimport("warnings")
+@everywhere warnings.filterwarnings("ignore")
+
+
+@everywhere using DataFrames
+@everywhere using AutoMLPipeline
+
 
 # get data
 profbdata = getprofb()
