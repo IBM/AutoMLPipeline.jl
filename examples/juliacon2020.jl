@@ -45,6 +45,11 @@
 # -------------------------------
 # Sample Workflow
 # -------------------------------
+
+# make sure local environment is activated
+using Pkg
+Pkg.activate(".")
+
 # Symbolic Pipeline Composition
 # For parallel search
 using AutoMLPipeline
@@ -56,9 +61,15 @@ import Base.show
 show(df::AbstractDataFrame) = show(df,truncate=0)
 show(io::IO,df::AbstractDataFrame) = show(io,df;truncate=0)
 
-# Add workers
-nprocs() == 1 && addprocs(;  exeflags="--project");
+# add workers
+nprocs() ==1 && addprocs(exeflags=["--project=$(Base.active_project())"])
 workers()
+
+# disable warnings
+@everywhere import PythonCall
+@everywhere const PYC=PythonCall
+@everywhere warnings = PYC.pyimport("warnings")
+@everywhere warnings.filterwarnings("ignore")
 
 @sync @everywhere using AutoMLPipeline
 @sync @everywhere using DataFrames

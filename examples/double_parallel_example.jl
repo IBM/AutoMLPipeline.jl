@@ -1,3 +1,8 @@
+# make sure local environment is activated
+using Pkg
+Pkg.activate(".")
+
+
 # Symbolic Pipeline Composition
 # For parallel search
 using AutoMLPipeline
@@ -5,8 +10,14 @@ using Distributed
 using DataFrames
 
 # Add workers
-nprocs() == 1 && addprocs();
+nprocs() ==1 && addprocs(exeflags=["--project=$(Base.active_project())"])
 workers()
+
+# disable warnings
+@everywhere import PythonCall
+@everywhere const PYC=PythonCall
+@everywhere warnings = PYC.pyimport("warnings")
+@everywhere warnings.filterwarnings("ignore")
 
 @sync @everywhere using AutoMLPipeline
 @sync @everywhere using DataFrames

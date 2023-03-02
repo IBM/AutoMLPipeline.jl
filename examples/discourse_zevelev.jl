@@ -1,7 +1,25 @@
 # from discourse discussion with zevelev
+
+# make sure local environment is activated
+using Pkg
+Pkg.activate(".")
+
 using Distributed
-addprocs()
-@everywhere using AutoMLPipeline, DataFrames
+using AutoMLPipeline
+using DataFrames
+
+# add workers
+nprocs() ==1 && addprocs(exeflags=["--project=$(Base.active_project())"])
+workers()
+
+# disable warnings
+@everywhere import PythonCall
+@everywhere const PYC=PythonCall
+@everywhere warnings = PYC.pyimport("warnings")
+@everywhere warnings.filterwarnings("ignore")
+
+@everywhere using AutoMLPipeline
+@everywhere using DataFrames
 
 #Get models.
 sk= AutoMLPipeline.SKLearners.learner_dict |> keys |> collect;
@@ -17,7 +35,7 @@ Y = iris[:,end] |> Vector;
 
 # find optimal learners
 learners = @distributed (vcat) for m in m_cl 
-    learner = SKLearner(m)
+    learner = skoperator(m)
     pcmc = AutoMLPipeline.@pipeline learner
     println(learner.name)
     mean,sd,folds,err = crossvalidate(pcmc,X,Y,"accuracy_score",5)
@@ -27,6 +45,7 @@ learners = @distributed (vcat) for m in m_cl
       DataFrame()
     end
 end;
+
 sort!(learners,:mean,rev=true)
 @show learners;
 
@@ -46,4 +65,3 @@ learners = SKLearner.(["AdaBoostClassifier","BaggingClassifier","SGDClassifier",
 blearner = BestLearner(learners)
 crossvalidate(blearner,X,Y,"accuracy_score")
 fit!(blearner,X,Y)
-

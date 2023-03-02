@@ -1,6 +1,5 @@
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
-ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 AutoMLPipeline = "08437348-eef5-4817-bc1b-d4e9459680d6"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
