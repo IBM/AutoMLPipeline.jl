@@ -1,15 +1,21 @@
-### AutoMLPipeline ![Visitor](https://visitor-badge.laobi.icu/badge?page_id=ppalmes.AutoMLPipeline.jl)
+## AutoMLPipeline
 
-![Overall Stats](https://github-readme-stats.vercel.app/api?username=ppalmes&count_private=true&show_icons=true&hide=contribs)
+<div align="center"> 
+
+ ![Visitor](https://visitor-badge.laobi.icu/badge?page_id=ppalmes.AutoMLPipeline.jl)
 
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7093/badge)](https://bestpractices.coreinfrastructure.org/projects/7093)
+
+![Overall Stats](https://github-readme-stats.vercel.app/api?username=ppalmes&count_private=true&show_icons=true&hide=contribs)
 
 ------------------
 | **Documentation** | **Build Status** | **Help** |
 |:---:|:---:|:---:|
 | [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][gha-img]][gha-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
-## Star History
+</div>
+
+### Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=IBM/AutoMLPipeline.jl&type=Date)](https://star-history.com/#IBM/AutoMLPipeline.jl&Date)
 
