@@ -44,7 +44,7 @@
   elements. Having an elegant way to express these structures can help lessen
   the complexity in the management and analysis of their performances together
   with the different choices of optimization strategies. With these issues in
-  mind, we created the AMLP toolkit which facilitates the creation and
+  mind, we created the AutoMLPipeline (AMLP) toolkit which facilitates the creation and
   evaluation of complex machine learning pipeline structures using simple
   expressions.  We use AMLP to find optimal pipeline signatures, 
   datamine them, and use these datamined features to speed-up learning
@@ -117,7 +117,7 @@ as:
 
 \vskip 6pt
 
-AMLP is written in \emph{Julia} language \cite{bezanson2017julia} to leverage on the
+AMLP (AutoMLPipeline) is written in \emph{Julia} language \cite{bezanson2017julia} to leverage on the
 latter's support of modern features such as: multiple dispatch, just-in-time
 (\emph{JIT}) compilation, multi-threading, parallel and distributed computing,
 dynamic types, coroutines, interactive shell, high-performance, code specialization,
@@ -143,17 +143,10 @@ exclusively in either \emph{scikit-learn} or \emph{caret}.  Having both
 libraries available for perusal is a great productivity boost for machine
 learners in \emph{Julia}. Unfortunately, \emph{Orchestra} package has not been
 maintained for more than 6 years, but its legacy lives in the AMLP's
-design.
-
-\vskip 6pt
-
-Another popular toolkit in \emph{Julia} ML ecosystem is the
+design. Another popular toolkit in \emph{Julia} ML ecosystem is the
 \emph{MLJ}~\cite{anthony_blaom_2019_3541506} package developed at the Alan Turing
 Institute. It serves as a meta-package of ML libraries both native to \emph{Julia} as
-well as \emph{scikit-learn}. However, its pipeline model only supports a
-linear non-branching chain of transformers and learners. Also, its pipeline
-architecture does not support symbolic expression for easy to understand
-pipeline composition similar to AMLP.
+well as \emph{scikit-learn}. 
 
 \vskip 6pt
 
