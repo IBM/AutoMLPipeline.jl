@@ -29,7 +29,6 @@ x1 <- rnorm(100)
 x2 <- rnorm(200)
 # you'll find this output agrees with that of t.test when you input x1,x2
 (tt2 <- t.test2(mean(x1), mean(x2), sd(x1), sd(x2), length(x1), length(x2)))
-
 (tt2 <- t.test2(26.05, 36.54,2.77 , 3.53, 5, 5))
 
 #table 1
@@ -56,23 +55,21 @@ sd6.2 = c(0.92  , 2.49 , 3.68  , 3.80  , 6.27  , 2.07  , 0.96  , 1.47  , 4.42  ,
 
 
 
-getsf <- function(mx1,sx1,my2,sy2) {
-  for (i in 1:length(mx1)) {
-    m1 = mx1[i]
-    s1 = sx1[i]
-    m2 = my2[i]
-    s2 = sy2[i]
+getsf <- function(mx,sx,my,sy) {
+  for (i in 1:length(mx)) {
+    m1 = mx[i]
+    s1 = sx[i]
+    m2 = my[i]
+    s2 = sy[i]
     print(paste(i,t.test2(m1,m2,s1,s2)[4]))
   }
+  flush.console()
 }
 
 
+getsf(mn1,sd1,mn2,sd2)
 getsf(mn1,sd1,mn3,sd3)
-print("---")
 getsf(mn1,sd1,mn4,sd4)
-print("---")
 getsf(mn1,sd1,mn5,sd5)
-print("---")
 getsf(mn1,sd1,mn6.1,sd6.1)
-print("---")
 getsf(mn1,sd1,mn6.2,sd6.2)
