@@ -359,7 +359,9 @@ results in a 4-hour time budget  discussed in the review paper
 of \cite{zoller2019}.  The comparison involves 5 AutoML approaches, namely:
 TPOT~\cite{tpot2016}, Auto-Sklearn~\cite{Feurer:AML2019Chp6,Feurer:NIPS2015},
 ATM~\cite{atm2017}, Hyperopt-Sklearn~\cite{bergstra2011nips,bergstra2012}, and
-Random Search~\cite{anderson1953}.  Among these approaches, TPOT and ATM have
+Random Search~\cite{anderson1953}.  The best results among the 5 AutoML approaches
+from each dataset  will be used as the baseline comparison in the results and discussion 
+of the succeeding section of the paper. Among these 5 approaches, TPOT and ATM have
 dominated the rankings in terms of best performance based on the
 CV classification errors on the 12 datasets as shown in the last two columns.
 
@@ -427,13 +429,27 @@ features (\texttt{numf}).
 
 \input{oneblock-all-all}
 
-Table \ref{tab:singleblock} summarizes the performance of \emph{all-all}
-strategy. The metric of performance is based on the average classification
+Table~\ref{tab:singleblock} summarizes the performance of \emph{all-all}
+strategy. The rank represents the relative performance of the proposed algo
+relative to the baseline performance of the best algorithm in Table~\ref{tab:openmldata}.
+The sign of $=$, $<$, and $>$ indicate whether the rank performance is significantly different
+from the baseline at $\alpha=0.05$ level of significance by t-test. 
+For example, rank $1, =$ indicates that the proposed algo is as good as
+the baseline in Table~\ref{tab:openmldata}. To differentiate the rank where the baseline
+or the proposed algorithm is significantly inferior or superior, the $<$ and $>$ are used, 
+respectively. For example,  among the datasets, the proposed algo in Table~\ref{tab:singleblock}
+is significantly superior to the baseline algos in \emph{first-order-theo}, \emph{profb}, and \emph{plants-shape}
+but significantly inferior in \emph{sick} and \emph{soybean} datasets. The best algos in the baseline
+has similar performance with the \emph{all-all} strategy in the rest of the datasets.
+
+\vskip 6pt
+
+The metric of performance is based on the average classification
 error (\emph{AvgErr}) using 10-fold CV. The ranking is based on its
-\emph{AvgErr} performance in comparison to the 5 AutoML approaches~\cite{zoller2019} summarized in Table~\ref{tab:openmldata}.
-The \emph{all-all} median overall rank is 1.5 using one-block pipeline.
-Its median runtime to
-perform one-block exhaustive search is 0.23 hour or 13.8 minutes per dataset.
+\emph{AvgErr} performance in comparison to the 
+5 AutoML approaches~\cite{zoller2019} summarized in Table~\ref{tab:openmldata}.
+The \emph{all-all} median overall rank is 1 using one-block pipeline.
+Its median runtime to perform one-block exhaustive search is 0.23 hour or 13.8 minutes per dataset.
 This result is encouraging because the median runtime is significantly less
 compared to the 5 AutoML algorithms with a 4-hour budget.  Closely examining 
 the runtime of each dataset, \emph{plants-shape} dataset
@@ -462,8 +478,11 @@ strategy.
 
 \input{complexity-surrogate}
 
+\vskip 6pt
+
 Tables \ref{tab:oneblock-skrf} and \ref{tab:all-one-single} show the
-performance of \emph{one-all} and \emph{all-one} strategies, respectively, for one-block MLPL. Their ranking is based on their performances against the 5 AutoML algorithms.
+performance of \emph{one-all} and \emph{all-one} strategies, 
+respectively, for one-block MLPL. Their ranking is based on their performances against the 5 AutoML algorithms.
 Table \ref{tab:oneblock-skrf} summarizes the performance of \emph{one-all}
 using the \texttt{RandomForest} surrogate.
 All other learners tested as surrogate have similar 2.0 to
@@ -477,17 +496,19 @@ with the numerical features~(\texttt{numf}) and transformed by robust scaling~(\
 \vskip 6pt
 
 Comparing Tables \ref{tab:singleblock}, \ref{tab:oneblock-skrf} and \ref{tab:all-one-single}, 
-the \emph{all-one} strategy median rank of 1.5 is
-similar to \emph{all-all} and significantly better than
-the 2.5 median of \emph{one-all}. The \emph{all-one}
-median validation error of 27.75
-$\pm$ 3.69 is also slightly better than \emph{all-all} (27.92$\pm$ 2.54).
-While both have similar validation errors, the biggest advantage of
-\emph{all-one} is its speed which is significantly faster than \emph{all-all}.
+the \emph{all-one} strategy median rank of 1 is
+similar to \emph{all-all} and \emph{one-all} but the \emph{all-one}
+median validation error of 27.75 $\pm$ 3.69 is better than \emph{all-all} and \emph{one-all}.
+The biggest advantage of \emph{all-one}
+is its speed which is significantly faster to both \emph{all-all} and \emph{one-all}.
 Its median time duration for all 12 datasets is just 0.05
 hour (3 minutes) compared to the runtime median of 0.23 hour (13.8 minutes)
-for \emph{all-all}. Furthermore, the dataset with worst runtime is the
-\emph{analcadata-dmf} which requires 0.35 hour or 21 minutes.  This worst
+for \emph{all-all} and 0.11 hour (6 minutes) for \emph{one-all}. 
+
+\vskip 6pt
+
+Furthermore, the dataset with worst runtime in \emph{all-one} is the
+\emph{jm1} which requires 0.45 hour or 27 minutes.  This worst
 runtime is still significantly less than the 4-hour budget allotted to the 5
 AutoML algorithms. It is interesting to note that most solutions in
 \emph{all-one} do not employ any feature extraction but only scaling. We
@@ -498,10 +519,13 @@ of the one-block MLPL.
 \vskip 6pt
 
 Inspired by these promising results, the next experiment applies the
-\emph{all-one} strategy to two-block MLPL with the results summarized in Table
-\ref{tab:twoblocks-all-one}. The \emph{all-one} strategy achieves a 1.0 median
-rank which suggests that its performance is at least as good or better than the
-best results of the 5 AutoML algorithms with respect to the 12 datasets.
+\emph{all-one} strategy to two-block MLPL with the results summarized in Table~\ref{tab:twoblocks-all-one}. 
+The \emph{all-one} strategy achieves a 1 median rank similar to one-block \emph{all-one} 
+but the two-block pipeline has much lower cross-validation error compared to one-block pipeline (25.37 vs 27.75).
+Similar to one-block \emph{all-one}, the two-block is significantly superior to the 
+baseline algos in \emph{first-order-theo}, \emph{profb}, and \emph{plants-shape}
+but significantly inferior in \emph{sick} and \emph{soybean} datasets. The best algos in the baseline
+has similar performance with the \emph{all-one} strategy in the rest of the datasets.
 While the runtime median of \emph{all-one} is
 2.62 hours, 3 datasets require more than 4 hours to finish.  
 In the future, it will be interesting to incorporate the time budget into the 
@@ -552,7 +576,7 @@ PRP and LR surrogates to find out their effect in prediction error
 and computation time. While there is a 5\% increase in error by
 using PRP-surrogate, the median computation time went down from 2.28
 hours to just 4.2 minutes. In spite of the 5\% drop in accuracy,
-PRP-surrogate median rank of 1.0 still indicates superior performance
+PRP-surrogate median rank of 1 still indicates superior performance
 relative to other AutoML approaches.
 
 \vskip 6pt
@@ -571,7 +595,7 @@ application domains.
 
 \vskip 6pt
 
-Among the datasets, the two-stage strategies have consistent low performance in
+Among the datasets, the one- and two-stage strategies have consistent low performance in
 both \emph{sick} and \emph{soybean} problems.  Both datasets are characterized
 by large number of missing values compared to the rest of the datasets.
 There are 6064 \emph{NA}s in \emph{sick} and 2337 \emph{NA}s in
