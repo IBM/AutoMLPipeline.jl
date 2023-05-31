@@ -1,0 +1,7 @@
+[deps]
+scikit-learn = ""
+pandas = ""
+numpy = ""
+
+[pip.deps]
+d3rlpy = ""

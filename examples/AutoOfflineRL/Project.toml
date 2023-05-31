@@ -1,0 +1,25 @@
+name = "AutoOfflineRL"
+uuid = "4680bba7-2b59-4a6e-a544-0ebac8b8cdd3"
+authors = ["Paulito Palmes, PhD <ppalmes@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+AMLPipelineBase = "e3c3008a-8869-4d53-9f34-c96f99c8a2b6"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+MicroMamba = "0b3b1443-0f03-428d-bdfb-f27f9c1191ea"
+Parquet = "626c502c-15b0-58ad-a749-f091afb673ae"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
