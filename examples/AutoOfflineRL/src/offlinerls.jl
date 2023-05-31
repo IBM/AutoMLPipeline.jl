@@ -1,7 +1,9 @@
 module OfflineRLs
 
+using AutoOfflineRL
+using Parquet
 using Distributed
-using DataFrames
+using DataFrames: DataFrame, dropmissing
 using Random
 using CSV
 using Dates
@@ -146,7 +148,7 @@ function checkheaders(agent::DiscreteRLOffline, df)
    for header in vcat(o_header, a_header, r_header)]
 end
 
-function fit!(agent::DiscreteRLOffline, df::AbstractDataFrame, v::Vector=[]; runtime_args...)::Nothing
+function fit!(agent::DiscreteRLOffline, df::DataFrame, v::Vector=[]; runtime_args...)::Nothing
   # check if headers exist
   checkheaders(agent::DiscreteRLOffline, df)
   # create mdp data
@@ -195,8 +197,8 @@ end
 function driver()
   #dataset = ENV["HOME"]*"/phome/ibmgithub/ZOS/data/processed_batch.csv"
   path = pkgdir(AutoOfflineRL)
-  dataset = "$path/data/smalldata.csv"
-  df = CSV.read(dataset, DataFrame)
+  dataset = "$path/data/smalldata.parquet"
+  df = Parquet.read_parquet(dataset) |> DataFrame |> dropmissing
   #for agentid in reverse([keys(rl_dict)...])
   #  println(agentid)
   #  if agentid != "DiscreteRandomPolicy"
@@ -208,7 +210,7 @@ function driver()
   agent = DiscreteRLOffline("DoubleDQN"; tag="sac")
   header = agent.model[:o_header]
   fit!(agent,df; n_epochs=1)
-  transform(agent,df[1:1,:])
+  transform!(agent,df[1:20,:])
   #vec = df[1,header] |> Vector
   #transform(agent,vec)
   #m = DiscreteRLOffline()
