@@ -17,7 +17,7 @@ const PYC = PythonCall
 
 using ..Utils: nested_dict_merge
 
-export DiscreteRLOffline, fit!, transform!
+export DiscreteRLOffline, fit!, transform!, fit, transform
 export listdiscreateagents, driver
 
 const rl_dict = Dict{String, PYC.Py}()
@@ -54,16 +54,18 @@ mutable struct DiscreteRLOffline <: Learner
         :tag          => "RLOffline",
         :rlagent      => "DQN",
         :iterations   => 100,
-        :epochs       => 10000,
         :save_metrics => false,
         :rlobjtrained => PYC.PyNULL,
         :o_header     => ["day", "hour", "minute", "dow", "metric1", "metric2", "metric3", "metric4"],
         :a_header     => ["action"],
         :r_header     => ["reward"],
-        :save_model   => true,
+        :save_model   => false,
+        :runtime_args => Dict{Symbol, Any}(
+            :n_epochs => 5,
+        ),
         :impl_args    => Dict{Symbol,Any}(
             :scaler  => "min_max",
-            :use_gpu => false
+            :use_gpu => false,
         )
      )
      cargs = nested_dict_merge(default_args,args)
@@ -109,13 +111,10 @@ function discreteagents()
   println("use: listdiscreateagents() to get the available RL agents")
 end
 
-function createmdpdata!(agent::DiscreteRLOffline, df::DataFrame)
-  o_header    = agent.model[:o_header]  
-  a_header    = agent.model[:a_header]
-  r_header    = agent.model[:r_header]
-  _observations = df[:, o_header] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
-  _actions      = df[:, a_header] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
-  _rewards      = df[:, r_header] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
+function createmdpdata!(agent::DiscreteRLOffline, df::DataFrame, action_reward::Vector)
+  _observations = df |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
+  _actions      = action_reward[1] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
+  _rewards      = action_reward[2] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
   ## inject end of data by terminal column
   nrow, _         = size(df)
   _terminals      = zeros(Int, nrow)
@@ -133,9 +132,6 @@ function createmdpdata!(agent::DiscreteRLOffline, df::DataFrame)
   agent.model[:np_observations] = _observations
   agent.model[:np_actions]      = _actions
   agent.model[:np_rewards]      = _rewards
-  agent.model[:o_header]        = o_header
-  agent.model[:a_header]        = a_header
-  agent.model[:r_header]        = r_header
   return mdp_dataset
 end
 
@@ -148,13 +144,14 @@ function checkheaders(agent::DiscreteRLOffline, df)
    for header in vcat(o_header, a_header, r_header)]
 end
 
-function fit!(agent::DiscreteRLOffline, df::DataFrame, v::Vector=[]; runtime_args...)::Nothing
+function fit!(agent::DiscreteRLOffline, df::DataFrame, action_reward::Vector)::Nothing
   # check if headers exist
-  checkheaders(agent::DiscreteRLOffline, df)
+  #checkheaders(agent::DiscreteRLOffline, df)
   # create mdp data
   nrow, ncol  = size(df)
-  mdp_dataset = createmdpdata!(agent, df)
+  mdp_dataset = createmdpdata!(agent, df,action_reward)
   ## prepare algorithm
+  runtime_args = agent.model[:runtime_args]
   logging    = agent.model[:save_metrics]
   impl_args  = copy(agent.model[:impl_args])
   rlagent    = agent.model[:rlagent]
@@ -181,8 +178,8 @@ end
 
 function transform!(agent::DiscreteRLOffline,df::DataFrame=DataFrame())::Vector
   pyrlobj  = agent.model[:rlobjtrained]
-  o_header = agent.model[:o_header]
-  observations = df[:, o_header] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
+  #o_header = agent.model[:o_header]
+  observations = df |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
   res = map(observations) do obs
      action   = pyrlobj.predict(obs) 
      value    = pyrlobj.predict_value([obs],action) 
@@ -202,14 +199,14 @@ function driver()
   #for agentid in reverse([keys(rl_dict)...])
   #  println(agentid)
   #  if agentid != "DiscreteRandomPolicy"
-  #    agent = DiscreteRLOffline(agentid,Dict(:iterations=>1,:epochs=>10000))
+  #    agent = DiscreteRLOffline(agentid)
   #    fit!(agent,df)
   #  end
   #end
   #discreteagents()
   agent = DiscreteRLOffline("DoubleDQN"; tag="sac")
   header = agent.model[:o_header]
-  fit!(agent,df; n_epochs=1)
+  fit!(agent,df)
   transform!(agent,df[1:20,:])
   #vec = df[1,header] |> Vector
   #transform(agent,vec)
