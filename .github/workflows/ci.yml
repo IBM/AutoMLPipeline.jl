@@ -39,7 +39,7 @@ jobs:
         #- name: Install dependencies
         #  run: |
         #    python -m pip install --upgrade pip
-        #    pip install numpy scipy scikitlearn
+        #    pip install numpy scipy scikit-learn
 
       # Julia Tasks
       - uses: julia-actions/setup-julia@v1
@@ -89,7 +89,7 @@ jobs:
         run: |
           sudo apt-get update
           python -m pip install --upgrade pip
-          pip install numpy scipy scikitlearn
+          pip install numpy scipy scikit-learn
        
       - uses: julia-actions/setup-julia@v1
         with:
