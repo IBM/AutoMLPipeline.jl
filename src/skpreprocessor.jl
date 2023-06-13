@@ -159,9 +159,9 @@ end
 function fit!(skp::SKPreprocessor, x::DataFrame, yc::Vector=[])::Nothing
    features = x |> Array
    y = yc
-   if !(eltype(yc) <: Real)
-      y = yc |> Vector{String}
-   end
+   #if !(eltype(yc) <: Real)
+   #   y = yc |> Vector{String}
+   #end
 
    impl_args = copy(skp.model[:impl_args])
    autocomp = skp.model[:autocomponent]
