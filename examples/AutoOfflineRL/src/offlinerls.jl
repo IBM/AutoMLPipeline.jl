@@ -69,8 +69,8 @@ mutable struct DiscreteRLOffline <: Learner
         )
      )
      cargs = nested_dict_merge(default_args,args)
-     datestring = Dates.format(now(), "yyyy-mm-dd-HH-MM")
-     cargs[:name] = cargs[:name]*"_"*datestring
+     #datestring = Dates.format(now(), "yyyy-mm-dd-HH-MM")
+     cargs[:name] = cargs[:name]*"_"*randstring(3)
      rlagent = cargs[:rlagent]
      if !(rlagent in keys(rl_dict)) 
        println("error: $rlagent is not supported.")
