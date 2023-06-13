@@ -2,10 +2,6 @@ using AutoOfflineRL
 using AutoMLPipeline
 using Parquet
 using DataFrames
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 # load preprocessing elements
 #### Scaler
 rb = SKPreprocessor("RobustScaler");
@@ -38,24 +34,15 @@ reward = df[:,["reward"]] |> deepcopy |> DataFrame
 action = df[:,["action"]] |> deepcopy |> DataFrame
 action_reward = DataFrame[action, reward]
 
-rlagent = DiscreteRLOffline(Dict(:name=>"NFQ",:rlagent=>"NFQ",
-    :runtime_args=>Dict(:n_epochs=>10)))
-
-
-pipeline = (numf |> ica ) + (numf |> pca) |> rlagent
-
-fit_transform!(pipeline,df)
-
-p = @pipeline ((numf |> ica ) + (numf |> pca)) |> rlagent 
-
-dfnew=fit_transform(p,df_input)
-
-|> rlagent
-pipeline = rlagent
-
-fit!(p,df_input,action_reward)
+rlagent = DiscreteRLOffline("DiscreteSAC",Dict(
+    :runtime_args=>Dict(:n_epochs=>1)))
+p = ((numf |> ica ) + (numf |> pca)) |> rlagent 
+res = fit_transform!(p,df_input,action_reward)
+[x.value[1] for x in res] |> sum
 
 AutoOfflineRL.transform!(pipeline,df_input)
+
+
 
 
 
