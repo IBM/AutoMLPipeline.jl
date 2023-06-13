@@ -1,28 +1,34 @@
-using AutoOfflineRL
-using AutoMLPipeline
-using Parquet
-using DataFrames
-# load preprocessing elements
-#### Scaler
-rb = SKPreprocessor("RobustScaler");
-pt = SKPreprocessor("PowerTransformer");
-norm = SKPreprocessor("Normalizer");
-mx = SKPreprocessor("MinMaxScaler");
-std = SKPreprocessor("StandardScaler")
-disc = CatNumDiscriminator();
-#### categorical preprocessing
-ohe = OneHotEncoder();
-#### Column selector
-catf = CatFeatureSelector();
-numf = NumFeatureSelector();
-# load filters
-#### Decomposition
-apca = SKPreprocessor("PCA",Dict(:autocomponent=>true));
-pca = SKPreprocessor("PCA");
-afa = SKPreprocessor("FactorAnalysis",Dict(:autocomponent=>true));
-fa = SKPreprocessor("FactorAnalysis");
-aica = SKPreprocessor("FastICA",Dict(:autocomponent=>true));
-ica = SKPreprocessor("FastICA");
+using Distributed
+
+nprocs() == 1 && addprocs() 
+
+@everywhere begin
+   using AutoOfflineRL
+   using AutoMLPipeline
+   using Parquet
+   using DataFrames
+end
+@everywhere begin
+   # load preprocessing elements
+   #### Scaler
+   rb = SKPreprocessor("RobustScaler");
+   pt = SKPreprocessor("PowerTransformer");
+   norm = SKPreprocessor("Normalizer");
+   mx = SKPreprocessor("MinMaxScaler");
+   std = SKPreprocessor("StandardScaler")
+   ##### Column selector
+   catf = CatFeatureSelector();
+   numf = NumFeatureSelector();
+   ## load filters
+   ##### Decomposition
+   apca = SKPreprocessor("PCA",Dict(:autocomponent=>true));
+   pca = SKPreprocessor("PCA");
+   afa = SKPreprocessor("FactorAnalysis",Dict(:autocomponent=>true));
+   fa = SKPreprocessor("FactorAnalysis");
+   aica = SKPreprocessor("FastICA",Dict(:autocomponent=>true));
+   ica = SKPreprocessor("FastICA");
+   noop = Identity(Dict(:name => "Noop"));
+end
 
 # load dataset
 path = pkgdir(AutoOfflineRL)
@@ -34,16 +40,36 @@ reward = df[:,["reward"]] |> deepcopy |> DataFrame
 action = df[:,["action"]] |> deepcopy |> DataFrame
 action_reward = DataFrame[action, reward]
 
-rlagent = DiscreteRLOffline("DiscreteSAC",Dict(
-    :runtime_args=>Dict(:n_epochs=>1)))
-p = ((numf |> ica ) + (numf |> pca)) |> rlagent 
-res = fit_transform!(p,df_input,action_reward)
-[x.value[1] for x in res] |> sum
+agentnames = ["DiscreteCQL","NFQ","DoubleDQN","DiscreteSAC","DiscreteBCQ","DiscreteBC","DQN"]
+scalers =  [rb,pt,norm,std,mx,noop]
+extractors = [pca,ica,fa,noop];
+dfresults = @sync @distributed (vcat) for agentname in agentnames
+   @distributed (vcat) for sc in scalers
+      @distributed (vcat) for xt  in extractors
+         try
+            rlagent = DiscreteRLOffline(agentname,Dict(:runtime_args=>Dict(:n_epochs=>1)))
+            rlpipeline = ((numf |> sc |> xt)) |> rlagent 
+            res = fit_transform!(rlpipeline,df_input,action_reward)
+            s = [x.value[1] for x in res] |> sum
+            scn   = sc.name[1:end - 4]; xtn = xt.name[1:end - 4]; lrn = rlagent.name[1:end - 4]
+            pname = "$scn |> $xtn |> $lrn"
+            if !isnan(s)
+               DataFrame(pipeline=pname,perf=s)
+            else
+               DataFrame()
+            end
+         catch e
+            println("error in $agentname")
+            #DataFrame(agent=agentname,scaler=sc,xtractor=xt,perf=NaN)
+            DataFrame()
+         end
+      end
+   end
+end
+sort!(dfresults,:perf,rev=true)
+show(dfresults,allcols=true,allrows=true,truncate=0)
 
-AutoOfflineRL.transform!(pipeline,df_input)
 
-
-
-
-
-a=fit_transform!(pipeline,df)
+todo:
+run parallel search
+evaluation
