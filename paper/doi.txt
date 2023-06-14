@@ -1,0 +1,316 @@
+MISSING DOIs
+
+- 10.1007/978-3-030-44584-3_28 may be a valid DOI for title: AVATAR - Machine Learning Pipeline Evaluation Using Surrogate Model
+- 10.1080/01621459.1953.10501200 may be a valid DOI for title: Recent Advances in Finding Best Operating Conditions
+- 10.1109/bigdata.2017.8257923 may be a valid DOI for title: ATM: A distributed, collaborative, scalable system for automated machine learning
+- 10.24963/ijcai.2017/613 may be a valid DOI for title: Generating context-free grammars using classical planning
+- 10.1007/s10994-017-5629-5 may be a valid DOI for title: Instance spaces for machine learning classification
+- 10.1007/978-1-4899-7687-1_100391 may be a valid DOI for title: Random Decision Forests
+- 10.1109/ijcnn.2015.7280767 may be a valid DOI for title: Design of the 2015 Chalearn AutoML challenge
+- 10.1609/aaai.v34i04.5926 may be a valid DOI for title: An ADMM Based Framework for AutoML Pipeline Configuration
+- 10.24963/ijcai.2019/457 may be a valid DOI for title: Automated Machine Learning with Monte-Carlo Tree Search
+- 10.1007/978-3-642-25566-3_40 may be a valid DOI for title: Sequential model-based optimization for general algorithm configuration
+- 10.1145/2908812.2908918 may be a valid DOI for title: Evaluation of a Tree-based Pipeline Optimization Tool for Automating Data Science
+- 10.1007/978-3-319-55696-3_16 may be a valid DOI for title: RECIPE: A Grammar-Based Framework for Automatically Evolving Classification Pipelines
+- 10.1007/978-3-642-40627-0_38 may be a valid DOI for title: Multi-objective constraint optimization with tradeoffs
+- 10.1007/s10994-018-5735-z may be a valid DOI for title: ML-Plan: Automated machine learning via hierarchical planning
+- 10.1016/0004-3702(95)00090-9 may be a valid DOI for title: Qualitative Probabilities for Default Reasoning, Belief Revision, and Causal Modeling
+- 10.1007/978-3-540-44792-4_20 may be a valid DOI for title: Axioms for Probability and Belief Function Propagation
+- 10.1007/978-3-540-44792-4_20 may be a valid DOI for title: Axioms for probability and belief-function proagation
+- 10.1016/s0377-2217(99)00055-7 may be a valid DOI for title: Valuation network representation and solution of asymmetric decision problems
+- 10.1007/s11238-007-9044-4 may be a valid DOI for title: Great Expectations. Part I: On the Customizability of Generalized Expected Utility
+- 10.1007/s10601-010-9094-z may be a valid DOI for title: Enabling Local Computation for Partially Ordered Preferences
+- 10.1016/j.artint.2010.11.017 may be a valid DOI for title: Sequential decision making with partially ordered preferences
+- 10.1109/tsmca.2003.822967 may be a valid DOI for title: Influence Diagrams With Multiple Objectives and Tradeoff Analysis
+- 10.1016/j.ejor.2006.03.021 may be a valid DOI for title: Influence diagrams with super value nodes involving imprecise information
+- 10.1109/dasc.2009.64 may be a valid DOI for title: Influence Diagram Model with Interval-Valued Utilities
+- 10.7494/dmms.2007.1.2.153 may be a valid DOI for title: Advances in cone-based preference modeling for decision making with multiple criteria
+- 10.1007/978-1-4615-8768-2_1 may be a valid DOI for title: Cone convexity, cone extreme points, and nondominated solutions in decision problems with multiobjectives
+- 10.1613/jair.575 may be a valid DOI for title: Decision theoretic planning: Structural assumptions and computational leverage
+- 10.1016/j.ejor.2006.03.021 may be a valid DOI for title: Influence diagrams with super value nodes involving imprecise information
+- 10.1016/j.artint.2010.11.020 may be a valid DOI for title: Decision making with multiple objectives using GAI networks
+- 10.1016/j.artint.2010.11.017 may be a valid DOI for title: Sequential decision making with partially ordered preferences
+- 10.1016/j.artint.2007.11.008 may be a valid DOI for title: Complexity results and algorithms for possibilistic influence diagrams
+- 10.1007/978-1-4020-5474-7_1 may be a valid DOI for title: Ordinal conditional functions: a dynamic theory of epistemic states
+- 10.1287/lytx.2013.01.05 may be a valid DOI for title: Decision analysis
+- 10.1016/b978-1-55860-332-5.50024-9 may be a valid DOI for title: On the relation between kappa calculus and probabilistic reasoning
+- 10.1007/s00224-007-9096-4 may be a valid DOI for title: Multiobjective optimization: improved fptas for shortest paths and non-linear objectives with applications
+- 10.1287/mnsc.48.12.1603.445 may be a valid DOI for title: Approximating multiobjective knapsack problems
+- 10.1007/978-3-540-75520-3_63 may be a valid DOI for title: A practical efficient fptas for the 0-1 multiobjective knapsack problem
+- 10.1109/sfcs.2000.892068 may be a valid DOI for title: On the approximability of trade-offs and optimal access to web sources
+- 10.1145/358172.358406 may be a valid DOI for title: Optimal paths in graphs with stochastic or multidimensional weights
+- 10.1016/j.artint.2009.07.003 may be a valid DOI for title: AND/OR Branch-and-Bound Search for Combinatorial Optimization in Graphical Models
+- 10.1016/j.artint.2009.07.004 may be a valid DOI for title: Memory intensive AND/OR search for combinatorial optimization in graphical models
+- 10.1016/0377-2217(92)90318-4 may be a valid DOI for title: Multiobjective, preference-based search in acyclic OR-graphs
+- 10.1007/978-3-642-04244-7_47 may be a valid DOI for title: Exploiting problem decomposition in multi-objective constraint optimization
+- 10.1007/978-3-642-56680-6_22 may be a valid DOI for title: Bounds and bound sets for biobjective combinatorial optimization problems
+- 10.1007/3-540-45578-7_28 may be a valid DOI for title: Formal models of heavy-tailed behavior in combinatorial search
+- 10.1007/978-3-030-68514-0_2 may be a valid DOI for title: Algorithm Portfolios
+- 10.1007/3-540-55121-2_1 may be a valid DOI for title: Approximating Treewidth, Pathwidth and minimum elimination tree-height
+- 10.1109/sffcs.1999.814612 may be a valid DOI for title: A probabilistic algorithm for k-SAT and constraint satisfaction problems
+- 10.1016/b978-1-4832-1452-8.50130-5 may be a valid DOI for title: Easy to be Hard: Difficult Problems for Greedy Algorithms
+- 10.4324/9781315224169-31 may be a valid DOI for title: Every planar map is four colorable
+- 10.1016/s0004-3702(99)00012-0 may be a valid DOI for title: Constraint satisfaction over connected row-convex constraints
+- 10.1016/s0004-3702(99)00048-x may be a valid DOI for title: Towards a characterization of the behaviour of stochastic local search algorithms for sat
+- 10.1016/0305-0548(86)90048-1 may be a valid DOI for title: Future paths for integer programming and links to artificial intelligence
+- 10.1287/opre.39.3.378 may be a valid DOI for title: Optimization by simulated annealing: an experimental evaluation; part II, graph coloring and number partitioning
+- 10.1109/sfcs.1991.185365 may be a valid DOI for title: On Selecting a Satisfying Truth Assignment
+- 10.1002/j.1538-7305.1965.tb04146.x may be a valid DOI for title: Computer Solutions of the Traveling Salesman Problem
+- 10.1017/cbo9780511811357.005 may be a valid DOI for title: Bayesian Networks
+- 10.1007/978-1-4615-3190-6_3 may be a valid DOI for title: Symbolic Model Checking
+- 10.1007/3-540-58179-0_42 may be a valid DOI for title: Hierarchical representation of discrete functions with application to model checking
+- 10.1016/s0004-3702(02)00400-9 may be a valid DOI for title: Hybrid backtracking bounded by tree-decomposition of constraint networks
+- 10.1007/978-3-540-45193-8_48 may be a valid DOI for title: Bounded backtracking for the valued constraint satisfaction problems
+- 10.1007/3-540-60299-2_6 may be a valid DOI for title: Asynchronous weak commitment search for solving distributed constraint satisfaction problems
+- 10.1145/304181.304199 may be a valid DOI for title: Approximate computation of multidimensional aggregates of sparse data using wavelets
+- 10.1016/0895-7177(94)90127-9 may be a valid DOI for title: Introducing global constraints in CHIP
+- 10.1016/s0004-3702(00)00078-3 may be a valid DOI for title: A comparison of structural CSP decomposition methods
+- 10.1016/s0004-3702(00)00078-3 may be a valid DOI for title: A comparison of structural CSP decomposition methods
+- 10.1007/bf00993063 may be a valid DOI for title: Machine discovery of effective admissible heuristics
+- 10.1016/0020-0255(92)90070-o may be a valid DOI for title: Criticizing Solutions To relaxed models yields powerful admissible heuristics
+- 10.1049/el:19961141 may be a valid DOI for title: Near Shannon Limit Performance of Low Density Parity Check Codes
+- 10.1016/0004-3702(94)90041-8 may be a valid DOI for title: Arc-consistency and arc-consistency again
+- 10.1016/s0004-3702(98)00108-8 may be a valid DOI for title: Maintaining reversible DAC for Max-CSP
+- 10.1007/3-540-45349-0_23 may be a valid DOI for title: Faster algorithms for bounds-consistency of the sortedness and the alldifferent constraint
+- 10.1007/3-540-45578-7_24 may be a valid DOI for title: A general scheme for multiple lower bound computation in constraint optimization
+- 10.1007/3-540-45349-0_22 may be a valid DOI for title: Boosting search with variable-elimination
+- 10.1007/3-540-45349-0_22 may be a valid DOI for title: Boosting search with variable-elimination
+- 10.1007/3-540-45349-0_25 may be a valid DOI for title: A hybrid search architecture applied to hard random 3-SAT and low autocorrelation binary sequences
+- 10.1007/3-540-45349-0_20 may be a valid DOI for title: New Search Heuristics for Max-CSP
+- 10.1016/0004-3702(92)90106-8 may be a valid DOI for title: Effective solution of qualitative interval constraint problrms
+- 10.1016/0004-3702(95)00118-2 may be a valid DOI for title: Local conditioning in Bayesian networks
+- 10.1016/0004-3702(86)90083-4 may be a valid DOI for title: Arc and Path Consistency Revisited
+- 10.1016/0004-3702(92)90020-x may be a valid DOI for title: A generic arc-consistency algorithm and its specialization
+- 10.1016/s0019-9958(78)90197-3 may be a valid DOI for title: Branch-and-Bound procedure and state-space representation of combinatorial optmization problems
+- 10.1007/bf00998631 may be a valid DOI for title: Theoretical comparisons of search strategies in Branch-and-Bound algorithms
+- 10.1145/76359.76360 may be a valid DOI for title: Using temporal hierarchies to efficiently maintain large temporal databases
+- 10.1613/jair.7 may be a valid DOI for title: An empirical analysis of search in GSAT
+- 10.1613/jair.575 may be a valid DOI for title: Decision-Theoretic Planning: Structural Assumptions and Computational Leverag
+- 10.1109/dac.1999.781333 may be a valid DOI for title: Symbolic model checking using SAT procedures instead of BDDs
+- 10.1016/b978-1-55860-332-5.50066-3 may be a valid DOI for title: Knowledge engineering for large belief networks
+- 10.1016/s0004-3702(00)00069-2 may be a valid DOI for title: Recursive Conditioning
+- 10.1006/jctb.1995.1006 may be a valid DOI for title: Graph minor. XIII. The disjoint paths problem
+- 10.1016/0004-3702(94)00092-1 may be a valid DOI for title: On the hardness of approximate reasoning
+- 10.1016/b978-0-08-051581-6.50057-x may be a valid DOI for title: Stochastic relaxations, Gibbs distributions and the Bayesian restoration of images
+- 10.1109/12.769433 may be a valid DOI for title: GRASP: A search algorithm for propositional satisfiability
+- 10.1093/oso/9780198537922.003.0012 may be a valid DOI for title: Constraint logic programming: A survey
+- 10.1111/j.2517-6161.1988.tb01721.x may be a valid DOI for title: Local computation with probabilities on graphical structures and their application to expert systems
+- 10.1145/322290.322292 may be a valid DOI for title: A Sufficient Condition for Backtrack-Free Search
+- 10.1159/000154358 may be a valid DOI for title: Faster linkage analysis computations for pedigrees with loops or unused alleles
+- 10.2307/1426718 may be a valid DOI for title: Probability functions on complex pedigrees
+- 10.1007/springerreference_5658 may be a valid DOI for title: Influence diagrams
+- 10.1109/21.52548 may be a valid DOI for title: Dynamic programming and influence diagrams
+- 10.1016/b978-1-55860-332-5.50051-1 may be a valid DOI for title: From influence diagrams to junction trees
+- 10.1016/b978-1-55860-332-5.50070-5 may be a valid DOI for title: Global conditioning for probabilistic inference in belief networks
+- 10.1016/b978-1-55860-332-5.50041-9 may be a valid DOI for title: A new look at causal independence
+- 10.1007/3-540-63104-6_28 may be a valid DOI for title: Sato: An efficient propositional prover
+- 10.1111/j.1467-8640.1995.tb00046.x may be a valid DOI for title: A new method for influence diagram evaluation
+- 10.1007/978-1-4612-2270-5_3 may be a valid DOI for title: Probabilistic expert systems
+- 10.1016/s0004-3702(98)00047-2 may be a valid DOI for title: Some improvements to the Shenoy-Shafer and Hugin architecture for computing marginals
+- 10.1007/978-3-540-44792-4_20 may be a valid DOI for title: Axioms for probability and belief-function propagation
+- 10.1287/opre.40.3.463 may be a valid DOI for title: Valuation-based systems for Bayesian decision analysis
+- 10.1145/256303.256306 may be a valid DOI for title: Semiring-based Constraint Satisfaction and Optimization
+- 10.1016/0888-613x(94)90019-1 may be a valid DOI for title: Efficient Inference in Bayes Networks as a combinatorial optimization problem
+- 10.1016/b978-1-4832-1451-1.50046-9 may be a valid DOI for title: An efficient approach for finding the MPE in belief networks
+- 10.1109/49.661110 may be a valid DOI for title: Iterative decoding of compound codes by probability propagation in graphical models
+- 10.7551/mitpress/3349.003.0006 may be a valid DOI for title: Learning in Boltzmann Trees
+- 10.1613/jair.251 may be a valid DOI for title: Mean field theory for sigmoid belief networks
+- 10.1007/bf01934985 may be a valid DOI for title: Efficient algorithms for combinatorial problems on graphs with bounded decomposability - a survey
+- 10.1016/0166-218x(89)90031-0 may be a valid DOI for title: Linear time algorithms for NP-hard problems restricted to partial k-trees
+- 10.1016/b978-1-55860-332-5.50052-3 may be a valid DOI for title: Reduction of computational complexity in Bayesian networks through remova of weak dependencies
+- 10.1007/bf01890544 may be a valid DOI for title: Optimal decomposition of probabilistic netwroks by simulated annealing
+- 10.1016/b978-1-4832-8287-9.50021-9 may be a valid DOI for title: A computational scheme for reasoning in dynamic probabilistic networks
+- 10.1016/s0004-3702(99)00059-4 may be a valid DOI for title: Bucket elimination: A unifying framework for reasoning
+- 10.1016/s0004-3702(00)00050-3 may be a valid DOI for title: Topological parameters for time-space tradeoff
+- 10.1613/jair.330 may be a valid DOI for title: Query DAGS: a practical paradigm for implementing belief network inference
+- 10.1007/3-540-58601-6_104 may be a valid DOI for title: Specification and verification of constraint-based dynamic systems
+- 10.1007/bf00143879 may be a valid DOI for title: Consistency techniques for continueous constraints
+- 10.1007/3-540-49481-2_27 may be a valid DOI for title: Non-systematic search and learning: an empirical study
+- 10.37777/dscs.v23n2-008 may be a valid DOI for title: xxx
+- 10.1007/3-540-61551-2_82 may be a valid DOI for title: tractable disjunctions of linear constraints
+- 10.1016/s0304-3975(96)00192-2 may be a valid DOI for title: From local to global consistency in temporal constraint networks
+- 10.1007/3-540-61551-2_74 may be a valid DOI for title: An empirical study of dynamic variable ordering heuristics for the constraint satisfaction problem
+- 10.1007/978-3-319-20451-2_13 may be a valid DOI for title: On the logic of theory change: partial meet contraction and revision functions
+- 10.1016/s0888-613x(97)00012-1 may be a valid DOI for title: Hybrid algorithms for approximate belief updating in Bayes nets
+- 10.1016/0004-3702(94)00016-t may be a valid DOI for title: Efficient algorithms for qualitative reasoning abouttime
+- 10.1016/0004-3702(78)90029-2 may be a valid DOI for title: A language and a program for stating and solving combinatorial problems
+- 10.1007/bf00339943 may be a valid DOI for title: Neural computation of decisions in optimization problems
+- 10.1613/jair.1 may be a valid DOI for title: Dynamic backtracking
+- 10.1093/logcom/2.3.397 may be a valid DOI for title: Complexity results for nonmonotonic logics
+- 10.1016/b978-1-4832-1452-8.50148-2 may be a valid DOI for title: Constraint tightness versus global consistency
+- 10.1007/3-540-60299-2_17 may be a valid DOI for title: A unifying framework for tractable constraints
+- 10.1016/0004-3702(94)90003-5 may be a valid DOI for title: Decomposing constraint satisfaction problems using database techniques
+- 10.1007/springerreference_27596 may be a valid DOI for title: A Truth Maintenance System
+- 10.1016/0004-3702(93)90063-h may be a valid DOI for title: Fast Parallel constraint satisfaction
+- 10.1016/0004-3702(89)90080-5 may be a valid DOI for title: An optimal k-consistency algorithm
+- 10.1016/0004-3702(95)00107-7 may be a valid DOI for title: Tractable constraints on ordered domains
+- 10.1016/0004-3702(77)90015-7 may be a valid DOI for title: Mechanizing temporal knowledge
+- 10.1016/0004-3702(87)90091-9 may be a valid DOI for title: Constraint propagation with interva labels
+- 10.1016/b978-0-444-87670-6.50010-8 may be a valid DOI for title: Diagnostic Reasoning Based on Structure and Behavior
+- 10.1016/0004-3702(94)00096-4 may be a valid DOI for title: Structure driven algorithms for truth-maintenance
+- 10.1007/978-3-642-81952-0_9 may be a valid DOI for title: A computing procedure for quantification theory
+- 10.1007/978-3-642-81952-0_16 may be a valid DOI for title: A machine program for theorem proving
+- 10.1016/0020-0190(81)90074-0 may be a valid DOI for title: Solving combinatorial search problems by intelligent backtracking
+- 10.1016/b978-1-4832-1447-4.50034-1 may be a valid DOI for title: Constraint propagation algorithms for temporal reasoning: A revised report
+- 10.1016/s0004-3702(83)80009-5 may be a valid DOI for title: A general Branch-and-Bound formulation for understanding and synthesizing And/Or tree search procedures
+- 10.1016/0004-3702(90)90046-3 may be a valid DOI for title: Enhancement schemes for constraint processing: Backjumping, learning and cutset decomposition
+- 10.1016/0004-3702(91)90030-n may be a valid DOI for title: Fusion and proagation with multiple observations in belief networks
+- 10.1016/b978-0-444-88738-2.50024-5 may be a valid DOI for title: Simulation approaches to general probabilistic inference on belief networks
+- 10.1016/0004-3702(89)90037-4 may be a valid DOI for title: Tree Clustering for Constraint Networks
+- 10.1002/9780470611821.ch1 may be a valid DOI for title: Constraint networks
+- 10.1016/0004-3702(77)90029-7 may be a valid DOI for title: Forward reasoning and dependency-directed backtracking in a system for computer-aided circuit analysis
+- 10.1016/0004-3702(86)90080-9 may be a valid DOI for title: An Assumption-Based TMS
+- 10.1109/21.31034 may be a valid DOI for title: A connectionist model for diagnostic problem solving
+- 10.1016/b978-1-4832-8287-9.50042-6 may be a valid DOI for title: Decision making using probabilistic inference methods
+- 10.1109/istcs.1993.253477 may be a valid DOI for title: Optimal speedup of Las Vegas algorithms
+- 10.1016/0004-3702(95)00109-3 may be a valid DOI for title: Combining Qualitative and quantitative constraints in temporal reasoning
+- 10.1007/3-540-45578-7_48 may be a valid DOI for title: Solving Boolean satisfiability using local search guided by unit clause elimination
+- 10.1016/s0004-3702(99)00059-4 may be a valid DOI for title: Bucket elimination: A unifying framework for reasoning
+- 10.1016/b978-155860890-0/50013-x may be a valid DOI for title: Temporal constraint networks
+- 10.1016/0004-3702(95)00102-6 may be a valid DOI for title: Uncovering trees in constraint networks
+- 10.1002/net.3230200504 may be a valid DOI for title: Identifying independence in Bayesian networks
+- 10.1002/net.3230200505 may be a valid DOI for title: An ordered examination of influence diagrams
+- 10.1016/0004-3702(92)90043-w may be a valid DOI for title: From local to global consistency
+- 10.7551/mitpress/2122.003.0008 may be a valid DOI for title: Structure identification in relational data
+- 10.1016/0004-3702(94)90068-x may be a valid DOI for title: Experimental evaluation of preprocessing algorithms for constraint satisfaction problems
+- 10.1145/263867.263499 may be a valid DOI for title: Constraint tightness and looseness versus local and global consistency
+- 10.1016/0004-3702(92)90027-u may be a valid DOI for title: Characterizing Diagnoses and Systems
+- 10.7551/mitpress/2122.003.0003 may be a valid DOI for title: Partial constraint satisfaction
+- 10.1145/359642.359654 may be a valid DOI for title: Synthesizing constraint expressions
+- 10.1016/b978-0-444-87670-6.50011-x may be a valid DOI for title: The Use of Design Descriptions in Automated Diagnosis
+- 10.1016/b978-0-934613-03-3.50009-x may be a valid DOI for title: Consistency in Networks of Relations
+- 10.1016/0004-3702(85)90035-9 may be a valid DOI for title: The Complexity of Some Polynomial Network Consistency Algorithms for Constraint Satisfaction Problems
+- 10.7551/mitpress/2122.003.0010 may be a valid DOI for title: Reasoning about qualitative temporal information
+- 10.1147/rd.314.0464 may be a valid DOI for title: Efficient search techniques-an empirical study of the N-queen problem
+- 10.1016/0020-0255(74)90008-5 may be a valid DOI for title: Networks of Constraints: Fundamental Properties and Applications to Picture Processing
+- 10.1016/0004-3702(86)90072-x may be a valid DOI for title: Fusion Propagation and Structuring in Belief Networks
+- 10.1016/s0004-3702(83)80007-1 may be a valid DOI for title: Search rearangement backtracking and polynomial average time
+- 10.1137/0208032 may be a valid DOI for title: The complexity of enumeration and reliability problems
+- 10.1016/s0304-3975(97)86737-0 may be a valid DOI for title: Local and global relational consistency
+- 10.1016/s0304-3975(97)86737-0 may be a valid DOI for title: Local and global relational consistency
+- 10.1016/s0004-3702(97)00009-x may be a valid DOI for title: Processing disjunctions in temporal constraint networks
+- 10.1007/978-94-011-6924-0_1 may be a valid DOI for title: Linear Programming
+- 10.7249/r366 may be a valid DOI for title: Linear programming and extensions
+- 10.1201/9780429123641-3 may be a valid DOI for title: Dynamic Programming
+- 10.1016/c2009-0-27609-4 may be a valid DOI for title: Probabilistic Reasoning in Intelligent Systems
+- 10.1145/130836.130837 may be a valid DOI for title: Efficient local search for very large-scale satisfiability problems
+- 10.1287/opre.31.5.803 may be a valid DOI for title: Solving large-scale zero-one linear programming problems
+- 10.1016/0167-6377(90)90031-y may be a valid DOI for title: Optimization of a 532-city symmetric traveling salesman problem by branch-and-cut
+- 10.1137/1033004 may be a valid DOI for title: A branch-and-cut algorithm for the resolution of large scale symmetric traveling salesman problems
+- 10.1613/jair.305 may be a valid DOI for title: Exploiting causal independence in Bayesian network inference
+- 10.1613/jair.130 may be a valid DOI for title: Improving connectionist energy minimization
+- 10.1016/b978-1-4832-1447-4.50033-x may be a valid DOI for title: Maintaining Knowledge about Temporal Intervals
+- 10.1145/321796.321808 may be a valid DOI for title: Characterization and theoretical comparison of Branch-and-Bound algorithms for permutation problems
+- 10.21236/ada055868 may be a valid DOI for title: Deciding linear inequalities by computing loop residues
+- 10.1016/0196-6774(88)90008-9 may be a valid DOI for title: A mixed-integer linear programming problem which is efficiently solvable
+- 10.1016/s0004-3702(96)00027-6 may be a valid DOI for title: A theoretical evaluation of selected backtracking algorithms
+- 10.1016/0020-0255(79)90023-9 may be a valid DOI for title: Relational Consistency Algorithms and Their Application in Finding Subgraph and Graph Isomorphisms
+- 10.1007/3-540-58601-6_86 may be a valid DOI for title: Contradicting Conventional Wisdom in Constraint Satisfaction
+- 10.1016/0004-3702(93)90036-b may be a valid DOI for title: Approximating Probabilistic Inference in Bayesian Belief Networks is NP-Hard
+- 10.1090/dimacs/026/24 may be a valid DOI for title: A GRASP for Satisfiability
+- 10.1007/bfb0017436 may be a valid DOI for title: Statistical Analysis of Backtracking on Inconsistent CSPs
+- 10.1126/science.1073287 may be a valid DOI for title: Analytic and Algorithmic Solution of Random Satisfiability Problems
+- 10.1016/s0304-3975(96)00128-4 may be a valid DOI for title: Answering Queries from Context-Sensitive Probabilistic Knowledge Bases
+- 10.1007/978-3-031-01583-0_6 may be a valid DOI for title: AND/OR Search Spaces for Graphical Models
+- 10.1109/sfcs.2003.1238208 may be a valid DOI for title: Algorithms and Complexity Results for #Sat and Bayesian Inference
+- 10.1109/iccad.1990.129849 may be a valid DOI for title: Algorithms for discrete function manipulation
+- 10.1016/j.artint.2003.04.004 may be a valid DOI for title: A Differential Semantics for Jointree Algorithms
+- 10.1145/765568.765570 may be a valid DOI for title: A Differential Approach to Inference in Bayesian Networks
+- 10.1016/j.jcss.2007.04.015 may be a valid DOI for title: Case-Factor Diagrams for Structured Probabilistic Modeling
+- 10.1093/bioinformatics/18.suppl_1.s189 may be a valid DOI for title: Exact genetic linkage computations for general pedigrees
+- 10.1016/s0004-3702(02)00120-0 may be a valid DOI for title: Backjump-based backtracking for constraint satisfaction problems
+- 10.1016/j.artint.2004.09.003 may be a valid DOI for title: Adopt: asynchronous distributed constraint optimization with quality guarantees
+- 10.1016/0095-8956(91)90068-u may be a valid DOI for title: Quickly excluding a forest
+- 10.1145/640075.640089 may be a valid DOI for title: Optimizing Exact Genetic Linkage Computations
+- 10.1007/11527695_13 may be a valid DOI for title: Using DPLL for Efficient OBDD Construction
+- 10.1109/aspdac.2005.1466173 may be a valid DOI for title: STACCATO: Disjoint Support Decompositions from BDDs through Symbolic Kernels
+- 10.1109/ictai.2004.67 may be a valid DOI for title: Guiding real-world SAT solving with dynamic hypergraph separator decomposition.
+- 10.1145/352871.352879 may be a valid DOI for title: Towards a universal test suite for combinatorial auction algorithms.
+- 10.1016/s0004-3702(98)00108-8 may be a valid DOI for title: Maintaining reversible DAC for Max-CSP.
+- 10.1007/978-3-540-48085-3_22 may be a valid DOI for title: Partition-based lower bound for Max-CSP.
+- 10.1007/3-540-45578-7_22 may be a valid DOI for title: Lower bounds for non-binary constraint optimization problems.
+- 10.1007/978-3-540-39879-0_3 may be a valid DOI for title: Optimal time-space tradeoff in probabilistic inference.
+- 10.1007/11757375_14 may be a valid DOI for title: AND/OR Branch-and-Bound Search for Pure 0/1 Integer Linear Programming Problems.
+- 10.1145/3828.3830 may be a valid DOI for title: Generalized Best-First Search Strategies and the Optimality of A*.
+- 10.1007/978-3-540-45193-8_25 may be a valid DOI for title: Solving Max-SAT as weighted CSP.
+- 10.26481/dis.19991104ak may be a valid DOI for title: Frequency Assignment – Models and Algorithms.
+- 10.1016/j.artint.2004.05.004 may be a valid DOI for title: Solving weighted CSP by maintaining arc consistency.
+- 10.1007/978-1-4684-2001-2_9 may be a valid DOI for title: Reducibility among combinatorial problems
+- 10.1109/tssc.1968.300136 may be a valid DOI for title: A formal basis for the heuristic determination of minimum cost paths
+- 10.1007/3-540-45578-7_22 may be a valid DOI for title: Lower bounds for non-binary constraint optimization problems.
+- 10.1007/978-3-540-72397-4_13 may be a valid DOI for title: Best-First AND/OR Search for 0/1 Integer Programming
+- 10.1007/978-3-540-74970-7_36 may be a valid DOI for title: AND/OR Multi-Valued Decision Diagrams for Constraint Optimization
+- 10.1007/s10601-007-9029-5 may be a valid DOI for title: Mendelian error detection in complex pedigree using weighted constraint satisfaction techniques
+- 10.1111/j.2517-6161.1988.tb01721.x may be a valid DOI for title: Local computation with probabilities on graphical structures and their application to expert systems.
+- 10.1109/12.324545 may be a valid DOI for title: Efficient boolean manipulation with OBDDs can be extended to FBDDs
+- 10.1109/tc.1986.1676819 may be a valid DOI for title: Graph-based algorithms for boolean function manipulation
+- 10.1109/12.73590 may be a valid DOI for title: On the complexity of VLSI implementation and graph representations of boolean functions with application to integer multiplication
+- 10.1109/iccad.1995.480018 may be a valid DOI for title: Binary decision diagrams and beyond: enabling technologies for formal verification
+- 10.1613/jair.989 may be a valid DOI for title: A knowledge compilation map
+- 10.1016/s0167-9260(00)00003-1 may be a valid DOI for title: Boolean Function Representation and Spectral Characterization using AND/OR graphs
+- 10.1145/157485.164890 may be a valid DOI for title: Zero-suppressed BDDs for set manipulation in combinatorial problems
+- 10.1109/iccad.1997.643371 may be a valid DOI for title: The disjunctive decomposition of logic functions
+- 10.1109/aspdac.2005.1466173 may be a valid DOI for title: STACCATO: Disjoint Support Decompositions from BDDs through Symbolic Kernels
+- 10.1023/b:cons.0000049204.75635.7e may be a valid DOI for title: Compiling CSPs into Tree-Driven Automata for Interactive Solving
+- 10.1002/j.1538-7305.1959.tb01585.x may be a valid DOI for title: Representation of Switching Circuits by Binary-Decision Programs
+- 10.1007/978-3-540-30201-8_50 may be a valid DOI for title: Efficient Strategies for (Weighted) Maximum Satisfiability.
+- 10.1016/0004-3702(80)90051-x may be a valid DOI for title: Increasing tree search efficiency for constraint satisfaction problems
+- 10.1007/3-540-61551-2_66 may be a valid DOI for title: MAC and combined heuristics: two reasons to forsake FC (and CBJ) on hard problems
+- 10.1145/359094.359101 may be a valid DOI for title: New method to color the vertices of a graph
+- 10.1109/ictai.2004.37 may be a valid DOI for title: Backjump-based techniques versus conflict directed heuristics
+- 10.1109/49.661110 may be a valid DOI for title: Iterative decoding of compound codes by probability propagation in graphical models
+- 10.1049/el:19961141 may be a valid DOI for title: Near shannon limit performance of low density parity check codes
+- 10.56021/9780801861406 may be a valid DOI for title: Analysis of Human Genetic Linkage
+- 10.1016/j.ijar.2005.10.001 may be a valid DOI for title: Compiling Relational Bayesian Networks for Exact Inference
+- 10.1007/3-540-61551-2_95 may be a valid DOI for title: Analysis of heuristic methods for partial constraint satisfaction problems
+- 10.1109/mex.1986.4306979 may be a valid DOI for title: Propagating belief functions with local computations
+- 10.1109/21.31034 may be a valid DOI for title: A connectionist model for diagnostic problem solving
+- 10.1016/b978-1-55860-203-8.50048-6 may be a valid DOI for title: On the generation of alternative explanations with implications for belief revision
+- 10.1016/b978-1-4832-1451-1.50046-9 may be a valid DOI for title: An efficient approach for finding the mpe in belief networks
+- 10.1007/11564751_42 may be a valid DOI for title: Depth-First Mini-Bucket Elimination
+- 10.1609/aaai.v26i1.8331 may be a valid DOI for title: Construction of New Medicines via Game Proof Search
+- 10.1145/3109859.3109895 may be a valid DOI for title: Chemical Reactant Recommendation Using a Network of Organic Chemistry
+- 10.2172/935427 may be a valid DOI for title: Directing Matter and Energy: Five Challenges for Science and the Imagination
+- 10.1609/aimag.v31i3.2303 may be a valid DOI for title: Building Watson: An Overview of the DeepQA Project
+- 10.1021/ci800228y may be a valid DOI for title: Route Designer: A Retrosynthetic Analysis Tool Utilizing Automated Retrosynthetic Rule Generation
+- 10.3233/icg-2012-35302 may be a valid DOI for title: Game-Tree Search using Proof Numbers: The First Twenty Years
+- 10.1002/chem.201604556 may be a valid DOI for title: Modelling Chemical Reasoning to Predict and Invent Reactions
+- 10.1002/chem.201605499 may be a valid DOI for title: Neural-Symbolic Machine Learning for Retrosynthesis and Reaction Prediction
+- 10.1007/11871842_29 may be a valid DOI for title: Bandit Based Monte-Carlo Planning
+- 10.1016/b978-0-08-020741-4.50004-x may be a valid DOI for title: General methods for the construction of complex molecules
+- 10.26481/dis.19940923la may be a valid DOI for title: Searching for Solutions in Games and Artificial Intelligence
+- 10.1016/s0004-3702(01)00109-6 may be a valid DOI for title: Sokoban: Enhancing general single-agent search methods using domain knowledge
+- 10.3233/icg-1988-11404 may be a valid DOI for title: Computers and Chess-Problem Composition
+- 10.1002/ange.201202209 may be a valid DOI for title: Parallel optimization of synthetic pathways within the network of organic chemistry
+- 10.1093/nar/gkr919 may be a valid DOI for title: SCRIPDB: a portal for easy access to syntheses, chemicals and reactions in patents
+- 10.1021/ci100050t may be a valid DOI for title: Extended-connectivity fingerprints
+- 10.1038/ncomms15733 may be a valid DOI for title: An autonomous organic reaction search engine for chemical reactivity
+- 10.1038/512020a may be a valid DOI for title: Organic synthesis: The robo-chemist
+- 10.3233/icg-1999-22106 may be a valid DOI for title: A New Depth-First-Search Algorithm for AND/OR Trees
+- 10.1007/978-3-642-17928-0_1 may be a valid DOI for title: Solving Hex: Beyond Humans
+- 10.1007/978-0-387-35706-5_9 may be a valid DOI for title: Df-pn in Go: An Application to the One-Eye Problem
+- 10.1609/aaai.v24i1.7534 may be a valid DOI for title: Dealing with Infinite Loops, Underestimation, and Overestimation of Depth-First Proof-Number Search
+- 10.24963/ijcai.2017/513 may be a valid DOI for title: Focused Depth-first Proof Number Search using Convolutional Neural Networksfor the Game of Hex
+- 10.1007/978-3-642-17928-0_3 may be a valid DOI for title: Evaluation-Function Based Proof-Number Search
+- 10.1007/978-3-642-17928-0_2 may be a valid DOI for title: Job-Level Proof-Number Search for Connect6
+- 10.1145/1273496.1273531 may be a valid DOI for title: Combining Online and Offline Knowledge in UCT
+- 10.1007/978-3-540-75538-8_7 may be a valid DOI for title: Efficient Selectivity and Backup Operators in Monte-Carlo Tree Search
+- 10.1007/978-3-319-27992-3_17 may be a valid DOI for title: Reducing the Seesaw Effect with Deep Proof-Number Search
+- 10.31226/osf.io/va5zr may be a valid DOI for title: AI Meets Chemistry
+- 10.1613/jair.1705 may be a valid DOI for title: The Fast Downward Planning System
+- 10.3233/icg-1990-13203 may be a valid DOI for title: A New Hashing Method with Applications for Game Playing
+- 10.1021/acscentsci.9b00055 may be a valid DOI for title: Learning Retrosynthetic Planning through Simulated Experience
+- 10.1007/s10472-011-9258-6 may be a valid DOI for title: Multi-armed Bandits with Episode Context
+- 10.1609/aaai.v30i1.10316 may be a valid DOI for title: Selecting Near-Optimal Learners via Incremental Data Allocation
+- 10.1609/aaai.v34i04.5926 may be a valid DOI for title: An ADMM Based Framework for AutoML Pipeline Configuration
+- 10.1007/978-3-030-05318-5_6 may be a valid DOI for title: Auto-sklearn: Efficient and robust automated machine learning
+- 10.1007/978-3-030-05318-5_6 may be a valid DOI for title: Auto-sklearn: Efficient and robust automated machine learning
+- 10.1007/s10994-018-5735-z may be a valid DOI for title: ML-Plan: Automated machine learning via hierarchical planning
+- 10.1561/9781601984616 may be a valid DOI for title: Distributed optimization and statistical learning via the alternating direction method of multipliers
+- 10.1007/978-3-642-25566-3_40 may be a valid DOI for title: Sequential model-based optimization for general algorithm configuration
+- 10.1145/1015330.1015432 may be a valid DOI for title: Ensemble selection from libraries of models
+- 10.24963/ijcai.2019/796 may be a valid DOI for title: Hyper-parameter Tuning under a Budget Constraint
+- 10.1109/jproc.2015.2494218 may be a valid DOI for title: Taking the human out of the loop: A review of bayesian optimization.
+- 10.24963/ijcai.2019/457 may be a valid DOI for title: Automated Machine Learning with Monte-Carlo Tree Search
+- 10.1016/j.artint.2011.03.007 may be a valid DOI for title: Monte-Carlo tree search and rapid action value estimation in computer Go
+
