@@ -40,6 +40,10 @@ reward = df[:,["reward"]] |> deepcopy |> DataFrame
 action = df[:,["action"]] |> deepcopy |> DataFrame
 action_reward = DataFrame[action, reward]
 
+agent = DiscreteRLOffline("NFQ")
+pipe = (numf |> mx |> pca) |> agent
+crossvalidateRL(pipe,df_input,action_reward)
+
 function pipelinesearch()
    agentnames = ["DiscreteCQL","NFQ","DoubleDQN","DiscreteSAC","DiscreteBCQ","DiscreteBC","DQN"]
    scalers =  [rb,pt,norm,std,mx,noop]
@@ -50,12 +54,13 @@ function pipelinesearch()
             try
                rlagent = DiscreteRLOffline(agentname,Dict(:runtime_args=>Dict(:n_epochs=>1)))
                rlpipeline = ((numf |> sc |> xt)) |> rlagent 
-               res = fit_transform!(rlpipeline,df_input,action_reward)
-               s = [x.value[1] for x in res] |> sum
+               #res = fit_transform!(rlpipeline,df_input,action_reward)
+               #s = [x.value[1] for x in res] |> sum
+               res = crossvalidateRL(rlpipeline,df_input,action_reward)
                scn   = sc.name[1:end - 4]; xtn = xt.name[1:end - 4]; lrn = rlagent.name[1:end - 4]
                pname = "$scn |> $xtn |> $lrn"
-               if !isnan(s)
-                  DataFrame(pipeline=pname,perf=s)
+               if !isnan(res)
+                  DataFrame(pipeline=pname,perf=res)
                else
                   DataFrame()
                end
@@ -67,11 +72,9 @@ function pipelinesearch()
          end
       end
    end
-   sort!(dfresults,:perf,rev=true)
+   sort!(dfresults,:perf,rev=false)
    return dfresults
 end
 dftable= pipelinesearch()
 show(dftable,allcols=true,allrows=true,truncate=0)
 
-todo:
-evaluation

@@ -1,7 +1,10 @@
+channels = ["mkl", "scikit-learn"]
+
 [deps]
 scikit-learn = ""
 pandas = ""
 numpy = ""
+python = ""
 
 [pip.deps]
 d3rlpy = ""
