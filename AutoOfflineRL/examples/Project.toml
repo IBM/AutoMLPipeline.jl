@@ -1,0 +1,7 @@
+[deps]
+AutoMLPipeline = "08437348-eef5-4817-bc1b-d4e9459680d6"
+AutoOfflineRL = "4680bba7-2b59-4a6e-a544-0ebac8b8cdd3"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+Parquet = "626c502c-15b0-58ad-a749-f091afb673ae"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
