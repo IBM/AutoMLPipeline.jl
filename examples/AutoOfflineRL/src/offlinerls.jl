@@ -1,6 +1,8 @@
 module OfflineRLs
 
 using AutoOfflineRL
+using PythonCall
+import Statistics
 using Parquet
 using Distributed
 using DataFrames: DataFrame, dropmissing
@@ -19,21 +21,34 @@ using ..Utils: nested_dict_merge
 
 export DiscreteRLOffline, fit!, transform!, fit, transform
 export listdiscreateagents, driver
+export crossvalidateRL
 
 const rl_dict = Dict{String, PYC.Py}()
+const metric_dict = Dict{String, PYC.Py}()
 
 const PYRL = PYC.pynew()
 const PYPD = PYC.pynew()
 const PYNP = PYC.pynew()
 const PYDT = PYC.pynew()
+const PYMT = PYC.pynew()
+const PYSK  = PYC.pynew()
+
 
 function __init__()
   PYC.pycopy!(PYRL, PYC.pyimport("d3rlpy.algos"))
-  PYC.pycopy!(PYDT, PYC.pyimport("d3rlpy.dataset"))
+  PYC.pycopy!(PYDT, PYC.pyimport("d3rlpy.datasets"))
+  PYC.pycopy!(PYSK, PYC.pyimport("sklearn.model_selection"))
+  PYC.pycopy!(PYMT, PYC.pyimport("d3rlpy.metrics"))
   PYC.pycopy!(PYPD, PYC.pyimport("pandas"))
   PYC.pycopy!(PYNP, PYC.pyimport("numpy"))
 
   # OfflineRLs
+  metric_dict["cross_validate"]   = PYSK.cross_validate
+  metric_dict["train_test_split"] = PYSK.train_test_split
+  metric_dict["td_error_scorer"]  = PYMT.td_error_scorer
+  metric_dict["average_value_estimation_scorer"]  = PYMT.average_value_estimation_scorer
+  metric_dict["get_cartpole"] = PYDT.get_cartpole
+
   rl_dict["DiscreteBC"]           = PYRL
   rl_dict["DQN"]                  = PYRL
   rl_dict["NFQ"]                  = PYRL
@@ -191,27 +206,73 @@ function transform!(agent::DiscreteRLOffline,df::DataFrame=DataFrame())::Vector
   return res
 end
 
+function prp_fit_transform(pipe::Machine, instances::DataFrame,actreward::Vector)
+   machines = pipe.model[:machines]
+   machine_args = pipe.model[:machine_args]
+
+   current_instances = instances
+   trlength = length(machines)
+   for t_index in 1:(trlength - 1)
+      machine = createmachine(machines[t_index], machine_args)
+      fit!(machine, current_instances, actreward)
+      current_instances = transform!(machine, current_instances)
+   end
+   return current_instances
+end
+
+
 function driver()
-  #dataset = ENV["HOME"]*"/phome/ibmgithub/ZOS/data/processed_batch.csv"
   path = pkgdir(AutoOfflineRL)
   dataset = "$path/data/smalldata.parquet"
   df = Parquet.read_parquet(dataset) |> DataFrame |> dropmissing
-  #for agentid in reverse([keys(rl_dict)...])
-  #  println(agentid)
-  #  if agentid != "DiscreteRandomPolicy"
-  #    agent = DiscreteRLOffline(agentid)
-  #    fit!(agent,df)
-  #  end
-  #end
-  #discreteagents()
-  agent = DiscreteRLOffline("DoubleDQN"; tag="sac")
-  header = agent.model[:o_header]
-  fit!(agent,df)
-  transform!(agent,df[1:20,:])
-  #vec = df[1,header] |> Vector
-  #transform(agent,vec)
-  #m = DiscreteRLOffline()
-  #dqn_agent(m,dat)
+  df_input = df[:, ["day", "hour", "minute", "dow", "metric1", "metric2", "metric3", "metric4"]]
+  reward = df[:,["reward"]] |> deepcopy |> DataFrame
+  action = df[:,["action"]] |> deepcopy |> DataFrame
+  action_reward = DataFrame[action, reward]
+  agentname="NFQ"
+  agent = DiscreteRLOffline(agentname)
+  #fit_transform!(agent,df_input,action_reward)
+end
+
+function crossvalidateRL(pp::Machine, dfobs::DataFrame, actreward::Vector)
+   pipe = deepcopy(pp)
+   features = deepcopy(dfobs)
+   machines = pipe.model[:machines]
+   agent = machines[end]
+
+   runtime_args = agent.model[:runtime_args]
+   logging    = agent.model[:save_metrics]
+   impl_args  = copy(agent.model[:impl_args])
+   rlagent    = agent.model[:rlagent]
+   py_rlagent = getproperty(rl_dict[rlagent],rlagent)
+   pyrlobj    = py_rlagent(;impl_args...)
+   
+   df_input = prp_fit_transform(pipe,features,actreward)
+   mdp_dataset = createmdpdata!(agent,df_input,actreward)
+
+   td_error_scorer  = PYMT.td_error_scorer
+   runconfig = Dict(:scorers=>Dict("td_error"=>td_error_scorer))
+   score=pyrlobj.fit(mdp_dataset;
+                     eval_episodes=mdp_dataset,
+                     runtime_args...,runconfig...)
+   vals = pyconvert(Array,score)
+   mvals = [v[2]["td_error"] for v in vals] |> Statistics.mean
+   return mvals
+   #return mdp_dataset
+   #py_train_test_split = metric_dict["train_test_split"]
+
+   #py_get_cartpole = metric_dict["get_cartpole"]
+   #dataset,_ = py_get_cartpole()
+   #train_episodes, test_episodes = py_train_test_split([mdp_dataset,mdp_dataset,mdp_dataset])
+   #py_train_episodes,py_test_episodes = py_train_test_split(mdp_dataset; test_size=0.25) 
+
+   #pycrossvalidate = getproperty(metric_dict["cross_validate"],"cross_validate")
+   #td_error_scorer  = PYMT.td_error_scorer
+   #runconfig = Dict(:scoring=>Dict(:td_error=>td_error_scorer),
+   #                 :fit_params=>Dict(:n_epochs=>1,:n_samples=>1,:n_splits=>1))
+   #scores = pycrossvalidate(pyrlobj,mdp_dataset; runconfig...)
+   ##pyrlobj.fit(mdp_dataset; save_metrics = logging, runtime_args... )
+   #return scores
 end
 
 

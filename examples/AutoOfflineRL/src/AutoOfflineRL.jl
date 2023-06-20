@@ -45,7 +45,6 @@ include("offlinerls.jl")
 using .OfflineRLs
 export DiscreteRLOffline, fit!
 export driver, listdiscreateagents
-
-
+export crossvalidateRL
 
 end # module 
