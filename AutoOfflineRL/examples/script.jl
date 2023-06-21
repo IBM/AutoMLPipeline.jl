@@ -8,6 +8,7 @@ nprocs() == 1 && addprocs()
    using Parquet
    using DataFrames
 end
+
 @everywhere begin
    # load preprocessing elements
    #### Scaler
@@ -35,14 +36,26 @@ path = pkgdir(AutoOfflineRL)
 dataset = "$path/data/smalldata.parquet"
 df = Parquet.read_parquet(dataset) |> DataFrame |> dropmissing
 
-df_input = df[:, ["day", "hour", "minute", "dow", "metric1", "metric2", "metric3", "metric4"]]
+#df = df[:,["day", "hour", "minute", "dow"]]
+#df.sensor1 = rand(1:500,srow)
+#df.sensor2 = rand(1:200,srow)
+#df.sensor3 = rand(1:100,srow)
+#df.action = rand([10,50,100],srow)
+#df.reward = rand(srow)
+
+srow,_ = size(df)
+observation = df[:, ["day", "hour", "minute", "dow", "sensor1", "sensor2", "sensor3"]]
 reward = df[:,["reward"]] |> deepcopy |> DataFrame
 action = df[:,["action"]] |> deepcopy |> DataFrame
-action_reward = DataFrame[action, reward]
+_terminals = zeros(Int,srow)
+_terminals[collect(100:1000:9000)] .= 1
+_terminals[end] = 1
+dterminal = DataFrame(terminal=_terminals)
+action_reward_terminal = DataFrame[action, reward, dterminal]
 
 agent = DiscreteRLOffline("NFQ")
 pipe = (numf |> mx |> pca) |> agent
-crossvalidateRL(pipe,df_input,action_reward)
+crossvalidateRL(pipe,observation,action_reward_terminal)
 
 function pipelinesearch()
    agentnames = ["DiscreteCQL","NFQ","DoubleDQN","DiscreteSAC","DiscreteBCQ","DiscreteBC","DQN"]
@@ -54,11 +67,11 @@ function pipelinesearch()
             try
                rlagent = DiscreteRLOffline(agentname,Dict(:runtime_args=>Dict(:n_epochs=>1)))
                rlpipeline = ((numf |> sc |> xt)) |> rlagent 
-               res = crossvalidateRL(rlpipeline,df_input,action_reward)
+               res = crossvalidateRL(rlpipeline,observation,action_reward_terminal)
                scn   = sc.name[1:end - 4]; xtn = xt.name[1:end - 4]; lrn = rlagent.name[1:end - 4]
                pname = "$scn |> $xtn |> $lrn"
                if !isnan(res)
-                  DataFrame(pipeline=pname,perf=res)
+                  DataFrame(pipeline=pname,td_error=res)
                else
                   DataFrame()
                end
@@ -69,9 +82,9 @@ function pipelinesearch()
          end
       end
    end
-   sort!(dfresults,:perf,rev=false)
+   #sort!(dfresults,:percent_action_matches,rev=true)
    return dfresults
 end
 dftable= pipelinesearch()
+sort!(dftable,:td_error,rev=false)
 show(dftable,allcols=true,allrows=true,truncate=0)
-
