@@ -37,15 +37,20 @@ end
   path = pkgdir(AutoOfflineRL)
   dataset = "$path/data/smalldata.parquet"
   df = Parquet.read_parquet(dataset) |> DataFrame |> dropmissing
-  df_input = df[:, ["day", "hour", "minute", "dow", "metric1", "metric2", "metric3", "metric4"]]
+  srow,_ = size(df)
+  df_input = df[:, ["day", "hour", "minute", "dow", "sensor1", "sensor2", "sensor3"]]
   reward = df[:,["reward"]] |> deepcopy |> DataFrame
   action = df[:,["action"]] |> deepcopy |> DataFrame
-  action_reward = DataFrame[action, reward]
+  _terminals = zeros(Int,srow)
+  _terminals[collect(100:1000:9000)] .= 1
+  _terminals[end] = 1
+  dterminal = DataFrame(terminal=_terminals)
+  action_reward_terminal = DataFrame[action, reward, dterminal]
   for agentid in keys(AutoOfflineRL.OfflineRLs.rl_dict)
     @info "training $agentid"
     agent = DiscreteRLOffline(agentid; save_model=false,runtime_args=Dict(:n_epochs=>1,:verbose=>false, :show_progress=>true))
     o_header = agent.model[:o_header]
-    fit!(agent,df_input,action_reward) 
+    fit!(agent,df_input,action_reward_terminal) 
     @test agent.model[:rlobjtrained] !== PYC.PyNULL
     @info "transform $agentid"
     adf = df_input[1:2,:]

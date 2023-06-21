@@ -46,6 +46,7 @@ function __init__()
   metric_dict["cross_validate"]   = PYSK.cross_validate
   metric_dict["train_test_split"] = PYSK.train_test_split
   metric_dict["td_error_scorer"]  = PYMT.td_error_scorer
+  metric_dict["discrete_action_match_scorer"] = PYMT.discrete_action_match_scorer
   metric_dict["average_value_estimation_scorer"]  = PYMT.average_value_estimation_scorer
   metric_dict["get_cartpole"] = PYDT.get_cartpole
 
@@ -76,7 +77,7 @@ mutable struct DiscreteRLOffline <: Learner
         :r_header     => ["reward"],
         :save_model   => false,
         :runtime_args => Dict{Symbol, Any}(
-            :n_epochs => 5,
+            :n_epochs => 3,
         ),
         :impl_args    => Dict{Symbol,Any}(
             :scaler  => "min_max",
@@ -126,15 +127,11 @@ function discreteagents()
   println("use: listdiscreateagents() to get the available RL agents")
 end
 
-function createmdpdata!(agent::DiscreteRLOffline, df::DataFrame, action_reward::Vector)
+function createmdpdata!(agent::DiscreteRLOffline, df::DataFrame, action_reward_term::Vector)
   _observations = df |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
-  _actions      = action_reward[1] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
-  _rewards      = action_reward[2] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
-  ## inject end of data by terminal column
-  nrow, _         = size(df)
-  _terminals      = zeros(Int, nrow)
-  _terminals[end] = 1
-  _terminals      = _terminals .|> PYC.float |> x -> PYNP.array(x, dtype = "int32")
+  _actions      = action_reward_term[1] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
+  _rewards      = action_reward_term[2] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
+  _terminals      = action_reward_term[3] |> Array .|> PYC.float |> x -> PYNP.array(x, dtype = "float32")
   ## create dataset for RLOffline
   mdp_dataset = PYDT.MDPDataset(
     observations = _observations,
@@ -159,12 +156,12 @@ function checkheaders(agent::DiscreteRLOffline, df)
    for header in vcat(o_header, a_header, r_header)]
 end
 
-function fit!(agent::DiscreteRLOffline, df::DataFrame, action_reward::Vector)::Nothing
+function fit!(agent::DiscreteRLOffline, df::DataFrame, action_reward_term::Vector)::Nothing
   # check if headers exist
   #checkheaders(agent::DiscreteRLOffline, df)
   # create mdp data
   nrow, ncol  = size(df)
-  mdp_dataset = createmdpdata!(agent, df,action_reward)
+  mdp_dataset = createmdpdata!(agent, df,action_reward_term)
   ## prepare algorithm
   runtime_args = agent.model[:runtime_args]
   logging    = agent.model[:save_metrics]
@@ -206,7 +203,7 @@ function transform!(agent::DiscreteRLOffline,df::DataFrame=DataFrame())::Vector
   return res
 end
 
-function prp_fit_transform(pipe::Machine, instances::DataFrame,actreward::Vector)
+function prp_fit_transform(pipe::Machine, instances::DataFrame,actrewterm::Vector)
    machines = pipe.model[:machines]
    machine_args = pipe.model[:machine_args]
 
@@ -214,7 +211,7 @@ function prp_fit_transform(pipe::Machine, instances::DataFrame,actreward::Vector
    trlength = length(machines)
    for t_index in 1:(trlength - 1)
       machine = createmachine(machines[t_index], machine_args)
-      fit!(machine, current_instances, actreward)
+      fit!(machine, current_instances, actrewterm)
       current_instances = transform!(machine, current_instances)
    end
    return current_instances
@@ -234,44 +231,48 @@ function driver()
   #fit_transform!(agent,df_input,action_reward)
 end
 
-function crossvalidateRL(pp::Machine, dfobs::DataFrame, actreward::Vector)
-   pipe = deepcopy(pp)
-   features = deepcopy(dfobs)
-   machines = pipe.model[:machines]
-   agent = machines[end]
-
+function traintesteval(agent::DiscreteRLOffline,mdp_dataset::Py)
    runtime_args = agent.model[:runtime_args]
    logging    = agent.model[:save_metrics]
    impl_args  = copy(agent.model[:impl_args])
    rlagent    = agent.model[:rlagent]
    py_rlagent = getproperty(rl_dict[rlagent],rlagent)
    pyrlobj    = py_rlagent(;impl_args...)
-   
-   df_input = prp_fit_transform(pipe,features,actreward)
-   mdp_dataset = createmdpdata!(agent,df_input,actreward)
+   py_train_test_split = metric_dict["train_test_split"]
+   trainepisodes,testepisodes = py_train_test_split(mdp_dataset)
 
    td_error_scorer  = PYMT.td_error_scorer
+   discrete_action_match_scorer  = PYMT.discrete_action_match_scorer
    runconfig = Dict(:scorers=>Dict("td_error"=>td_error_scorer))
-   score=pyrlobj.fit(mdp_dataset;
-                     eval_episodes=mdp_dataset,
+   #runconfig = Dict(:scorers=>Dict("metric"=>discrete_action_match_scorer))
+   score=pyrlobj.fit(trainepisodes;
+                     eval_episodes=testepisodes,
                      runtime_args...,runconfig...)
    vals = pyconvert(Array,score)
    mvals = [v[2]["td_error"] for v in vals] |> Statistics.mean
+   #mvals = [v[2]["metric"] for v in vals] |> Statistics.mean
    return mvals
-   #return mdp_dataset
-   #py_train_test_split = metric_dict["train_test_split"]
+end
 
-   #py_get_cartpole = metric_dict["get_cartpole"]
-   #dataset,_ = py_get_cartpole()
-   #train_episodes, test_episodes = py_train_test_split([mdp_dataset,mdp_dataset,mdp_dataset])
-   #py_train_episodes,py_test_episodes = py_train_test_split(mdp_dataset; test_size=0.25) 
+function crossvalidateRL(pp::Machine, dfobs::DataFrame, actrewterm::Vector; cv=3)
+   pipe = deepcopy(pp)
+   features = deepcopy(dfobs)
+   machines = pipe.model[:machines]
+   agent = machines[end]
+   
+   df_input = prp_fit_transform(pipe,features,actrewterm)
+   mdp_dataset = createmdpdata!(agent,df_input,actrewterm)
 
-   #pycrossvalidate = getproperty(metric_dict["cross_validate"],"cross_validate")
-   #td_error_scorer  = PYMT.td_error_scorer
-   #runconfig = Dict(:scoring=>Dict(:td_error=>td_error_scorer),
-   #                 :fit_params=>Dict(:n_epochs=>1,:n_samples=>1,:n_splits=>1))
-   #scores = pycrossvalidate(pyrlobj,mdp_dataset; runconfig...)
-   ##pyrlobj.fit(mdp_dataset; save_metrics = logging, runtime_args... )
+   scores= [traintesteval(agent,mdp_dataset) for i in 1:cv]
+   return Statistics.mean(scores)
+
+   #pyskcrossvalidate = metric_dict["cross_validate"]  
+   #td_error_scorer  = metric_dict["td_error_scorer"]
+   #average_value_estimation_scorer = metric_dict["average_value_estimation_scorer"]
+   #runconfig = Dict(:scoring=>Dict("td_error"=>td_error_scorer,
+   #                                "value_scale"=>average_value_estimation_scorer),
+   #                 :fit_params=>Dict("n_epochs"=>1))
+   #scores = pyskcrossvalidate(pyrlobj,mdp_dataset; runconfig...)
    #return scores
 end
 
