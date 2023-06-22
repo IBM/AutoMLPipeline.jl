@@ -1,27 +1,27 @@
 \begin{table*}[htbp]
   \tbl{\emph{All-all} (one-block) search strategy}{
   \centering
-  \tiny
+  \small
   \begin{tabular}{{@{} rcrrrlll @{}}}
     \toprule
 	 & & & & & \multicolumn{2}{c}{Block} \\
     \cmidrule(r){6-7}
 	 Dataset          & Rank & AvgErr & Std  & Time & Sc         & Fx   & Learner \\
     \midrule
-    analcatdata-dmf  & 2    & 76.52  & 4.92 & 0.13 & normalizer & noop & rbfsvc\\
-    breast-w         & 2    & 02.34  & 1.71 & 0.08 & minmax     & noop & rbfsvc\\
-    cmc              & 1    & 42.57  & 3.37 & 0.18 & noop       & noop & gb\\
-    credit-approval  & 2    & 11.42  & 2.60 & 0.09 & normalizer & noop & rf\\
-    eucalyptus       & 3    & 36.02  & 6.61 & 0.17 & noop       & noop & gb\\
-	 first-order-theo & 1    & 36.61  & 1.44 & 1.27 & noop       & noop & rf\\
-    GestureSeg       & 1    & 31.96  & 1.28 & 1.87 & minmax     & noop & rf\\
-    jm1              & 1    & 17.97  & 0.61 & 1.84 & stdsc      & noop & rf\\
-    profb            & 1    & 25.59  & 5.15 & 1.84 & stdsc      & noop & lsvc\\
-    plants-shape     & 1    & 30.25  & 3.03 & 4.29 & powertf    & pca  & rf\\
-    sick             & 4    & 06.40  & 0.70 & 0.41 & noop       & noop & gb\\
-    soybean          & 5    & 14.62  & 2.48 & 0.27 & robustsc   & noop & lsvc\\
+    analcatdata-dmf  & 1, =    & 76.52  & 4.92 & 0.13 & normalizer & noop & rbfsvc\\
+    breast-w         & 1, =    & 02.34  & 1.71 & 0.08 & minmax     & noop & rbfsvc\\
+    cmc              & 1, =    & 42.57  & 3.37 & 0.18 & noop       & noop & gb\\
+    credit-approval  & 1, =    & 11.42  & 2.60 & 0.09 & normalizer & noop & rf\\
+    eucalyptus       & 1, =    & 36.02  & 6.61 & 0.17 & noop       & noop & gb\\
+	first-order-theo & 1, >    & 36.61  & 1.44 & 1.27 & noop       & noop & rf\\
+    GestureSeg       & 1, =    & 31.96  & 1.28 & 1.87 & minmax     & noop & rf\\
+    jm1              & 1, =    & 17.97  & 0.61 & 1.84 & stdsc      & noop & rf\\
+    profb            & 1, >    & 25.59  & 5.15 & 1.84 & stdsc      & noop & lsvc\\
+    plants-shape     & 1, >    & 30.25  & 3.03 & 4.29 & powertf    & pca  & rf\\
+    sick             & 4, <    & 06.40  & 0.70 & 0.41 & noop       & noop & gb\\
+    soybean          & 5, <    & 14.62  & 2.48 & 0.27 & robustsc   & noop & lsvc\\
 	 \cmidrule{2-5}
-	 Median           & 1.5  & 27.92  & 2.54 & 0.23 &            &      & \\
+	 Median           & 1  & 27.92  & 2.54 & 0.23 &            &      & \\
     \bottomrule
   \end{tabular}}
    \label{tab:singleblock}
