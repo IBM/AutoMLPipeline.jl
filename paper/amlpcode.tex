@@ -10,7 +10,7 @@ numf = NumFeatureSelector()  # numerical columns
 rf   = SKLearner("RandomForestClassifier")
 
 # Setup the ML pipeline 
-pipe = @pipeline ((catf |> ohe) + (numf |> mx |> pca)) |> rf
+pipe = ((catf |> ohe) + (numf |> mx |> pca)) |> rf
 
 # train and predict
 prediction = fit_transform!(pipe,X,Y) 
