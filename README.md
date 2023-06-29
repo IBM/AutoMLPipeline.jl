@@ -57,6 +57,7 @@ a + b |> c; (a + b) |> c
 ```
 
 #### Please read this [AutoMLPipeline Paper](https://arxiv.org/abs/2107.01253) for benchmark comparisons.
+- [![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00129/status.svg)](https://doi.org/10.21105/jcon.00129)
 
 ### Recorded Video/Conference Presentations:
 - [2021 JuliaCon (**Finding an Effective Strategy for AutoML Pipeline Optimization**)](https://www.youtube.com/watch?v=ZRFIMGW88Co)
