@@ -69,19 +69,29 @@ tr_com = fit_transform!(pop_com,X,Y)</code></pre><pre><code class="language-juli
    2 │ 0.18532   0.152616   0.0327035  0.970204      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
    3 │ 0.497041  0.0        0.0243647  0.867385      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
    4 │ 0.299585  0.0        0.0588471  0.952253      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
-   5 │ 0.391021  0.0720301  0.0565951  0.915812      0.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0</code></pre><p>The column size from 6 grew to 60 after the hot-bit encoding was applied because of the large number of unique instances for the categorical columns. </p><h3 id="Performance-Evaluation-of-the-Pipeline"><a class="docs-heading-anchor" href="#Performance-Evaluation-of-the-Pipeline">Performance Evaluation of the Pipeline</a><a id="Performance-Evaluation-of-the-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation-of-the-Pipeline" title="Permalink"></a></h3><p>We can add a model at the end of the pipeline and evaluate the performance of the entire pipeline by cross-validation.</p><p>Let us use a linear SVC model and evaluate using 5-fold cross-validation.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_lsvc = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; lsvc;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_lsvc = crossvalidate(pop_lsvc,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6850242780475339
+   5 │ 0.391021  0.0720301  0.0565951  0.915812      0.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0</code></pre><p>The column size from 6 grew to 60 after the hot-bit encoding was applied because of the large number of unique instances for the categorical columns. </p><h3 id="Performance-Evaluation-of-the-Pipeline"><a class="docs-heading-anchor" href="#Performance-Evaluation-of-the-Pipeline">Performance Evaluation of the Pipeline</a><a id="Performance-Evaluation-of-the-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation-of-the-Pipeline" title="Permalink"></a></h3><p>We can add a model at the end of the pipeline and evaluate the performance of the entire pipeline by cross-validation.</p><p>Let us use a linear SVC model and evaluate using 5-fold cross-validation.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_lsvc = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; lsvc;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_lsvc = crossvalidate(pop_lsvc,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+fold: 1, 0.6850242780475339
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 2, 0.6938955539872971
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 3, 0.6807142857142857
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 4, 0.774120145631068
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 5, 0.6845959595959596
 errors: 0
 (mean = 0.7036700445952289, std = 0.039677479749585215, folds = 5, errors = 0)</code></pre><p>What about using Gradient Boosting model?</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; gb;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.5775354794046382
-fold: 2, 0.6521739130434783
+fold: 2, 0.6647869674185464
 fold: 3, 0.5640394088669951
-fold: 4, 0.6708333333333334
-fold: 5, 0.6037786774628879
+fold: 4, 0.6752136752136753
+fold: 5, 0.61991341991342
 errors: 0
-(mean = 0.6136721624222666, std = 0.04641372477634843, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_rf = crossvalidate(pop_rf,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6103535353535353
+(mean = 0.620297790163455, std = 0.04997201654852579, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_rf = crossvalidate(pop_rf,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6103535353535353
 fold: 2, 0.6453276699029127
 fold: 3, 0.5479651162790697
 fold: 4, 0.6523809523809524
@@ -133,15 +143,15 @@ fold: 10, 0.6865671641791045
 errors: 0
 SGDClassifier_lmf
 fold: 1, 0.7313432835820896
-fold: 2, 0.6865671641791045
-fold: 3, 0.7352941176470589
-fold: 4, 0.7611940298507462
-fold: 5, 0.7014925373134329
-fold: 6, 0.746268656716418
-fold: 7, 0.7611940298507462
-fold: 8, 0.7205882352941176
-fold: 9, 0.5970149253731343
-fold: 10, 0.6865671641791045
+fold: 2, 0.6417910447761194
+fold: 3, 0.7058823529411765
+fold: 4, 0.746268656716418
+fold: 5, 0.7611940298507462
+fold: 6, 0.7611940298507462
+fold: 7, 0.6716417910447762
+fold: 8, 0.6617647058823529
+fold: 9, 0.7014925373134329
+fold: 10, 0.7313432835820896
 errors: 0
 prunetree_AZS
 fold: 1, 0.5970149253731343
@@ -156,15 +166,35 @@ fold: 9, 0.6417910447761194
 fold: 10, 0.6119402985074627
 errors: 0
 LinearSVC_J7X
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 1, 0.746268656716418
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 2, 0.6865671641791045
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 3, 0.7205882352941176
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 4, 0.746268656716418
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 5, 0.7313432835820896
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 6, 0.6865671641791045
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 7, 0.7761194029850746
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 8, 0.8235294117647058
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 9, 0.7164179104477612
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 10, 0.746268656716418
 errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; @show learners;</code><code class="nohighlight hljs ansi" style="display:block;">learners = 5×3 DataFrame
  Row │ name                    mean      sd
@@ -172,38 +202,274 @@ errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display
 ─────┼─────────────────────────────────────────────
    1 │ rf_4Lh                  0.620566  0.0654696
    2 │ AdaBoostClassifier_cuB  0.712796  0.0281381
-   3 │ SGDClassifier_lmf       0.712752  0.0490181
+   3 │ SGDClassifier_lmf       0.711392  0.0421486
    4 │ prunetree_AZS           0.605685  0.0471881
    5 │ LinearSVC_J7X           0.737994  0.0409301</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters"><a class="docs-heading-anchor" href="#Learners-as-Filters">Learners as Filters</a><a id="Learners-as-Filters-1"></a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; expr = @pipeline (
                           ((numf |&gt; pca) |&gt; gb) + ((numf |&gt; pca) |&gt; jrf)
-                        ) |&gt; ohe |&gt; ada;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(expr,X,Y,&quot;accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.7014925373134329
-fold: 2, 0.6592592592592592
+                        ) |&gt; ohe |&gt; ada;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(expr,X,Y,&quot;accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6940298507462687
+fold: 2, 0.6370370370370371
 fold: 3, 0.6343283582089553
 fold: 4, 0.6814814814814815
-fold: 5, 0.5671641791044776
+fold: 5, 0.5597014925373134
 errors: 0
-(mean = 0.6487451630735213, std = 0.05202835635155104, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline">Advanced Expressions using Selector Pipeline</a><a id="Advanced-Expressions-using-Selector-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
-                        (jrf * ada * sgd * tree * lsvc);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.7313432835820896
+(mean = 0.6413156440022112, std = 0.052725896039614015, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline">Advanced Expressions using Selector Pipeline</a><a id="Advanced-Expressions-using-Selector-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
+                        (jrf * ada * sgd * tree * lsvc);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)</code><code class="nohighlight hljs ansi" style="display:block;">/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+fold: 1, 0.7313432835820896
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 2, 0.746268656716418
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 3, 0.7794117647058824
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 4, 0.7611940298507462
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 5, 0.7611940298507462
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 6, 0.7014925373134329
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 7, 0.7611940298507462
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 8, 0.6617647058823529
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 9, 0.6567164179104478
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 10, 0.6567164179104478
 errors: 0
 (mean = 0.7217295873573311, std = 0.04848012070893445, folds = 10, errors = 0)</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
-                        ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pjrf,X,Y,&quot;accuracy_score&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6865671641791045
+                        ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pjrf,X,Y,&quot;accuracy_score&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+fold: 1, 0.746268656716418
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 2, 0.7164179104477612
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 3, 0.7941176470588235
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 4, 0.7014925373134329
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 5, 0.7761194029850746
-fold: 6, 0.746268656716418
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+fold: 6, 0.7313432835820896
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 7, 0.7313432835820896
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 8, 0.6764705882352942
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 9, 0.7761194029850746
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.11/site-packages/sklearn/svm/_classes.py:32: FutureWarning: The default value of `dual` will change from `True` to `&#39;auto&#39;` in 1.5. Set the value of `dual` explicitly to suppress the warning.
+  warnings.warn(
 fold: 10, 0.7611940298507462
 errors: 0
-(mean = 0.736611062335382, std = 0.04071105325332474, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Thursday 29 June 2023 08:58">Thursday 29 June 2023</span>. Using Julia version 1.9.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7410886742756804, std = 0.03687723835224426, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Tuesday 15 August 2023 08:41">Tuesday 15 August 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
