@@ -1,6 +1,5 @@
-nerdctl build -t automlpipeline:latest .
-nerdctl tag automlpipeline:latest ppalmes/automlpipeline:latest
-nerdctl run -it --rm automlpipeline:latest julia --project main.jl 5 1
-nerdctl login registry.docker.com
-nerdctl push ppalmes/automlpipeline:latest
-
+sudo docker build --no-cache -t automlpipeline:latest .
+sudo docker tag automlpipeline:latest ppalmes/automlpipeline:latest
+#sudo docker run -it --rm ppalmes/automlpipeline:latest julia --project main.jl 5 1
+sudo docker login registry.docker.com
+sudo docker push ppalmes/automlpipeline:latest
