@@ -4,10 +4,12 @@ using Distributed
 using DataFrames
 using AutoMLPipeline
 using CSV
+using K8sClusterManagers
 
+addprocs(K8sClusterManagers.K8sClusterManager(2; cpu=1, namespace="argo",memory="10000Mi", pending_timeout=300); exeflags=["--project=$(Base.active_project())"])
 
-workers=5
-nprocs() == 1 && addprocs(workers; exeflags=["--project=$(Base.active_project())"])
+#workers=5
+#nprocs() == 1 && addprocs(workers; exeflags=["--project=$(Base.active_project())"])
 
 #addprocs(K8sClusterManager(10, cpu=1, memory="300Mi", pending_timeout=300); exeflags="--project")
 #nprocs() == 1 && addprocs(; exeflags = "--project")
