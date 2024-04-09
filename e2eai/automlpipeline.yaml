@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  generateName: automlpipeline-
+  generateName: automl-
 spec:
   serviceAccountName: "julia-manager-serviceaccount"
   restartPolicy: Never
