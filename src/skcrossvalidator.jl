@@ -46,7 +46,7 @@ function __init__()
    metric_dict["mean_squared_error"]              = SKM.mean_squared_error
    metric_dict["mean_squared_log_error"]          = SKM.mean_squared_log_error
    metric_dict["mean_absolute_error"]             = SKM.mean_absolute_error
-   #metric_dict["median_absolute_error"]           = SKM.median_absolute_error
+   metric_dict["median_absolute_error"]           = SKM.median_absolute_error
    metric_dict["r2_score"]                        = SKM.r2_score
    metric_dict["max_error"]                       = SKM.max_error
    metric_dict["mean_poisson_deviance"]           = SKM.mean_poisson_deviance

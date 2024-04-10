@@ -21,7 +21,7 @@ function crossval_reg(ppl,X,Y,folds,verbose)
   @test crossvalidate(ppl,X,Y,"mean_squared_error",folds,verbose).mean < 0.5
   @test crossvalidate(ppl,X,Y,"mean_squared_log_error",folds,verbose).mean < 0.5
   @test crossvalidate(ppl,X,Y,"mean_absolute_error",folds,verbose).mean < 0.5
-  #@test crossvalidate(ppl,X,Y,"median_absolute_error",folds,verbose).mean < 0.5
+  @test crossvalidate(ppl,X,Y,"median_absolute_error",folds,verbose).mean < 0.5
   @test crossvalidate(ppl,X,Y,"r2_score",folds,verbose).mean > 0.50
   @test crossvalidate(ppl,X,Y,"max_error",folds,verbose).mean < 0.7
   @test crossvalidate(ppl,X,Y,"mean_poisson_deviance",folds,verbose).mean < 0.7
