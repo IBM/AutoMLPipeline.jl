@@ -1,5 +1,6 @@
 module AutoMLPipeline
 
+using PrecompileTools: @setup_workload, @compile_workload
 using AMLPipelineBase
 using AMLPipelineBase.AbsTypes
 export fit, fit!, transform, transform!,fit_transform, fit_transform!
@@ -35,39 +36,54 @@ import AMLPipelineBase.AbsTypes: fit!, transform!
 
 # --------------------------------------------
 
-include("skpreprocessor.jl")
+@setup_workload begin
+    @compile_workload begin
+        include("skpreprocessor.jl")
+    end
+end
 using .SKPreprocessors
 export SKPreprocessor, skpreprocessors
 
-include("sklearners.jl")
+@setup_workload begin
+    @compile_workload begin
+        include("sklearners.jl")
+    end
+end
 using .SKLearners
 export SKLearner, sklearners
 
-include("skcrossvalidator.jl")
+@setup_workload begin
+    @compile_workload begin
+        include("skcrossvalidator.jl")
+    end
+end
 using .SKCrossValidators
 export crossvalidate
 
 export skoperator
+@setup_workload begin
+    @compile_workload begin
+        function skoperator(name::String; args...)::Machine
+            sklr = keys(SKLearners.learner_dict)
+            skpr = keys(SKPreprocessors.preprocessor_dict)
+            if name ∈ sklr
+                obj = SKLearner(name; args...)
+            elseif name ∈ skpr
+                obj = SKPreprocessor(name; args...)
+            else
+                skoperator()
+                throw(ArgumentError("$name does not exist"))
+            end
+            return obj
+        end
 
-function skoperator(name::String; args...)::Machine
-   sklr = keys(SKLearners.learner_dict)
-   skpr = keys(SKPreprocessors.preprocessor_dict)
-   if name ∈ sklr
-      obj = SKLearner(name; args...)
-   elseif name ∈ skpr
-      obj = SKPreprocessor(name; args...)
-   else
-      skoperator()
-      throw(ArgumentError("$name does not exist"))
-   end
-   return obj
-end
-
-function skoperator()
-   sklr = keys(SKLearners.learner_dict)
-   skpr = keys(SKPreprocessors.preprocessor_dict)
-   println("Please choose among these pipeline elements:")
-   println([sklr..., skpr...])
+        function skoperator()
+            sklr = keys(SKLearners.learner_dict)
+            skpr = keys(SKPreprocessors.preprocessor_dict)
+            println("Please choose among these pipeline elements:")
+            println([sklr..., skpr...])
+        end
+    end
 end
 
 end # module
