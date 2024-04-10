@@ -1,2 +1,5 @@
-import AutoMLPipeline
-include(joinpath(pkgdir(AutoMLPipeline), "test", "runtests.jl"))
+import AMLPipelineBase
+include(joinpath(pkgdir(AMLPipelineBase), "test", "runtests.jl"))
+
+import TSML
+include(joinpath(pkgdir(TSML), "test", "runtests.jl"))
