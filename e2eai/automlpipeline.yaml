@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  generateName: automl-
+spec:
+  serviceAccountName: "julia-manager-serviceaccount"
+  restartPolicy: Never
+  containers:
+  - name: manager
+    image: "ppalmes/automlpipeline:latest"
+    imagePullPolicy: Always
+    command: ["bash","-c","export JULIA_WORKER_TIMEOUT=500; julia --project main-cluster.jl 5 1"]
+    #args: ["${ARG}"]

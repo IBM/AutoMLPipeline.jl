@@ -1,13 +1,12 @@
 name = "AutoMLPipeline"
 uuid = "08437348-eef5-4817-bc1b-d4e9459680d6"
 authors = ["Paulito Palmes <ppalmes@gmail.com>"]
-version = "0.4.3"
+version = "0.4.2"
 
 [deps]
 AMLPipelineBase = "e3c3008a-8869-4d53-9f34-c96f99c8a2b6"
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
@@ -15,8 +14,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [compat]
 AMLPipelineBase = "0.1"
 CondaPkg = "0.2"
-DataFrames = "0.17, 0.18, 0.19, 0.20, 0.21, 0.22, 1"
-PrecompileTools = "1"
+DataFrames = "0.17, 0.18, 0.19, 0.20, 0.21, 0.22, 1.0, 2.0"
 PythonCall = "0.9"
 julia = "1"
 
