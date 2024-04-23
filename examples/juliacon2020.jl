@@ -164,4 +164,4 @@ serialtime = df.time |> sum;
 (serialtime = "$(round(serialtime / 60.0)) minutes", paralleltime = "$(round(runtime)) seconds")
 
 # pipeline performances
-df
+sort!(df,:mean,rev=true)
