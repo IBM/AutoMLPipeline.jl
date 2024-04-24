@@ -13,4 +13,3 @@ RUN julia --project -e 'using Pkg;\
        Pkg.update();\
        Pkg.precompile();\
        include("sysimage.jl")'
-
