@@ -1,28 +1,10 @@
-module MyMain
 using Distributed
+using ArgParse
+using CSV
+using DataFrames
 
-workers=5
-nprocs() == 1 && addprocs(workers;exeflags=["--project=$(Base.active_project())"])
-
-@everywhere using ArgParse
-@everywhere using DataFrames
-@everywhere using CSV
-
-
-# disable warnings
-@everywhere import PythonCall
-@everywhere const PYC=PythonCall
-@everywhere warnings = PYC.pyimport("warnings")
-@everywhere warnings.filterwarnings("ignore")
-
-include("twoblocks.jl")
-using .TwoBlocksPipeline
-@everywhere include("twoblocks.jl")
-@everywhere using .TwoBlocksPipeline
-
-@everywhere function parse_commandline()
+function parse_commandline()
     s = ArgParseSettings()
-
     @add_arg_table! s begin
         "--preprocessing_level", "-l"
             help = "preprocessing level"
@@ -32,6 +14,10 @@ using .TwoBlocksPipeline
             help = "pipeline complexity"
             arg_type = String
             default = "low"
+        "--workers", "-w"
+            help = "number of workers"
+            arg_type = Integer
+            default = 5
         "--no-save"
             help = "save model"
             action = :store_true
@@ -39,22 +25,28 @@ using .TwoBlocksPipeline
             help = "input csv file"
             required = true
     end
-
     return parse_args(s)
 end
 
-@everywhere function mymain()
+function extract_args()
     parsed_args = parse_commandline()
     println("Parsed args:")
     for (arg,val) in parsed_args
         println("  $arg  =>  $val")
     end
+    workers=parsed_args["workers"]
     fname = parsed_args["input_csvfile"]
     data = CSV.read(fname,DataFrame)
     X = data[:,1:(end-1)]
     Y = data[:,end] |> collect
-    twoblockspipelinesearch(X,Y)
-end
+    return(workers,X,Y)
 end
 
-mymain()
+const (workers,X,Y)=extract_args()
+
+nprocs() == 1 && addprocs(workers;exeflags=["--project=$(Base.active_project())"])
+
+@everywhere include("twoblocks.jl")
+@everywhere using .TwoBlocksPipeline:twoblockspipelinesearch
+
+twoblockspipelinesearch(X,Y)
