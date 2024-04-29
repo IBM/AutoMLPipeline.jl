@@ -3,8 +3,7 @@ module TwoBlocksPipeline
 export twoblockspipelinesearch
 
 using Distributed
-#nprocs() == 1 && addprocs(; exeflags = "--project")
-#nprocs() == 1 && addprocs()
+
 using AutoMLPipeline
 using DataFrames
 using DataFrames:DataFrame
