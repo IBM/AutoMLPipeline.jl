@@ -15,3 +15,4 @@ RUN julia --project -e 'using Pkg;\
        Pkg.precompile();\
        include("automl_sysimage.jl")'
 COPY * /amlp/
+ENTRYPOINT ["julia", "--project", "-Jautoml.so", "--", "main_parse.jl"]
