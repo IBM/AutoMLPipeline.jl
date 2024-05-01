@@ -29,9 +29,15 @@ const ica    = SKPreprocessor("FastICA",Dict(:name=>"ica"))
 const rf     = SKLearner("RandomForestRegressor",Dict(:name => "rf"))
 const ada    = SKLearner("AdaBoostRegressor",Dict(:name => "ada"))
 const gb     = SKLearner("GradientBoostingRegressor",Dict(:name => "gb"))
-const ridge   = SKLearner("Ridge",Dict(:name => "ridge"))
-const svr = SKLearner("SVR",Dict(:name => "svr"))
+const ridge  = SKLearner("Ridge",Dict(:name => "ridge"))
+const svr    = SKLearner("SVR",Dict(:name => "svr"))
 const dt     = SKLearner("DecisionTreeRegressor",Dict(:name =>"dt"))
+const lasso  = SKLearner("Lasso",Dict(:name  =>"lasso"))
+const enet   = SKLearner("ElasticNet",Dict(:name =>"enet"))
+const ard    = SKLearner("ARDRegression",Dict(:name =>"ard"))
+const lars   = SKLearner("Lars",Dict(:name =>"lars"))
+const sgd    = SKLearner("SGDRegressor",Dict(:name =>"sgd"))
+const kridge = SKLearner("KernelRidge",Dict(:name =>"kridge"))
 # preprocessing
 const noop = Identity(Dict(:name =>"noop"))
 const ohe  = OneHotEncoder(Dict(:name=>"ohe"))
@@ -40,9 +46,11 @@ const numf = NumFeatureSelector(Dict(:name=>"numf"))
 
 const vscalers =    [rb,pt,norm,mx,std,noop]
 const vextractors = [pca,fa,ica,noop]
-const vlearners =   [rf,gb,ridge,svr,ada,dt]
-const learnerdict = Dict("rf"=>rf,"gb"=>gb,"ridge"=>ridge,"svr"=>svr,"ada"=>ada,"dt"=>dt)
-
+const vlearners =   [rf,gb,ridge,svr,ada,dt,lasso,enet,ard,lars,sgd,kridge]
+const learnerdict = Dict("rf"=>rf,"gb"=>gb,"ridge"=>ridge,"svr"=>svr,
+                         "ada"=>ada,"dt"=>dt,"lasso"=>lasso,"enet"=>enet,"ard"=>ard,
+                         "lars"=>lars,"sgd"=>sgd,"kridge"=>kridge
+                        )
 
 function oneblock_pipeline_factory(scalers,extractors,learners)
    results = @distributed (vcat) for lr in learners
