@@ -1,4 +1,4 @@
-module PipelineBlocks
+module PipelineBlocksClassification
 
 export twoblockspipelinesearch, oneblockpipelinesearch
 
