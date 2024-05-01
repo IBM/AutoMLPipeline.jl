@@ -7,9 +7,10 @@ RUN mkdir /amlp
 RUN cd /amlp
 WORKDIR /amlp
 COPY Project.toml /amlp/
-COPY * /amlp/
+COPY sysimage.jl /amlp/
 RUN julia --project -e 'using Pkg;\
        Pkg.instantiate();\
        Pkg.update();\
        Pkg.precompile();\
        include("sysimage.jl")'
+COPY * /amlp/
