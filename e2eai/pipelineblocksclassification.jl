@@ -32,6 +32,12 @@ const gb     = SKLearner("GradientBoostingClassifier",Dict(:name => "gb"))
 const lsvc   = SKLearner("LinearSVC",Dict(:name => "lsvc"))
 const rbfsvc = SKLearner("SVC",Dict(:name => "rbfsvc"))
 const dt     = SKLearner("DecisionTreeClassifier",Dict(:name =>"dt"))
+const et     = SKLearner("ExtraTreesClassifier",Dict(:name =>"et"))
+const ridge  = SKLearner("RidgeClassifier",Dict(:name =>"ridge"))
+const sgd    = SKLearner("SGDClassifier",Dict(:name =>"sgd"))
+#const gp     = SKLearner("GaussianProcessClassifier",Dict(:name =>"gp"))
+const bg     = SKLearner("BaggingClassifier",Dict(:name =>"bg"))
+const pa     = SKLearner("PassiveAggressiveClassifier",Dict(:name =>"pa"))
 # preprocessing
 const noop = Identity(Dict(:name =>"noop"))
 const ohe  = OneHotEncoder(Dict(:name=>"ohe"))
@@ -40,9 +46,11 @@ const numf = NumFeatureSelector(Dict(:name=>"numf"))
 
 const vscalers =    [rb,pt,norm,mx,std,noop]
 const vextractors = [pca,fa,ica,noop]
-const vlearners =   [rf,gb,lsvc,rbfsvc,ada,dt]
-const learnerdict = Dict("rf"=>rf,"gb"=>gb,"lsvc"=>lsvc,"rbfsvc"=>rbfsvc,"ada"=>ada,"dt"=>dt)
-
+const vlearners =   [rf,gb,lsvc,rbfsvc,ada,dt,et,ridge,sgd,bg,pa]
+const learnerdict = Dict("rf"=>rf,"gb"=>gb,"lsvc"=>lsvc,"rbfsvc"=>rbfsvc,"ada"=>ada,
+                         "dt"=>dt,"et"=>et,"ridge"=>ridge,
+                         "sgd"=>sgd,"bg"=>bg,"pa"=>pa
+                        )
 
 function oneblock_pipeline_factory(scalers,extractors,learners)
    results = @distributed (vcat) for lr in learners

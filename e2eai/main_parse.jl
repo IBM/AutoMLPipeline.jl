@@ -2,6 +2,7 @@ using Distributed
 using ArgParse
 using CSV
 using DataFrames
+using AutoMLPipeline
 
 function parse_commandline()
     s = ArgParseSettings()
