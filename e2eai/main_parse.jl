@@ -10,6 +10,10 @@ function parse_commandline()
             help = "pipeline complexity"
             arg_type = String
             default = "low"
+        "--prediction_type", "-t"
+            help = "classification or regression"
+            arg_type = String
+            default = "classification"
         "--nfolds", "-f"
             help = "number of crossvalidation folds"
             arg_type = Int64
@@ -49,9 +53,17 @@ const _workers = _cliargs[:workers]
 
 nprocs() == 1 && addprocs(_workers;exeflags=["--project=$(Base.active_project())"])
 
-@everywhere include("pipelineblocks.jl")
-@everywhere using .PipelineBlocks:twoblockspipelinesearch
-@everywhere using .PipelineBlocks:oneblockpipelinesearch
+if _cliargs[:prediction_type] == "classification"
+    @everywhere include("pipelineblocksclassification.jl")
+    @everywhere using .PipelineBlocksClassification:twoblockspipelinesearch
+    @everywhere using .PipelineBlocksClassification:oneblockpipelinesearch
+elseif _cliargs[:prediction_type] == "regression"
+    @everywhere include("pipelineblocksregression.jl")
+    @everywhere using .PipelineBlocksRegression:twoblockspipelinesearch
+    @everywhere using .PipelineBlocksRegression:oneblockpipelinesearch
+else
+    error("cli argument error for prediction type")
+end
 
 function mymain()
     fname = _cliargs[:csvfile]
