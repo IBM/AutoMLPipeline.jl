@@ -6,47 +6,66 @@ using DataFrames
 function parse_commandline()
     s = ArgParseSettings()
     @add_arg_table! s begin
-        "--preprocessing_level", "-l"
-            help = "preprocessing level"
-            arg_type = String
-            default = "low"
         "--pipeline_complexity", "-c"
             help = "pipeline complexity"
             arg_type = String
             default = "low"
+        "--nfolds", "-f"
+            help = "number of crossvalidation folds"
+            arg_type = Int64
+            default = 3
         "--workers", "-w"
             help = "number of workers"
-            arg_type = Integer
+            arg_type = Int64
             default = 5
-        "--no-save"
+        "--no_save"
             help = "save model"
             action = :store_true
-        "input_csvfile"
+        "csvfile"
             help = "input csv file"
             required = true
+            #default="iris.csv"
     end
-    return parse_args(s)
+    return parse_args(s;as_symbols=true)
 end
 
-function extract_args()
-    parsed_args = parse_commandline()
-    println("Parsed args:")
-    for (arg,val) in parsed_args
-        println("  $arg  =>  $val")
-    end
-    workers=parsed_args["workers"]
-    fname = parsed_args["input_csvfile"]
+#function extract_args()
+#    parsed_args = parse_commandline()
+#    println("Parsed args:")
+#    for (arg,val) in parsed_args
+#        println("  $arg  =>  $val")
+#    end
+#    fname = parsed_args[:input_csvfile]
+#    data = CSV.read(fname,DataFrame)
+#    X = data[:,1:(end-1)]
+#    Y = data[:,end] |> collect
+#    #return(workers,X,Y)
+#    return (;parsed_args...)
+#end
+#
+#const (csv,X,Y)=extract_args()
+const _cliargs = (;parse_commandline()...)
+const _workers = _cliargs[:workers]
+
+nprocs() == 1 && addprocs(_workers;exeflags=["--project=$(Base.active_project())"])
+
+@everywhere include("pipelineblocks.jl")
+@everywhere using .PipelineBlocks:twoblockspipelinesearch
+@everywhere using .PipelineBlocks:oneblockpipelinesearch
+
+function mymain()
+    fname = _cliargs[:csvfile]
     data = CSV.read(fname,DataFrame)
     X = data[:,1:(end-1)]
     Y = data[:,end] |> collect
-    return(workers,X,Y)
+    best = if _cliargs[:pipeline_complexity] == "low"
+        oneblockpipelinesearch(X,Y;nfolds=_cliargs[:nfolds])
+    else
+        twoblockspipelinesearch(X,Y;nfolds=_cliargs[:nfolds])
+    end
+    r(x)=round(x,digits=2)
+    println("best model: ",best[1])
+    println(" mean ± sd: ",r(best[2])," ± ",r(best[3]))
+    return best
 end
-
-const (workers,X,Y)=extract_args()
-
-nprocs() == 1 && addprocs(workers;exeflags=["--project=$(Base.active_project())"])
-
-@everywhere include("twoblocks.jl")
-@everywhere using .TwoBlocksPipeline:twoblockspipelinesearch
-
-twoblockspipelinesearch(X,Y)
+mymain()

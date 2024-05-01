@@ -1,6 +1,6 @@
-module TwoBlocksPipeline
+module PipelineBlocks
 
-export twoblockspipelinesearch
+export twoblockspipelinesearch, oneblockpipelinesearch
 
 using Distributed
 
@@ -121,7 +121,27 @@ function twoblockspipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extract
    show(bestp;allrows=false,truncate=1,allcols=false)
    println()
    optmodel = bestp[1,:]
-   return bestp
+   return optmodel
+end
+
+function oneblockpipelinesearch(X::DataFrame,Y::Vector;scalers=vscalers,extractors=vextractors,learners=vlearners,nfolds=3)
+   dfpipes = model_selection_pipeline(vlearners)
+   # find the best model by evaluating the models
+   modelsperf = evaluate_pipeline(dfpipes,X,Y;folds=nfolds)
+   sort!(modelsperf,:mean, rev = true)
+   # get the string name of the top model
+   bestm =  filter(x->occursin(x,modelsperf.Description[1]),lname.(vlearners))[1]
+   # get corresponding model object
+   bestmodel = learnerdict[bestm]
+   # use the best model to generate pipeline search
+   dfp = oneblock_pipeline_factory(vscalers,vextractors,[bestmodel])
+   # evaluate the pipeline
+   bestp=evaluate_pipeline(dfp,X,Y;folds=nfolds)
+   sort!(bestp,:mean, rev = true)
+   show(bestp;allrows=false,truncate=1,allcols=false)
+   println()
+   optmodel = bestp[1,:]
+   return optmodel
 end
 
 end
