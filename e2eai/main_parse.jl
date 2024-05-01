@@ -15,6 +15,10 @@ function parse_commandline()
             help = "classification or regression"
             arg_type = String
             default = "classification"
+        "--output_file", "-o"
+            help = "output location"
+            arg_type = String
+            default = "NONE"
         "--nfolds", "-f"
             help = "number of crossvalidation folds"
             arg_type = Int64
@@ -77,8 +81,15 @@ function mymain()
         twoblockspipelinesearch(X,Y;nfolds=_cliargs[:nfolds])
     end
     r(x)=round(x,digits=2)
-    println("best model: ",best[1])
-    println(" mean ± sd: ",r(best[2])," ± ",r(best[3]))
+    println("best model: $(best[1])")
+    println(" mean ± sd: $(r(best[2])) ± $(r(best[3]))")
+    ofile = _cliargs[:output_file]
+    if ofile != "NONE"
+       stfile = open(ofile,"w")
+       println(stfile,"best model: $(best[1])")
+       println(stfile," mean ± sd: $(r(best[2])) ± $(r(best[3]))")
+       close(stfile)
+    end
     return best
 end
 mymain()
