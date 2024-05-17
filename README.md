@@ -57,12 +57,14 @@ a + b |> c; (a + b) |> c
 ```
 
 #### Please read this [AutoMLPipeline Paper](https://doi.org/10.21105/jcon.00129) for benchmark comparisons.
-- JuliaCon Proceedings: [![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00129/status.svg)](https://doi.org/10.21105/jcon.00129)
+- [JuliaCon Proceedings](https://doi.org/10.21105/jcon.00129): [![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00129/status.svg)](https://doi.org/10.21105/jcon.00129)
 
 ### Recorded Video/Conference Presentations:
+- [2023 JuliaCon (**Wrapping Up Offline RL as Part of AutoMLPipeline Workflow**)](https://www.youtube.com/watch?v=7a2MqqvyoEc)
+- [2022 JuliaCon (**Distributed AutoML Pipeline Search in PC/RasPi K8s Cluster**)](https://www.youtube.com/watch?v=gpmmHt6d0pw)
 - [2021 JuliaCon (**Finding an Effective Strategy for AutoML Pipeline Optimization**)](https://www.youtube.com/watch?v=ZRFIMGW88Co)
-- [2020 JuliaCon (**AutoMLPipeline: A ToolBox for Building ML Pipelines**)](https://www.youtube.com/watch?v=6-hJnMO0oDs)
 - [2021 PyData Ireland Meetup (**Symbolic ML Pipeline Expression and Benchmarking**)](https://www.youtube.com/watch?v=EQm5fj-4Hrw)
+- [2020 JuliaCon (**AutoMLPipeline: A ToolBox for Building ML Pipelines**)](https://www.youtube.com/watch?v=6-hJnMO0oDs)
 
 
 ### Related Video/Conference Presentations:
