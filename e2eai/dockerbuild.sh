@@ -5,7 +5,8 @@ sudo docker tag automlpipeline:latest ppalmes/automlpipeline:latest
 sudo docker login registry.docker.com
 sudo docker push ppalmes/automlpipeline:latest
 
-sudo docker run --rm -v $PWD:/data  ppalmes/automlpipeline:latest -w 5 -o /data/output.txt iris.csv
+sudo docker run --rm -v $PWD:/data  ppalmes/automlpipeline:latest -c high -w 5 -o /data/output.txt iris.csv
+sudo docker run --rm -v $PWD:/data  ppalmes/automlpipeline:latest -chigh -w5 iris.csv
 julia --project main_parse.jl -c "high" -t "classification"  ../data/diabetes.csv
 
 sudo docker build --no-cache -t amlp:latest -f ./Dockerfile.sysimage .
