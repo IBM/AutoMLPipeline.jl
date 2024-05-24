@@ -1,54 +1,7 @@
-# Brief Intro
-# - Paulito Palmes, PhD
-# - IBM Research Scientist
-# - IBM Dublin Research Lab
-# 
-# Acknowledgement
-# 
-# Problem Overview
-#   - given a set of pipeline elements (prp):
-# 	   - feature selectors (fsl)  : catf, numf
-#       - scalers (fsc)            : norm, minmax, std, rb
-#       - feature extractors (fxt) : pca, ica, fa
-#       - learners (lr)            : rf, xgb, svm
-# 
-#   - Find optimal  U{fsl |> fsc |> fxt} |> lr 
-#   - Note: x |> f => f(x); x + y => U{x,y}
-#   - Assume one-block prp:  fsl |> fsc |> fxt 
-#       - Optimize: prp1 + prp2 + ... + prpn |> lr
-#       - Optimize: matching between {prps} x {lrs} s.t. 
-# 		  chosen prp |> lr is optimal
-#   - Complexity: n(prps) x n(lrs) 
-#     - exponential/combinatorial complexity
-# 
-# - Two-stage strategy (avoid simultaneous search prps and lrs)
-#   - Pick a surrogate pipeline and search best lr in {lrs}
-#   - Use lr to search for best prp in {prps}
-#   - Reduce complexity from n(prps) x n(lrs) to n(prps) + n(lrs)
-#   - limitations: 
-#     - only pipeline structure optimization
-#     - no hyper-parameter optimization
-#     - for classification tasks
-# 
-# - Current Toolkits
-#   sklearn: Pipeline, FeatureUnion, Hyperparam-Optim
-#   caret: No pipeline, Hyperparam-Optim
-#   lale: sklearn + AutoML (CASH)
-#     - bayesian optimization, tree search, random, stochastic, evolutionary
-# 
-# AutoMLPipeline: A package that makes it trivial to create and evaluate machine 
-# 					 learning pipeline architectures. It can be used as building block
-# 					 for developing AutoML algorithms similar to lale but in Julia 
-# 					 ecosystem.
-# 
-
-# -------------------------------
-# Sample Workflow
-# -------------------------------
-
 # make sure local environment is activated
 using Pkg
 Pkg.activate(".")
+
 
 # Symbolic Pipeline Composition
 # For parallel search
@@ -56,12 +9,7 @@ using AutoMLPipeline
 using Distributed
 using DataFrames
 
-# disable truncation of dataframes columns
-import Base.show
-show(df::AbstractDataFrame) = show(df,truncate=0)
-show(io::IO,df::AbstractDataFrame) = show(io,df;truncate=0)
-
-# add workers
+# Add workers
 nprocs() ==1 && addprocs(exeflags=["--project=$(Base.active_project())"])
 workers()
 
@@ -126,7 +74,7 @@ pipe = @pipeline (numf |> norm) + (catf |> ohe);
 pred = fit_transform!(pipe, X, Y)
 
 pipe = @pipeline (numf |> norm) + (catf |> ohe) |> rf;
-pred = fit_transform!(pipe, X, Y);
+pred = fit_transform!(pipe, X, Y)
 crossvalidate(pipe,X,Y)
 
 pipe = @pipeline (numf |> norm) + (catf |> ohe)  |> sgd;
@@ -164,4 +112,4 @@ serialtime = df.time |> sum;
 (serialtime = "$(round(serialtime / 60.0)) minutes", paralleltime = "$(round(runtime)) seconds")
 
 # pipeline performances
-sort!(df,:mean,rev=true)
+@show df

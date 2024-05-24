@@ -1,0 +1,69 @@
+# infra
+kind: Cluster
+metadata:
+  name: e2eai-cluster
+spec:
+  hosts:
+    address: 10.10.7.10
+    role: controller
+    address: 10.10.7.11
+    role: worker
+    address: 10.10.7.12
+    role: worker
+    address: 10.10.7.13
+    role: worker
+----
+
+# mlops/aiops
+kind: Workflow
+metadata:
+  generateName: automlpipeline-
+spec:
+  entrypoint: mainFun
+  arguments:
+    parameters:
+    - name: complexity
+      value: high
+    - name: input
+      value: iris.csv
+    - name: predictiontype
+      value: classification
+    - name: folds
+      value: 3 
+    - name: workers
+      value: 5
+  templates:
+  - name: mainFun
+    inputs:
+      parameters:
+        - name: complexity
+        - name: input
+        - name: predictiontype
+        - name: folds
+        - name: workers
+      artifacts:
+        - name: file
+          path: /inputfile
+          s3:
+            key: csv/
+    container:
+      image: ppalmes/automlpipeline:latest
+      command:
+      args:
+        - "-t{{inputs.parameters.predictiontype}}"
+        - "-c{{inputs.parameters.complexity}}"
+        - "-f{{inputs.parameters.folds}}"
+        - "-w{{inputs.parameters.workers}}"
+        - "-o/outputfile"
+        - "/inputfile/{{inputs.parameters.input}}"
+    outputs:
+      artifacts:
+        - name: ofile
+          path: /outputfile
+          s3:
+            key: "output/{{inputs.parameters.complexity}}_{{inputs.parameters.predictiontype}}_{{inputs.parameters.input}}.tgz"
+----
+
+# lifecycle  management
+
+----
