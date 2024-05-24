@@ -1,0 +1,89 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: classification-regression-key-artifacts-
+spec:
+  entrypoint: run-main
+  templates:
+  - name: run-main
+    steps:
+    - - name: low-complexity-pipeline-for-regression
+        template: function-low-regression
+      - name: high-complexity-pipeline-for-regression
+        template: function-high-regression
+      - name: low-complexity-pipeline-for-classification
+        template: function-low-classification
+      - name: high-complexity-pipeline-for-classification
+        template: function-high-classification
+  # ----------
+  - name: function-low-regression
+    container:
+      image: ppalmes/automlpipeline:latest
+      command: 
+      args: ["-clow","-f2","-w5","-tregression","-o/mnt/file","/tmp/file/iris_reg.csv"]
+    inputs:
+      artifacts:
+        - name: file
+          path: /tmp/file/
+          s3:
+            key: csv/
+    outputs:
+      artifacts:
+        - name: ofile
+          path: /mnt/file
+          s3:
+            key: output/low_regression.tgz
+
+  - name: function-high-regression
+    container:
+      image: ppalmes/automlpipeline:latest
+      command: 
+      args: ["-chigh","-f2","-w5","-tregression","-o/mnt/file","/tmp/file/iris_reg.csv"]
+    inputs:
+      artifacts:
+        - name: file
+          path: /tmp/file/
+          s3:
+            key: csv/
+    outputs:
+      artifacts:
+        - name: ofile
+          path: /mnt/file
+          s3:
+            key: output/high_regression.tgz
+
+  - name: function-low-classification
+    container:
+      image: ppalmes/automlpipeline:latest
+      command: 
+      args: ["-clow","-f2","-w5","-tclassification","-o/mnt/file","/tmp/file/iris.csv"]
+    inputs:
+      artifacts:
+        - name: file
+          path: /tmp/file/
+          s3:
+            key: csv/
+    outputs:
+      artifacts:
+        - name: ofile
+          path: /mnt/file
+          s3:
+            key: output/low_classification.tgz
+
+  - name: function-high-classification
+    container:
+      image: ppalmes/automlpipeline:latest
+      command: 
+      args: ["-chigh","-f2","-w5","-tclassification","-o/mnt/file","/tmp/file/iris.csv"]
+    inputs:
+      artifacts:
+        - name: file
+          path: /tmp/file/
+          s3:
+            key: csv/
+    outputs:
+      artifacts:
+        - name: ofile
+          path: /mnt/file
+          s3:
+            key: output/high_classification.tgz
