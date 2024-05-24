@@ -61,14 +61,14 @@ catf = CatFeatureSelector()
 numf = NumFeatureSelector()
 pl = @pipeline disc |&gt; ((numf |&gt; pca) + (catf |&gt; ohe))
 res_pl = fit_transform!(pl,X,Y)</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; show5(res_pl)</code><code class="nohighlight hljs ansi" style="display:block;"><span class="sgr1">5×24 DataFrame
- Row │ x1        x2         x3          x4        x5         x6        x7          x1_1     x2_1     x3_1     x4_1     x5_1     x6_1     x7_1     x8       x9       x10      x11      x12      x13      x14      x15      x16      x17
-     │<span class="sgr90"> Float64   Float64    Float64     Float64   Float64    Float64   Float64     Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64
-─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   1 │ -75.7103  -35.9097   -7.24498    15.8651    16.3111    3.44999   0.0983858      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
-   2 │ -82.3643   28.8482   -5.54565     8.92881    3.75463   5.57591  -0.0757265      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
-   3 │ -74.6222  -67.8436   19.4901     -5.61152  -10.7677    7.1707    0.245201       0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
-   4 │  11.0716   34.84     -0.0969794   1.16049   -7.43015   2.58333  -0.267739       0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
-   5 │  89.7362   -2.84072  25.1258     18.9669     8.76339  -9.50796   1.69639        0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0</span></span></code></pre><h3 id="Performance-Evaluation"><a class="docs-heading-anchor" href="#Performance-Evaluation">Performance Evaluation</a><a id="Performance-Evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation" title="Permalink"></a></h3><p>Let us compare the RF cross-validation result between two options:</p><ul><li><code>preg</code> column should be categorical vs</li><li><code>preg</code> column is numerical</li></ul><p>in predicting diabetes where numerical values are scaled by robust scaler and decomposed by PCA.</p><h5 id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate"><a class="docs-heading-anchor" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate">Option 1: Assume All Numeric Columns as not Categorical and Evaluate</a><a id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia hljs">pca = SKPreprocessor(&quot;PCA&quot;)
+ Row │ x1        x2         x3           x4        x5         x6        x7          x1_1     x2_1     x3_1     x4_1     x5_1     x6_1     x7_1     x8       x9       x10      x11      x12      x13      x14      x15      x16      x17
+     │<span class="sgr90"> Float64   Float64    Float64      Float64   Float64    Float64   Float64     Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64  Float64
+─────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │ -75.7103   35.9097     7.24498    15.8651    16.3111   -3.44999   0.0983858      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   2 │ -82.3643  -28.8482     5.54565     8.92881    3.75463  -5.57591  -0.0757265      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   3 │ -74.6222   67.8436   -19.4901     -5.61152  -10.7677   -7.1707    0.245201       0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   4 │  11.0716  -34.84       0.0969794   1.16049   -7.43015  -2.58333  -0.267739       0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0
+   5 │  89.7362    2.84072  -25.1258     18.9669     8.76339   9.50796   1.69639        0.0      0.0      0.0      1.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0      0.0</span></span></code></pre><h3 id="Performance-Evaluation"><a class="docs-heading-anchor" href="#Performance-Evaluation">Performance Evaluation</a><a id="Performance-Evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Evaluation" title="Permalink"></a></h3><p>Let us compare the RF cross-validation result between two options:</p><ul><li><code>preg</code> column should be categorical vs</li><li><code>preg</code> column is numerical</li></ul><p>in predicting diabetes where numerical values are scaled by robust scaler and decomposed by PCA.</p><h5 id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate"><a class="docs-heading-anchor" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate">Option 1: Assume All Numeric Columns as not Categorical and Evaluate</a><a id="Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-1:-Assume-All-Numeric-Columns-as-not-Categorical-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia hljs">pca = SKPreprocessor(&quot;PCA&quot;)
 dt = SKLearner(&quot;DecisionTreeClassifier&quot;)
 rf = SKLearner(&quot;RandomForestClassifier&quot;)
 rbs = SKPreprocessor(&quot;RobustScaler&quot;)
@@ -78,38 +78,38 @@ ohe = OneHotEncoder()
 catf = CatFeatureSelector()
 numf = NumFeatureSelector()
 disc = CatNumDiscriminator(0) # disable turning numeric to categorical features
-pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6153846153846154
-fold: 2, 0.88
+pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.7307692307692307
+fold: 2, 0.84
 fold: 3, 0.5384615384615384
-fold: 4, 0.52
+fold: 4, 0.6
 fold: 5, 0.8076923076923077
-fold: 6, 0.8846153846153846
-fold: 7, 0.84
-fold: 8, 0.7692307692307693
+fold: 6, 0.9230769230769231
+fold: 7, 0.8
+fold: 8, 0.8076923076923077
 fold: 9, 0.84
-fold: 10, 0.6153846153846154
+fold: 10, 0.7692307692307693
 fold: 11, 0.6538461538461539
 fold: 12, 0.76
-fold: 13, 0.6153846153846154
-fold: 14, 0.76
-fold: 15, 0.6923076923076923
-fold: 16, 0.8846153846153846
-fold: 17, 0.72
+fold: 13, 0.6538461538461539
+fold: 14, 0.8
+fold: 15, 0.7307692307692307
+fold: 16, 0.8461538461538461
+fold: 17, 0.76
 fold: 18, 0.6923076923076923
-fold: 19, 0.72
-fold: 20, 0.8461538461538461
-fold: 21, 0.7307692307692307
-fold: 22, 0.64
-fold: 23, 0.6538461538461539
-fold: 24, 0.76
-fold: 25, 0.7692307692307693
+fold: 19, 0.8
+fold: 20, 0.7692307692307693
+fold: 21, 0.6923076923076923
+fold: 22, 0.72
+fold: 23, 0.6153846153846154
+fold: 24, 0.64
+fold: 25, 0.7307692307692307
 fold: 26, 0.7307692307692307
-fold: 27, 0.68
-fold: 28, 0.8076923076923077
-fold: 29, 0.68
-fold: 30, 0.8076923076923077
+fold: 27, 0.64
+fold: 28, 0.7692307692307693
+fold: 29, 0.72
+fold: 30, 0.7692307692307693
 errors: 0
-(mean = 0.7305128205128205, std = 0.09822923801347201, folds = 30, errors = 0)</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia hljs">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
+(mean = 0.7383589743589744, std = 0.08411177193993158, folds = 30, errors = 0)</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia hljs">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
 pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">┌ Warning: Unseen value found in OneHotEncoder,
 │                for entry (2, 1) = 15.
 │                Patching value to 6.
@@ -122,20 +122,20 @@ fold: 3, 0.7692307692307693
 │                Patching value to 6.
 └ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/FFCPY/src/basefilters.jl:106
 fold: 4, 0.68
-fold: 5, 0.7307692307692307
-fold: 6, 0.7307692307692307
+fold: 5, 0.7692307692307693
+fold: 6, 0.7692307692307693
 fold: 7, 0.72
 fold: 8, 0.6538461538461539
-fold: 9, 0.76
+fold: 9, 0.72
 fold: 10, 0.7307692307692307
-fold: 11, 0.7692307692307693
-fold: 12, 0.92
+fold: 11, 0.6538461538461539
+fold: 12, 0.88
 fold: 13, 0.6923076923076923
-fold: 14, 0.84
-fold: 15, 0.7307692307692307
-fold: 16, 0.7692307692307693
-fold: 17, 0.76
-fold: 18, 0.6923076923076923
+fold: 14, 0.88
+fold: 15, 0.6923076923076923
+fold: 16, 0.8076923076923077
+fold: 17, 0.8
+fold: 18, 0.7307692307692307
 ┌ Warning: Unseen value found in OneHotEncoder,
 │                for entry (7, 1) = 14.
 │                Patching value to 6.
@@ -145,16 +145,16 @@ fold: 18, 0.6923076923076923
 │                Patching value to 6.
 └ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/FFCPY/src/basefilters.jl:106
 fold: 19, 0.8
-fold: 20, 0.8076923076923077
+fold: 20, 0.7692307692307693
 fold: 21, 0.7307692307692307
 fold: 22, 0.72
-fold: 23, 0.8461538461538461
-fold: 24, 0.88
-fold: 25, 0.5
-fold: 26, 0.8461538461538461
-fold: 27, 0.72
-fold: 28, 0.7692307692307693
+fold: 23, 0.7692307692307693
+fold: 24, 0.92
+fold: 25, 0.6153846153846154
+fold: 26, 0.7692307692307693
+fold: 27, 0.68
+fold: 28, 0.8076923076923077
 fold: 29, 0.8
-fold: 30, 0.8076923076923077
+fold: 30, 0.7692307692307693
 errors: 0
-(mean = 0.7503589743589744, std = 0.08045568377027185, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Friday 17 May 2024 11:46">Friday 17 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7477948717948719, std = 0.07199711315409317, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Friday 24 May 2024 13:53">Friday 24 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

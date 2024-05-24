@@ -75,28 +75,28 @@ fold: 4, 0.47619047619047616
 fold: 5, 0.5288135593220339
 errors: 0
 AdaBoostClassifier_hsP
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 1, 0.5457627118644067
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 2, 0.5306122448979592
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 3, 0.5830508474576271
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 4, 0.5544217687074829
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 5, 0.535593220338983
 errors: 0
 SGDClassifier_RCa
-fold: 1, 0.47796610169491527
-fold: 2, 0.4557823129251701
-fold: 3, 0.46779661016949153
-fold: 4, 0.46598639455782315
-fold: 5, 0.4610169491525424
+fold: 1, 0.4576271186440678
+fold: 2, 0.5034013605442177
+fold: 3, 0.46440677966101696
+fold: 4, 0.4557823129251701
+fold: 5, 0.4542372881355932
 errors: 0
 prunetree_YSp
 fold: 1, 0.4745762711864407
@@ -105,13 +105,13 @@ fold: 3, 0.4745762711864407
 fold: 4, 0.4557823129251701
 fold: 5, 0.4745762711864407
 errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; @show learners;</code><code class="nohighlight hljs ansi" style="display:block;">learners = 4×4 DataFrame
- Row │ name                    mean      sd          kfold
-     │ String                  Float64   Float64     Int64
-─────┼─────────────────────────────────────────────────────
-   1 │ rf_fvh                  0.51863   0.0286669       5
-   2 │ AdaBoostClassifier_hsP  0.549888  0.0206957       5
-   3 │ SGDClassifier_RCa       0.46571   0.00829497      5
-   4 │ prunetree_YSp           0.476582  0.0170585       5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia hljs">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
+ Row │ name                    mean      sd         kfold
+     │ String                  Float64   Float64    Int64
+─────┼────────────────────────────────────────────────────
+   1 │ rf_fvh                  0.51863   0.0286669      5
+   2 │ AdaBoostClassifier_hsP  0.549888  0.0206957      5
+   3 │ SGDClassifier_RCa       0.467091  0.0206659      5
+   4 │ prunetree_YSp           0.476582  0.0170585      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia hljs">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
 for learner in [jrf,ada,sgd,tree,gb]
@@ -129,28 +129,28 @@ fold: 4, 0.5510204081632653
 fold: 5, 0.5389830508474577
 errors: 0
 AdaBoostClassifier_hsP
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 1, 0.5152542372881356
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 2, 0.5306122448979592
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 3, 0.559322033898305
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 4, 0.5544217687074829
-/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:519: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
+/home/runner/work/AutoMLPipeline.jl/AutoMLPipeline.jl/docs/.CondaPkg/env/lib/python3.12/site-packages/sklearn/ensemble/_weight_boosting.py:527: FutureWarning: The SAMME.R algorithm (the default) is deprecated and will be removed in 1.6. Use the SAMME algorithm to circumvent this warning.
   warnings.warn(
 fold: 5, 0.5694915254237288
 errors: 0
 SGDClassifier_RCa
-fold: 1, 0.4610169491525424
-fold: 2, 0.47278911564625853
-fold: 3, 0.47796610169491527
-fold: 4, 0.54421768707483
-fold: 5, 0.4610169491525424
+fold: 1, 0.47796610169491527
+fold: 2, 0.4489795918367347
+fold: 3, 0.4610169491525424
+fold: 4, 0.4897959183673469
+fold: 5, 0.5152542372881356
 errors: 0
 prunetree_YSp
 fold: 1, 0.5457627118644067
@@ -161,7 +161,7 @@ fold: 5, 0.49491525423728816
 errors: 0
 GradientBoostingClassifier_Cl1
 fold: 1, 0.5559322033898305
-fold: 2, 0.5170068027210885
+fold: 2, 0.5136054421768708
 fold: 3, 0.559322033898305
 fold: 4, 0.6190476190476191
 fold: 5, 0.5525423728813559
@@ -171,6 +171,6 @@ errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display
 ─────┼────────────────────────────────────────────────────────────
    1 │ rf_fvh                          0.5214    0.0229989      5
    2 │ AdaBoostClassifier_hsP          0.54582   0.0222608      5
-   3 │ SGDClassifier_RCa               0.483401  0.0347955      5
+   3 │ SGDClassifier_RCa               0.478603  0.0257673      5
    4 │ prunetree_YSp                   0.490792  0.0368245      5
-   5 │ GradientBoostingClassifier_Cl1  0.56077   0.0367583      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Friday 17 May 2024 11:46">Friday 17 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   5 │ GradientBoostingClassifier_Cl1  0.56009   0.0377878      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Friday 24 May 2024 13:53">Friday 24 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
