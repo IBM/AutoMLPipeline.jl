@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: parallel-cluster-workflow-template
+spec:
+  entrypoint: run-parallel-automl
+  arguments:
+    parameters:
+    - name: args
+      value: run parallel_automl 
+  templates:
+  - name: run-automl
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    container:
+      image: ppalmes/automlpipeline:latest
+      command: ["julia", "--project", "main.jl"]
+      args: ["{{inputs.parameters.args}}"]
+
+  - name: run-rust-ml
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    container:
+      image: ppalmes/rust-ml:latest
+      command: ["automl"]
+      args: ["{{inputs.parameters.args}}"]
+
+  - name: run-autosklearn
+    container:
+      image: ppalmes/autosklearn-ml:latest
+      command: ["python3"]
+      args: ["script.py"]
+
+  - name: run-r-ml
+    container:
+      image: ppalmes/r-ml:latest
+      command: ["Rscript"]
+      args: ["--no-save","script.R"]
+
+  - name: run-parallel-automl
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    steps:
+    - - name: nrun-automl
+        template: run-automl
+        arguments:
+          parameters:
+            - name: args
+              value: run automl 
+
+      - name: nrun-rust-ml
+        template: run-rust-ml
+        arguments:
+          parameters:
+            - name: args
+              value: run rust 
+
+      - name: nrun-autosklearn
+        template: run-autosklearn
+
+      - name: nrun-r-ml
+        template: run-r-ml
