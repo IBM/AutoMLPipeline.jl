@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: hello-world-
+spec:
+  entrypoint: whalesay
+
+  templates:
+  - name: whalesay
+    container:
+      # run cowsay with that message input parameter as args
+      image: docker/whalesay
+      command: [cowsay]
+      args: ["hello world"]

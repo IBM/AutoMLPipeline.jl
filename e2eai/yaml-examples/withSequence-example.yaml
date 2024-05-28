@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: loop-sequence-
+spec:
+  entrypoint: loop-sequence-example
+
+  templates:
+  - name: loop-sequence-example
+    steps:
+    - - name: hello-world-x5
+        template: hello-world
+        withSequence:
+          count: "5"
+
+  - name: hello-world
+    container:
+      image: docker/whalesay:latest
+      command: [cowsay]
+      args: ["hello world!"]

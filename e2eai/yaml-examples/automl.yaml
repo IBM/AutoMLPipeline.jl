@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: automlpipeline-
+spec:
+  # invoke the whalesay template with
+  # "hello world" as the argument
+  # to the message parameter
+  entrypoint: run-automl
+  arguments:
+    parameters:
+    - name: args
+      value: 5 1
+
+  templates:
+  - name: run-automl
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    container:
+      # run cowsay with that message input parameter as args
+      image: ppalmes/automlpipeline:latest
+      command: ["julia", "--project", "main.jl"]
+      args: ["{{inputs.parameters.args}}"]

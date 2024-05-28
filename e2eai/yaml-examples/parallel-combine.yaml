@@ -1,0 +1,119 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: parallel-combine-
+spec:
+  entrypoint: run-parallel-automl
+  arguments:
+    parameters:
+    - name: args
+      value: run parallel_automl 
+  templates:
+  - name: run-parallel-automl
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    steps:
+    - - name: Imputation
+        template: echo
+        arguments:
+          parameters: [{name: message, value: Imputation}]
+    - - name: Normalization
+        template: echo
+        arguments:
+          parameters: [{name: message, value: Normalization}]
+    - - name: FeatureExtraction
+        template: echo
+        arguments:
+          parameters: [{name: message, value: FeatureExtraction}]
+    - - name: FeatureEngineering
+        template: echo
+        arguments:
+          parameters: [{name: message, value: FeatureEngineering}]
+    - - name: nrun-automl
+        template: run-automl
+        arguments:
+          parameters:
+            - name: args
+              value: run automl 
+
+      - name: nrun-amlp
+        template: run-amlp
+        arguments:
+          parameters:
+            - name: args
+              value: run amlp
+
+      - name: nrun-tsml
+        template: run-tsml
+        arguments:
+          parameters:
+            - name: args
+              value: run tsml 
+
+      - name: nrun-rust-ml
+        template: run-rust-ml
+        arguments:
+          parameters:
+            - name: args
+              value: run rust 
+
+      - name: nrun-autosklearn
+        template: run-autosklearn
+
+      - name: nrun-r-ml
+        template: run-r-ml
+    
+  - name: run-automl
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    container:
+      image: ppalmes/automlpipeline:latest
+      command: ["julia", "--project", "main.jl"]
+      args: ["{{inputs.parameters.args}}"]
+
+  - name: run-amlp
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    container:
+      image: ppalmes/amlp:latest
+      command: ["julia", "--project","-e",'using Pkg; using AMLPipelineBase; Pkg.test("AMLPipelineBase")']
+      args: ["{{inputs.parameters.args}}"]
+
+  - name: run-tsml
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    container:
+      image: ppalmes/amlp:latest
+      command: ["julia", "--project","-e",'using Pkg; using TSML; Pkg.test("TSML")']
+      args: ["{{inputs.parameters.args}}"]
+
+  - name: run-rust-ml
+    inputs:
+      parameters:
+      - name: args       # parameter declaration
+    container:
+      image: ppalmes/rust-ml:latest
+      command: ["automl"]
+      args: ["{{inputs.parameters.args}}"]
+
+  - name: run-autosklearn
+    container:
+      image: ppalmes/autosklearn-ml:latest
+      command: ["python3"]
+      args: ["script.py"]
+
+  - name: run-r-ml
+    container:
+      image: ppalmes/r-ml:latest
+
+  - name: echo
+    inputs:
+      parameters:
+        - name: message
+    container:
+      image: alpine:3.7
+      command: [echo,"{{inputs.parameters.message}}"]
