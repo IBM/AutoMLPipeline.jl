@@ -1,0 +1,51 @@
+# Define Kubernetes PVC
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: my-existing-volume
+spec:
+  storageClassName: nfs-client
+  accessModes: [ "ReadWriteMany" ]
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: volumes-existing-
+spec:
+  entrypoint: volumes-existing-example
+  volumes:
+  # Pass my-existing-volume as an argument to the volumes-existing-example template
+  # Same syntax as k8s Pod spec
+  - name: workdir
+    persistentVolumeClaim:
+      claimName: my-existing-volume
+
+  templates:
+  - name: volumes-existing-example
+    steps:
+    - - name: generate
+        template: whalesay
+    - - name: print
+        template: print-message
+
+  - name: whalesay
+    container:
+      image: docker/whalesay:latest
+      command: [sh, -c]
+      args: ["echo generating message in volume; cowsay hello world | tee /mnt/vol/hello_world.txt"]
+      volumeMounts:
+      - name: workdir
+        mountPath: /mnt/vol
+
+  - name: print-message
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: ["echo getting message from volume; find /mnt/vol; cat /mnt/vol/hello_world.txt"]
+      volumeMounts:
+      - name: workdir
+        mountPath: /mnt/vol

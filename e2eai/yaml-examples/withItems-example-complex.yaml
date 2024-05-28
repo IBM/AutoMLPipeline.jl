@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: loops-maps-
+spec:
+  entrypoint: loop-map-example
+  templates:
+  - name: loop-map-example # parameter specifies the list to iterate over
+    steps:
+    - - name: test-linux
+        template: cat-os-release
+        arguments:
+          parameters:
+          - name: image
+            value: "{{item.image}}"
+          - name: tag
+            value: "{{item.tag}}"
+        withItems:
+        - { image: 'debian', tag: '9.1' }       #item set 1
+        - { image: 'debian', tag: '8.9' }       #item set 2
+        - { image: 'alpine', tag: '3.6' }       #item set 3
+        - { image: 'ubuntu', tag: '17.10' }     #item set 4
+
+  - name: cat-os-release
+    inputs:
+      parameters:
+      - name: image
+      - name: tag
+    container:
+      image: "{{inputs.parameters.image}}:{{inputs.parameters.tag}}"
+      command: [cat]
+      args: [/etc/os-release]
