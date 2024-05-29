@@ -4,14 +4,26 @@ metadata:
   name: e2eai-cluster
 spec:
   hosts:
-    address: 10.10.7.10
-    role: controller
-    address: 10.10.7.11
-    role: worker
-    address: 10.10.7.12
-    role: worker
-    address: 10.10.7.13
-    role: worker
+  - ssh:
+      address: 10.10.7.10
+      user: root
+      port: 22
+      role: controller
+  - ssh:
+      address: 10.10.7.11
+      user: root
+      port: 22
+      role: worker
+  - ssh:
+      address: 10.10.7.12
+      user: root
+      port: 22
+      role: worker
+  - ssh:
+      address: 10.10.7.13
+      role: worker
+      user: root
+      role: worker
 ----
 
 # mlops/aiops

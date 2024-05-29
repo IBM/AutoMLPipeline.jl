@@ -1,0 +1,4 @@
+NAME                        STATUS   ROLES    AGE   VERSION
+e2eai1.myapp.mydomain.com   Ready    <none>   41d   v1.29.3+k0s
+e2eai2.myapp.mydomain.com   Ready    <none>   41d   v1.29.3+k0s
+e2eai3.myapp.mydomain.com   Ready    <none>   41d   v1.29.3+k0s
