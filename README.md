@@ -60,6 +60,7 @@ a + b |> c; (a + b) |> c
 - [JuliaCon Proceedings](https://doi.org/10.21105/jcon.00129): [![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00129/status.svg)](https://doi.org/10.21105/jcon.00129)
 
 ### Recorded Video/Conference Presentations:
+- [2024 JuliaCon (**End-to-End AI with Julia, K0s, and Argo Workflow**)](https://www.youtube.com/live/ZKt0tiG5ajw?t=24008s)
 - [2023 JuliaCon (**Wrapping Up Offline RL as Part of AutoMLPipeline Workflow**)](https://www.youtube.com/watch?v=7a2MqqvyoEc)
 - [2022 JuliaCon (**Distributed AutoML Pipeline Search in PC/RasPi K8s Cluster**)](https://www.youtube.com/watch?v=gpmmHt6d0pw)
 - [2021 JuliaCon (**Finding an Effective Strategy for AutoML Pipeline Optimization**)](https://www.youtube.com/watch?v=ZRFIMGW88Co)
