@@ -1,7 +1,3 @@
-```@meta
-Author = "Paulito P. Palmes"
-```
-
 ## AutoMLPipeline (AMLP)
 is a package that makes it trivial to create 
 complex ML pipeline structures using simple 
