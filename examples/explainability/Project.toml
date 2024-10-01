@@ -1,0 +1,9 @@
+[deps]
+AutoMLPipeline = "08437348-eef5-4817-bc1b-d4e9459680d6"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
+Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
+MLJ = "add582a8-e3ab-11e8-2d5e-e98b27df1bc7"
+MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
+RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
+ShapML = "8523bd24-6f66-414b-9e1e-b02db3916d64"
