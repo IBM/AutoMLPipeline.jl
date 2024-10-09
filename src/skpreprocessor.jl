@@ -9,6 +9,10 @@ using Random
 using ..AbsTypes
 using ..Utils
 
+using OpenTelemetry
+using Term
+using Logging
+
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
 export SKPreprocessor, skpreprocessors
@@ -157,31 +161,33 @@ function skpreprocessors()
 end
 
 function fit!(skp::SKPreprocessor, x::DataFrame, yc::Vector=[])::Nothing
-   features = x |> Array
-   y = yc
-   #if !(eltype(yc) <: Real)
-   #   y = yc |> Vector{String}
-   #end
+    with_span("fit skp") do
+        features = x |> Array
+        y = yc
+        #if !(eltype(yc) <: Real)
+        #   y = yc |> Vector{String}
+        #end
 
-   impl_args = copy(skp.model[:impl_args])
-   autocomp = skp.model[:autocomponent]
-   if autocomp == true
-      cols = ncol(x)
-      ncomponents = 1
-      if cols > 0
-         ncomponents = round(sqrt(cols),digits=0) |> Integer
-         push!(impl_args,:n_components => ncomponents)
-      end
-   end
-   preprocessor = skp.model[:preprocessor]
-   py_preprocessor = getproperty(preprocessor_dict[preprocessor],preprocessor)
+        impl_args = copy(skp.model[:impl_args])
+        autocomp = skp.model[:autocomponent]
+        if autocomp == true
+            cols = ncol(x)
+            ncomponents = 1
+            if cols > 0
+                ncomponents = round(sqrt(cols),digits=0) |> Integer
+                push!(impl_args,:n_components => ncomponents)
+            end
+        end
+        preprocessor = skp.model[:preprocessor]
+        py_preprocessor = getproperty(preprocessor_dict[preprocessor],preprocessor)
 
-   # Train model
-   preproc = py_preprocessor(;impl_args...)
-   preproc.fit(features)
-   skp.model[:skpreprocessor] = preproc
-   skp.model[:impl_args] = impl_args
-   return nothing
+        # Train model
+        preproc = py_preprocessor(;impl_args...)
+        preproc.fit(features)
+        skp.model[:skpreprocessor] = preproc
+        skp.model[:impl_args] = impl_args
+    end
+    return nothing
 end
 
 function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
@@ -190,10 +196,13 @@ function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
 end
 
 function transform!(skp::SKPreprocessor, x::DataFrame)::DataFrame
-   features = deepcopy(x) |> Array
-   model=skp.model[:skpreprocessor]
-   res = (model.transform(features))
-   PYC.pyconvert(Matrix,res) |> x->DataFrame(x,:auto)
+    with_span("transform skp") do
+        features = deepcopy(x) |> Array
+        model=skp.model[:skpreprocessor]
+        res = (model.transform(features))
+        myres=PYC.pyconvert(Matrix,res) |> x->DataFrame(x,:auto)
+        return myres
+    end
 end
 
 transform(skp::SKPreprocessor, x::DataFrame)::DataFrame = transform!(skp,x)
