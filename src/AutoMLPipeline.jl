@@ -1,4 +1,5 @@
 module AutoMLPipeline
+using Reexport
 
 using AMLPipelineBase
 using AMLPipelineBase.AbsTypes
@@ -32,6 +33,23 @@ export +, |>, *, |, >>
 export Pipeline, ComboPipeline
 
 import AMLPipelineBase.AbsTypes: fit!, transform!
+
+@reexport using OpenTelemetry
+@reexport using Term
+@reexport using Logging
+
+function enableotlp()
+    return (global_tracer_provider(
+            TracerProvider(;
+                  span_processor=SimpleSpanProcessor(OtlpHttpTracesExporter())
+                 )),
+    global_logger(OtelSimpleLogger(exporter=OtlpHttpLogsExporter())),
+    global_meter_provider(MeterProvider()),
+    MetricReader(OtlpHttpMetricsExporter()))
+end
+
+export enableotlp
+
 
 # --------------------------------------------
 

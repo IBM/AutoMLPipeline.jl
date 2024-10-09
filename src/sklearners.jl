@@ -9,6 +9,10 @@ using Random
 using ..AbsTypes
 using ..Utils
 
+using OpenTelemetry
+using Term
+using Logging
+
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
 export SKLearner, sklearners
@@ -159,32 +163,34 @@ function sklearners()
 end
 
 function fit!(skl::SKLearner, xx::DataFrame, yy::Vector)::Nothing
-  # normalize inputs
-  x = xx |> Array
-  y = yy
-  skl.model[:predtype] = :numeric
-  if !(eltype(yy) <: Real)
-     y = yy |> Vector{String}
-     skl.model[:predtype] = :alpha
-  end
+    with_span("fit skl") do 
+        # normalize inputs
+        x = xx |> Array
+        y = yy
+        skl.model[:predtype] = :numeric
+        if !(eltype(yy) <: Real)
+            y = yy |> Vector{String}
+            skl.model[:predtype] = :alpha
+        end
 
-  impl_args  = copy(skl.model[:impl_args])
-  learner    = skl.model[:learner]
-  py_learner = getproperty(learner_dict[learner],learner)
+        impl_args  = copy(skl.model[:impl_args])
+        learner    = skl.model[:learner]
+        py_learner = getproperty(learner_dict[learner],learner)
 
-  # Assign CombineML-specific defaults if required
-  if learner == "RadiusNeighborsClassifier"
-    if get(impl_args, :outlier_label, nothing) == nothing
-      impl_options[:outlier_label] = labels[rand(1:size(labels, 1))]
+        # Assign CombineML-specific defaults if required
+        if learner == "RadiusNeighborsClassifier"
+            if get(impl_args, :outlier_label, nothing) == nothing
+                impl_options[:outlier_label] = labels[rand(1:size(labels, 1))]
+            end
+        end
+
+        # Train
+        modelobj = py_learner(;impl_args...)
+        modelobj.fit(x,y)
+        skl.model[:sklearner] = modelobj
+        skl.model[:impl_args] = impl_args
     end
-  end
-
-  # Train
-  modelobj = py_learner(;impl_args...)
-  modelobj.fit(x,y)
-  skl.model[:sklearner] = modelobj
-  skl.model[:impl_args] = impl_args
-  return nothing
+    return nothing
 end
 
 function fit(skl::SKLearner, xx::DataFrame, y::Vector)::SKLearner
@@ -193,16 +199,18 @@ function fit(skl::SKLearner, xx::DataFrame, y::Vector)::SKLearner
 end
 
 function transform!(skl::SKLearner, xx::DataFrame)::Vector
-	x = deepcopy(xx) |> Array
-  sklearner = skl.model[:sklearner]
-  res = sklearner.predict(x) 
-  if skl.model[:predtype] == :numeric
-      predn =  PYC.pyconvert(Vector{Float64},res) 
-      return predn
-  else
-      predc =  PYC.pyconvert(Vector{String},res) 
-      return predc
-  end
+    with_span("transform skl") do
+        x = deepcopy(xx) |> Array
+        sklearner = skl.model[:sklearner]
+        res = sklearner.predict(x) 
+        if skl.model[:predtype] == :numeric
+            predn =  PYC.pyconvert(Vector{Float64},res) 
+            return predn
+        else
+            predc =  PYC.pyconvert(Vector{String},res) 
+            return predc
+        end
+    end
 end
 
 transform(skl::SKLearner, xx::DataFrame)::Vector = transform!(skl,xx)

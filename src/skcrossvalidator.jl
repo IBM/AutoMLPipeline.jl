@@ -9,6 +9,10 @@ using Random
 using ..AbsTypes
 using ..Utils
 
+using OpenTelemetry
+using Term
+using Logging
+
 import ..CrossValidators: crossvalidate
 export crossvalidate
 
@@ -89,16 +93,18 @@ and the following metrics for regression:
 """
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String; nfolds=10,verbose::Bool=true)
+    with_span("crossvalidate $(pl.name) $sfunc") do
+        YC=Y
+        if !(eltype(YC) <: Real)
+            YC = Y |> Vector{String}
+        end
 
-    YC=Y
-    if !(eltype(YC) <: Real)
-       YC = Y |> Vector{String}
+        checkfun(sfunc)
+        pfunc = metric_dict[sfunc]
+        metric(a,b) = pfunc(a,b) |> (x -> PYC.pyconvert(Float64,x))
+        res=crossvalidate(pl,X,YC,metric,nfolds,verbose)
+        return res
     end
-
-    checkfun(sfunc)
-    pfunc = metric_dict[sfunc]
-    metric(a,b) = pfunc(a,b) |> (x -> PYC.pyconvert(Float64,x))
-    crossvalidate(pl,X,YC,metric,nfolds,verbose)
 end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String,nfolds::Int)
@@ -116,10 +122,13 @@ end
 
 function crossvalidate(pl::Machine,X::DataFrame,Y::Vector,
                        sfunc::String,averagetype::String;nfolds=10,verbose::Bool=true)
-    checkfun(sfunc)
-    pfunc = metric_dict[sfunc]
-    metric(a,b) = pfunc(a,b,average=averagetype) |> (x -> PYC.pyconvert(Float64,x))
-    crossvalidate(pl,X,Y,metric,nfolds,verbose)
+    with_span("crossvalidate $(pl.name) $sfunc") do
+        checkfun(sfunc)
+        pfunc = metric_dict[sfunc]
+        metric(a,b) = pfunc(a,b,average=averagetype) |> (x -> PYC.pyconvert(Float64,x))
+        res=crossvalidate(pl,X,Y,metric,nfolds,verbose)
+        return res
+    end
 end
 
 
