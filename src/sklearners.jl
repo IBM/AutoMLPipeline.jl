@@ -163,7 +163,7 @@ function sklearners()
 end
 
 function fit!(skl::SKLearner, xx::DataFrame, yy::Vector)::Nothing
-    with_span("fit skl") do 
+    with_span("fit $(skl.model[:learner])") do 
         # normalize inputs
         x = xx |> Array
         y = yy
@@ -199,7 +199,7 @@ function fit(skl::SKLearner, xx::DataFrame, y::Vector)::SKLearner
 end
 
 function transform!(skl::SKLearner, xx::DataFrame)::Vector
-    with_span("transform skl") do
+    with_span("transform $(skl.model[:learner])") do
         x = deepcopy(xx) |> Array
         sklearner = skl.model[:sklearner]
         res = sklearner.predict(x) 
