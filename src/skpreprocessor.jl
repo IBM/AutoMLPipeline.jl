@@ -161,7 +161,7 @@ function skpreprocessors()
 end
 
 function fit!(skp::SKPreprocessor, x::DataFrame, yc::Vector=[])::Nothing
-    with_span("fit skp") do
+    with_span("fit $(skp.model[:preprocessor])") do
         features = x |> Array
         y = yc
         #if !(eltype(yc) <: Real)
@@ -196,7 +196,7 @@ function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
 end
 
 function transform!(skp::SKPreprocessor, x::DataFrame)::DataFrame
-    with_span("transform skp") do
+    with_span("transform $(skp.model[:preprocessor])") do
         features = deepcopy(x) |> Array
         model=skp.model[:skpreprocessor]
         res = (model.transform(features))
