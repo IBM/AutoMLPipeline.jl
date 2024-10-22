@@ -44,6 +44,7 @@ function test_skcross_reg()
   ptf = SKPreprocessor("PowerTransformer")
   rbc = SKPreprocessor("RobustScaler")
   ppl3=@pipeline ((cat + num) + (num |> ptf) + (num |> rbc) + (num |> pca)) |> VoteEnsemble()
+  ppl3.name = "((cat + num) + (num |> ptf) + (num |> rbc) + (num |> pca)) |> VoteEnsemble()"
   crossval_reg(ppl3,X,Y,10,false)
 end
 @testset "CrossValidator Regression" begin
@@ -65,6 +66,7 @@ function test_skcross_class()
   ptf = SKPreprocessor("PowerTransformer")
   rbc = SKPreprocessor("RobustScaler")
   ppl3=@pipeline ((cat + num) + (num |> ptf) + (num |> rbc) + (num |> pca)) |> VoteEnsemble()
+  ppl3.name = "((cat + num) + (num |> ptf) + (num |> rbc) + (num |> pca)) |> VoteEnsemble()"
   crossval_class(ppl3,X,Y,10,false)
 end
 @testset "CrossValidator Classification" begin

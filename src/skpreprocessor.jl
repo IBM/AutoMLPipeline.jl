@@ -8,6 +8,7 @@ using DataFrames
 using Random
 using ..AbsTypes
 using ..Utils
+using AutoMLPipeline: isotlpenabled
 
 using OpenTelemetry
 using Term
@@ -161,7 +162,7 @@ function skpreprocessors()
 end
 
 function fit!(skp::SKPreprocessor, x::DataFrame, yc::Vector=[])::Nothing
-    with_span("fit $(skp.model[:preprocessor])") do
+    function _fit!(skp::SKPreprocessor, x::DataFrame, yc::Vector=[])::Nothing
         features = x |> Array
         y = yc
         #if !(eltype(yc) <: Real)
@@ -186,8 +187,15 @@ function fit!(skp::SKPreprocessor, x::DataFrame, yc::Vector=[])::Nothing
         preproc.fit(features)
         skp.model[:skpreprocessor] = preproc
         skp.model[:impl_args] = impl_args
+        return nothing
     end
-    return nothing
+    if isotlpenabled()
+        with_span("fit $(skp.model[:preprocessor])") do
+            return _fit!(skp, x, yc)
+        end
+    else
+        return _fit!(skp, x, yc)
+    end
 end
 
 function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
@@ -196,12 +204,19 @@ function fit(skp::SKPreprocessor, x::DataFrame, y::Vector=[])::SKPreprocessor
 end
 
 function transform!(skp::SKPreprocessor, x::DataFrame)::DataFrame
-    with_span("transform $(skp.model[:preprocessor])") do
+    function _transform!(skp::SKPreprocessor, x::DataFrame)::DataFrame
         features = deepcopy(x) |> Array
         model = skp.model[:skpreprocessor]
         res = (model.transform(features))
         myres = PYC.pyconvert(Matrix, res) |> x -> DataFrame(x, :auto)
         return myres
+    end
+    if isotlpenabled()
+        with_span("transform $(skp.model[:preprocessor])") do
+            return _transform!(skp, x)
+        end
+    else
+        return _transform!(skp, x)
     end
 end
 
