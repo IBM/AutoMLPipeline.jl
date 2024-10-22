@@ -8,6 +8,7 @@ using DataFrames
 using Random
 using ..AbsTypes
 using ..Utils
+using AutoMLPipeline: isotlpenabled
 
 using OpenTelemetry
 using Term
@@ -163,7 +164,7 @@ function sklearners()
 end
 
 function fit!(skl::SKLearner, xx::DataFrame, yy::Vector)::Nothing
-    with_span("fit $(skl.model[:learner])") do
+    function _fit!(skl::SKLearner, xx::DataFrame, yy::Vector)::Nothing
         # normalize inputs
         x = xx |> Array
         y = yy
@@ -189,8 +190,15 @@ function fit!(skl::SKLearner, xx::DataFrame, yy::Vector)::Nothing
         modelobj.fit(x, y)
         skl.model[:sklearner] = modelobj
         skl.model[:impl_args] = impl_args
+        return nothing
     end
-    return nothing
+    if isotlpenabled()
+        with_span("fit $(skl.model[:learner])") do
+            return _fit!(skl, xx, yy)
+        end
+    else
+        return _fit!(skl, xx, yy)
+    end
 end
 
 function fit(skl::SKLearner, xx::DataFrame, y::Vector)::SKLearner
@@ -199,7 +207,7 @@ function fit(skl::SKLearner, xx::DataFrame, y::Vector)::SKLearner
 end
 
 function transform!(skl::SKLearner, xx::DataFrame)::Vector
-    with_span("transform $(skl.model[:learner])") do
+    function _transform!(skl::SKLearner, xx::DataFrame)::Vector
         x = deepcopy(xx) |> Array
         sklearner = skl.model[:sklearner]
         res = sklearner.predict(x)
@@ -210,6 +218,13 @@ function transform!(skl::SKLearner, xx::DataFrame)::Vector
             predc = PYC.pyconvert(Vector{String}, res)
             return predc
         end
+    end
+    if isotlpenabled()
+        with_span("transform $(skl.model[:learner])") do
+            return _transform!(skl, xx)
+        end
+    else
+        return _transform!(skl, xx)
     end
 end
 

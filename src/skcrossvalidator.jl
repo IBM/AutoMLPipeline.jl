@@ -8,6 +8,7 @@ using DataFrames
 using Random
 using ..AbsTypes
 using ..Utils
+using AutoMLPipeline: isotlpenabled
 
 using OpenTelemetry
 using Term
@@ -15,6 +16,7 @@ using Logging
 
 import ..CrossValidators: crossvalidate
 export crossvalidate
+export testmacro
 
 const metric_dict = Dict{String,PYC.Py}()
 const SKM = PYC.pynew()
@@ -93,17 +95,24 @@ and the following metrics for regression:
 """
 function crossvalidate(pl::Machine, X::DataFrame, Y::Vector,
     sfunc::String; nfolds=10, verbose::Bool=true)
-    with_span("crossvalidate $(pl.name) $sfunc") do
+    function _crossvalidate(pl::Machine, X::DataFrame, Y::Vector,
+        sfunc::String; nfolds=10, verbose::Bool=true)
         YC = Y
         if !(eltype(YC) <: Real)
             YC = Y |> Vector{String}
         end
-
         checkfun(sfunc)
         pfunc = metric_dict[sfunc]
         metric(a, b) = pfunc(a, b) |> (x -> PYC.pyconvert(Float64, x))
         res = crossvalidate(pl, X, YC, metric, nfolds, verbose)
         return res
+    end
+    if isotlpenabled()
+        with_span("crossvalidate $(pl.name) $sfunc") do
+            return _crossvalidate(pl, X, Y, sfunc; nfolds, verbose)
+        end
+    else
+        return _crossvalidate(pl, X, Y, sfunc; nfolds, verbose)
     end
 end
 
@@ -122,14 +131,29 @@ end
 
 function crossvalidate(pl::Machine, X::DataFrame, Y::Vector,
     sfunc::String, averagetype::String; nfolds=10, verbose::Bool=true)
-    with_span("crossvalidate $(pl.name) $sfunc") do
+    function _crossvalidate(pl::Machine, X::DataFrame, Y::Vector,
+        sfunc::String, averagetype::String; nfolds=10, verbose::Bool=true)
         checkfun(sfunc)
         pfunc = metric_dict[sfunc]
         metric(a, b) = pfunc(a, b, average=averagetype) |> (x -> PYC.pyconvert(Float64, x))
         res = crossvalidate(pl, X, Y, metric, nfolds, verbose)
         return res
     end
+    if isotlpenabled()
+        with_span("crossvalidate $(pl.name) $sfunc") do
+            return _crossvalidate(pl, X, Y, sfunc,averagetype; nfolds, verbose)
+        end
+    else
+        return _crossvalidate(pl, X, Y, sfunc,averagetype; nfolds, verbose)
+    end
 end
 
+function testmacro()
+    if isotlpenabled()
+        println("ok")
+    else
+        println("no ok")
+    end
+end
 
 end
