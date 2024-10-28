@@ -1,9 +1,11 @@
 module AutoMLPipeline
 using Reexport
+using DataFrames: DataFrame
 
 using AMLPipelineBase
 using AMLPipelineBase.AbsTypes
 export fit, fit!, transform, transform!, fit_transform, fit_transform!
+export fit_transform_trace
 
 using AMLPipelineBase
 using AMLPipelineBase: AbsTypes, Utils, BaselineModels, Pipelines
@@ -48,7 +50,7 @@ function enableotlp()
     global_logger(OtelSimpleLogger(exporter=OtlpHttpLogsExporter()))
     global_meter_provider(MeterProvider())
     MetricReader(OtlpHttpMetricsExporter())
-    return true
+    return nothing
 end
 
 export isotlpenabled
@@ -97,6 +99,17 @@ function skoperator()
     skpr = keys(SKPreprocessors.preprocessor_dict)
     println("Please choose among these pipeline elements:")
     println([sklr..., skpr...])
+end
+
+function fit_transform_trace(mc::Workflow, input::DataFrame=DataFrame(),
+    output::Vector=Vector())::Union{Vector,DataFrame}
+    if isotlpenabled()
+        with_span("fit_transform $(mc.name)") do
+            return fit_transform!(mc, input, output)
+        end
+    else
+        return fit_transform!(mc, input, output)
+    end
 end
 
 

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  prometheus:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - 16686:16686
+      - 4317:4317
+      - 4318:4318
