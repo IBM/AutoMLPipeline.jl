@@ -113,16 +113,16 @@ fold: 30, 0.7692307692307693
 errors: 0
 (mean = 0.7383589743589744, std = 0.08411177193993158, folds = 30, errors = 0)</code></pre><h5 id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate"><a class="docs-heading-anchor" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate">Option 2: Assume as Categorical Numeric Columns &lt;= 24 and Evaluate</a><a id="Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate-1"></a><a class="docs-heading-anchor-permalink" href="#Option-2:-Assume-as-Categorical-Numeric-Columns-24-and-Evaluate" title="Permalink"></a></h5><pre><code class="language-julia hljs">disc = CatNumDiscriminator(24) # turning numeric to categorical if unique instances &lt;= 24
 pl = @pipeline disc |&gt; ((numf |&gt;  pca) + (catf |&gt; ohe)) |&gt; jrf</code></pre><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pl,X,Y,&quot;accuracy_score&quot;,30)</code><code class="nohighlight hljs ansi" style="display:block;">┌ Warning: Unseen value found in OneHotEncoder,
-│                for entry (2, 1) = 15.
-│                Patching value to 6.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/FFCPY/src/basefilters.jl:106
+│                     for entry (2, 1) = 15.
+│                     Patching value to 6.
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/751xS/src/basefilters.jl:106
 fold: 1, 0.6538461538461539
 fold: 2, 0.68
 fold: 3, 0.7692307692307693
 ┌ Warning: Unseen value found in OneHotEncoder,
-│                for entry (3, 1) = 17.
-│                Patching value to 6.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/FFCPY/src/basefilters.jl:106
+│                     for entry (3, 1) = 17.
+│                     Patching value to 6.
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/751xS/src/basefilters.jl:106
 fold: 4, 0.68
 fold: 5, 0.7692307692307693
 fold: 6, 0.7692307692307693
@@ -139,13 +139,13 @@ fold: 16, 0.8076923076923077
 fold: 17, 0.8
 fold: 18, 0.7307692307692307
 ┌ Warning: Unseen value found in OneHotEncoder,
-│                for entry (7, 1) = 14.
-│                Patching value to 6.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/FFCPY/src/basefilters.jl:106
+│                     for entry (7, 1) = 14.
+│                     Patching value to 6.
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/751xS/src/basefilters.jl:106
 ┌ Warning: Unseen value found in OneHotEncoder,
-│                for entry (12, 1) = 14.
-│                Patching value to 6.
-└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/FFCPY/src/basefilters.jl:106
+│                     for entry (12, 1) = 14.
+│                     Patching value to 6.
+└ @ AMLPipelineBase.BaseFilters ~/.julia/packages/AMLPipelineBase/751xS/src/basefilters.jl:106
 fold: 19, 0.8
 fold: 20, 0.7692307692307693
 fold: 21, 0.7307692307692307
@@ -159,4 +159,4 @@ fold: 28, 0.8076923076923077
 fold: 29, 0.8
 fold: 30, 0.7692307692307693
 errors: 0
-(mean = 0.7477948717948719, std = 0.07199711315409317, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Friday 18 October 2024 14:23">Friday 18 October 2024</span>. Using Julia version 1.11.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7477948717948719, std = 0.07199711315409317, folds = 30, errors = 0)</code></pre><p>From this evaluation, <code>preg</code> column should be treated as numerical because the corresponding pipeline got better performance. One thing to note is the presence of errors in the cross-validation performance for the pipeline that treats <code>preg</code> as categorical data. The subset of training data during the kfold validation may contain singularities and evaluation causes some errors due to hot-bit encoding that increases data sparsity. The error, however, may be a bug which needs to be addressed in  the future.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../pipeline/">« Pipeline</a><a class="docs-footer-nextpage" href="../learning/">Training and Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Monday 4 November 2024 19:55">Monday 4 November 2024</span>. Using Julia version 1.11.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
