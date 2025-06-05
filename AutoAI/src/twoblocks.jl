@@ -1,6 +1,6 @@
 module TwoBlocksPipelines
 
-export twoblockspipelinesearch
+export bestmodelsearch
 
 using Distributed
 #nprocs() == 1 && addprocs(; exeflags = "--project")
@@ -28,21 +28,27 @@ const fa = SKPreprocessor("FactorAnalysis", Dict(:name => "fa"))
 const ica = SKPreprocessor("FastICA", Dict(:name => "ica"))
 # define learners
 const rf = SKLearner("RandomForestClassifier", Dict(:name => "rf"))
+const rfr = SKLearner("RandomForestRegressor", Dict(:name => "rfr"))
 const ada = SKLearner("AdaBoostClassifier", Dict(:name => "ada"))
+const adar = SKLearner("AdaBoostRegressor", Dict(:name => "adar"))
 const gb = SKLearner("GradientBoostingClassifier", Dict(:name => "gb"))
+const gbr = SKLearner("GradientBoostingRegressor", Dict(:name => "gbr"))
 const lsvc = SKLearner("LinearSVC", Dict(:name => "lsvc"))
+const svr = SKLearner("SVR", Dict(:name => "svr"))
 const rbfsvc = SKLearner("SVC", Dict(:name => "rbfsvc"))
 const dt = SKLearner("DecisionTreeClassifier", Dict(:name => "dt"))
+const dtr = SKLearner("DecisionTreeRegressor", Dict(:name => "dtr"))
 # preprocessing
 const noop = Identity(Dict(:name => "noop"))
 const ohe = OneHotEncoder(Dict(:name => "ohe"))
 const catf = CatFeatureSelector(Dict(:name => "catf"))
 const numf = NumFeatureSelector(Dict(:name => "numf"))
 
-const vscalers = [rb, pt, norm, mx, std, noop]
-const vextractors = [pca, fa, ica, noop]
-const vlearners = [rf, gb, lsvc, rbfsvc, ada, dt]
-const learnerdict = Dict("rf" => rf, "gb" => gb, "lsvc" => lsvc, "rbfsvc" => rbfsvc, "ada" => ada, "dt" => dt)
+const vscalers = [rb]#, pt, norm, mx, std, noop]
+const vextractors = [pca]#, fa, ica, noop]
+const vlearners = [rf] #, gb, lsvc, rbfsvc, ada, dt]
+const rvlearners = [rfr] #, gbr, svr, adar, dtr]
+const learnerdict = Dict("rf" => rf, "rfr" => rfr, "gb" => gb, "gbr" => gbr, "lsvc" => lsvc, "svr" => svr, "rbfsvc" => rbfsvc, "ada" => ada, "adar" => adar, "dt" => dt, "dtr" => dtr)
 
 
 function oneblock_pipeline_factory(scalers, extractors, learners)
@@ -64,9 +70,9 @@ function oneblock_pipeline_factory(scalers, extractors, learners)
     return results
 end
 
-function evaluate_pipeline(dfpipelines, X, Y; folds=3)
+function evaluate_pipeline(dfpipelines, X, Y; mmetric="balanced_accuracy_score", folds=3)
     res = @distributed (vcat) for prow in eachrow(dfpipelines)
-        perf = crossvalidate(prow.Pipeline, X, Y, "balanced_accuracy_score"; nfolds=folds)
+        perf = crossvalidate(prow.Pipeline, X, Y, mmetric; nfolds=folds)
         DataFrame(; Description=prow.Description, mean=perf.mean, sd=perf.std, prow.Pipeline)
     end
     return res
@@ -109,10 +115,12 @@ function lname(n::Learner)
     n.name[1:end-4]
 end
 
-function twoblockspipelinesearch(X::DataFrame, Y::Vector; scalers=vscalers, extractors=vextractors, learners=vlearners, nfolds=3)
-    dfpipes = model_selection_pipeline(vlearners)
+function twoblockspipelinesearch(X::DataFrame, Y::Vector; scalers=vscalers, extractors=vextractors, learners=vlearners, folds=3, mmetric="balanced_accuracy_score")
+    dfpipes = model_selection_pipeline(learners)
     # find the best model by evaluating the models
-    modelsperf = evaluate_pipeline(dfpipes, X, Y; folds=nfolds)
+    modelsperf = evaluate_pipeline(dfpipes, X, Y; mmetric, folds)
+    @show (modelsperf)
+    return 0
     sort!(modelsperf, :mean, rev=true)
     # get the string name of the top model
     bestm = filter(x -> occursin(x, modelsperf.Description[1]), lname.(vlearners))[1]
@@ -121,12 +129,20 @@ function twoblockspipelinesearch(X::DataFrame, Y::Vector; scalers=vscalers, extr
     # use the best model to generate pipeline search
     dfp = twoblock_pipeline_factory(vscalers, vextractors, [bestmodel])
     # evaluate the pipeline
-    bestp = evaluate_pipeline(dfp, X, Y; folds=nfolds)
+    bestp = evaluate_pipeline(dfp, X, Y; mmetric, folds)
     sort!(bestp, :mean, rev=true)
     show(bestp; allrows=false, truncate=1, allcols=false)
     println()
     optmodel = bestp[1, :]
     return bestp
+end
+
+function bestmodelsearch(X::DataFrame, Y::Vector; classification=true)
+    if classification == true
+        return twoblockspipelinesearch(X, Y; learners=vlearners)
+    else
+        return twoblockspipelinesearch(X, Y; learners=rvlearners, mmetric="mean_squared_error")
+    end
 end
 
 end

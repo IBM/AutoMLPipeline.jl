@@ -1,0 +1,18 @@
+#From --platform=linux/amd64 julia:latest
+# for nerdctl
+From julia:latest
+MAINTAINER Paulito Palmes "paulpalmes@ie.ibm.com"
+RUN apt-get update && apt-get install build-essential -y
+RUN mkdir /amlp
+RUN cd /amlp
+WORKDIR /amlp
+COPY Project.toml /amlp/
+COPY automl_sysimage.jl /amlp/
+COPY automl_precompile.jl /amlp/
+RUN julia --project -e 'using Pkg;\
+       Pkg.instantiate();\
+       Pkg.update();\
+       Pkg.precompile();\
+       include("automl_sysimage.jl")'
+COPY * /amlp/
+ENTRYPOINT ["julia", "--project", "-Jautoml.so", "--", "main_parse.jl"]
