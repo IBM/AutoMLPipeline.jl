@@ -64,7 +64,7 @@ function checkfun(sfunc::String)
 end
 
 """
-    crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String="balanced_accuracy_score",nfolds=10)
+    crossvalidate(pl::Machine,X::DataFrame,Y::Vector,sfunc::String="balanced_accuracy_score";nfolds=10,verbose=true)
 
 Runs K-fold cross-validation using balanced accuracy as the default. It support the 
 following metrics for classification:
