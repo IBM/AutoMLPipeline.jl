@@ -1,7 +1,6 @@
 module ClfSearchBlocks
 # classification search blocks
 
-export twoblocksearch, oneblocksearch
 
 using Distributed
 using AutoMLPipeline
@@ -15,21 +14,8 @@ import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
 export ClfSearchBlock
 
-# disable truncation of dataframes columns
-#import Base.show
-#show(df::AbstractDataFrame) = show(df, truncate=0)
-#show(io::IO, df::AbstractDataFrame) = show(io, df; truncate=0)
+include("./pipelinesearch.jl")
 
-# define scalers
-const rb = SKPreprocessor("RobustScaler", Dict(:name => "rb"))
-const pt = SKPreprocessor("PowerTransformer", Dict(:name => "pt"))
-const norm = SKPreprocessor("Normalizer", Dict(:name => "norm"))
-const mx = SKPreprocessor("MinMaxScaler", Dict(:name => "mx"))
-const std = SKPreprocessor("StandardScaler", Dict(:name => "std"))
-# define extractors
-const pca = SKPreprocessor("PCA", Dict(:name => "pca"))
-const fa = SKPreprocessor("FactorAnalysis", Dict(:name => "fa"))
-const ica = SKPreprocessor("FastICA", Dict(:name => "ica"))
 # define learners
 const rfc = SKLearner("RandomForestClassifier", Dict(:name => "rfc"))
 const adac = SKLearner("AdaBoostClassifier", Dict(:name => "adac"))
@@ -43,21 +29,7 @@ const sgdc = SKLearner("SGDClassifier", Dict(:name => "sgdc"))
 #const gp     = SKLearner("GaussianProcessClassifier",Dict(:name =>"gp"))
 const bgc = SKLearner("BaggingClassifier", Dict(:name => "bgc"))
 const pac = SKLearner("PassiveAggressiveClassifier", Dict(:name => "pac"))
-# preprocessing
-const noop = Identity(Dict(:name => "noop"))
-const ohe = OneHotEncoder(Dict(:name => "ohe"))
-const catf = CatFeatureSelector(Dict(:name => "catf"))
-const numf = NumFeatureSelector(Dict(:name => "numf"))
 
-const vscalers = [rb, pt, norm, mx, std, noop]
-const _gscalersdict = Dict("rb" => rb, "pt" => pt,
-    "norm" => norm, "mx" => mx,
-    "std" => std, "noop" => noop)
-const vextractors = [pca, fa, ica, noop]
-const _gextractordict = Dict("pca" => pca, "fa" => fa,
-    "ica" => ica, "noop" => noop)
-const vlearners = [rfc, gbc, lsvc, rbfsvc, adac, dtc,
-    etc, ridgec, sgdc, bgc, pac]
 const _glearnerdict = Dict("rfc" => rfc, "gbc" => gbc,
     "lsvc" => lsvc, "rbfsvc" => rbfsvc, "adac" => adac,
     "dtc" => dtc, "etc" => etc, "ridgec" => ridgec,
@@ -77,10 +49,10 @@ mutable struct ClfSearchBlock <: Workflow
             :nfolds => 3,
             :metric => "balanced_accuracy_score",
             :nworkers => 5,
-            :data_path => "iris.csv",
             :learners => ["rfc", "rbfsvc", "gbc"],
             :scalers => ["norm", "pt"],
             :extractors => ["pca"],
+            :sortrev => true,
             :impl_args => Dict()
         )
         cargs = nested_dict_merge(default_args, args)
@@ -90,7 +62,7 @@ mutable struct ClfSearchBlock <: Workflow
             if !(learner in keys(_glearnerdict))
                 println("$learner is not supported.")
                 println()
-                listlearners()
+                listclasslearners()
                 error("Argument keyword error")
             end
         end
@@ -98,110 +70,10 @@ mutable struct ClfSearchBlock <: Workflow
     end
 end
 
-function listlearners()
+function listclasslearners()
     println("Use available learners:")
     [print(learner, " ") for learner in keys(_glearnerdict)]
     println()
-end
-
-
-
-function evaluate_pipeline(clfblock::Workflow, X::DataFrame, Y::Vector)
-    dfpipelines = clfblock.model[:dfpipelines]
-    folds = clfblock.model[:nfolds]
-    pmetric = clfblock.model[:metric]
-    res = @distributed (vcat) for prow in eachrow(dfpipelines)
-        perf = crossvalidate(prow.Pipeline, X, Y, pmetric; nfolds=folds)
-        DataFrame(; Description=prow.Description, mean=perf.mean, sd=perf.std, prow.Pipeline)
-    end
-    return res
-end
-
-function oneblock_pipeline_factory(clfblock::Workflow)
-    learners = [clfblock.model[:bestlearner]]
-    extractors = clfblock.model[:oextractors]
-    scalers = clfblock.model[:oscalers]
-    results = @distributed (vcat) for lr in learners
-        @distributed (vcat) for xt in extractors
-            @distributed (vcat) for sc in scalers
-                # baseline preprocessing
-                prep = @pipeline ((catf |> ohe) + numf)
-                # one-block prp
-                expx = @pipeline prep |> (sc |> xt) |> lr
-                scn = sc.name[1:end-4]
-                xtn = xt.name[1:end-4]
-                lrn = lr.name[1:end-4]
-                pname = "($scn |> $xtn) |> $lrn"
-                DataFrame(Description=pname, Pipeline=expx)
-            end
-        end
-    end
-    return results
-end
-
-function twoblock_pipeline_factory(clfblock::Workflow)
-    learners = [clfblock.model[:bestlearner]]
-    extractors = clfblock.model[:oextractors]
-    scalers = clfblock.model[:oscalers]
-    results = @distributed (vcat) for lr in learners
-        @distributed (vcat) for xt1 in extractors
-            @distributed (vcat) for xt2 in extractors
-                @distributed (vcat) for sc1 in scalers
-                    @distributed (vcat) for sc2 in scalers
-                        prep = @pipeline ((catf |> ohe) + numf)
-                        expx = @pipeline prep |> ((sc1 |> xt1) + (sc2 |> xt2)) |> lr
-                        scn1 = sc1.name[1:end-4]
-                        xtn1 = xt1.name[1:end-4]
-                        scn2 = sc2.name[1:end-4]
-                        xtn2 = xt2.name[1:end-4]
-                        lrn = lr.name[1:end-4]
-                        pname = "($scn1 |> $xtn1) + ($scn2 |> $xtn2) |> $lrn"
-                        DataFrame(Description=pname, Pipeline=expx)
-                    end
-                end
-            end
-        end
-    end
-    return results
-end
-
-function model_selection_pipeline(clfblock::Workflow)
-    learners = clfblock.model[:olearners]
-    results = @distributed (vcat) for lr in learners
-        prep = @pipeline ((catf |> ohe) + numf)
-        expx = @pipeline prep |> (rb |> pca) |> lr
-        pname = "(rb |> pca) |> $(lr.name[1:end-4])"
-        DataFrame(Description=pname, Pipeline=expx)
-    end
-    return results
-end
-
-function lname(n::Learner)
-    n.name[1:end-4]
-end
-
-function twoblocksearch(clfblock::Workflow, X::DataFrame, Y::Vector)
-    # use the best model to generate pipeline search
-    dfpipelines = twoblock_pipeline_factory(clfblock)
-    clfblock.model[:dfpipelines] = dfpipelines
-    bestp = evaluate_pipeline(clfblock, X, Y)
-    sort!(bestp, :mean, rev=true)
-    show(bestp; allrows=false, truncate=1, allcols=false)
-    println()
-    optmodel = bestp[1, :]
-    return optmodel
-end
-
-function oneblocksearch(clfblock::Workflow, X::DataFrame, Y::Vector)
-    # use the best model to generate pipeline search
-    dfpipelines = oneblock_pipeline_factory(clfblock)
-    clfblock.model[:dfpipelines] = dfpipelines
-    bestp = evaluate_pipeline(clfblock, X, Y)
-    sort!(bestp, :mean, rev=true)
-    show(bestp; allrows=false, truncate=1, allcols=false)
-    println()
-    optmodel = bestp[1, :]
-    return optmodel
 end
 
 function fit!(clfblock::ClfSearchBlock, X::DataFrame, Y::Vector)
@@ -223,7 +95,7 @@ function fit!(clfblock::ClfSearchBlock, X::DataFrame, Y::Vector)
 
     # find the best model by evaluating the models
     modelsperf = evaluate_pipeline(clfblock, X, Y)
-    sort!(modelsperf, :mean, rev=true)
+    sort!(modelsperf, :mean, rev=clfblock.model[:sortrev])
 
     # get the string name of the top model
     @show modelsperf
