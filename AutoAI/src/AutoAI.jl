@@ -14,5 +14,9 @@ include("clfsearchblock.jl")
 using .ClfSearchBlocks
 export ClfSearchBlock
 
+include("regsearchblock.jl")
+using .RegSearchBlocks
+export RegSearchBlock
+
 greet() = print("Hello World!")
 end # module AutoAI
