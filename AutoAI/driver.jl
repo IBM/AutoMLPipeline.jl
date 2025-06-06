@@ -4,8 +4,8 @@ using DataFrames: DataFrame
 using Serialization
 using Distributed
 
-nprocs() == 1 && addprocs()
-@everywhere using AutoAI
+#nprocs() == 1 && addprocs()
+#@everywhere using AutoAI
 
 df = CSV.File("./iris.csv") |> DataFrame
 X = df[:, 1:end-1]
