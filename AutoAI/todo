@@ -1,3 +1,10 @@
-- add support for regression
+- add support for twoblocks pipeline search
+  for regression/classification (done)
+- add argparse (use E2EAI/main_parse.jl)
+- create dockerized image
+- add isolation forest support
+- add autoad
 - add support for mlflow
+- add serialization to mlflow
+- add unit-testing
 - add support for serving

@@ -20,6 +20,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 AMLPipelineBase = "0.1.18"
@@ -38,3 +39,7 @@ Reexport = "1.2.2"
 Serialization = "1.11.0"
 Statistics = "1.11.1"
 StatsBase = "0.34.5"
+Test = "1.11.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

@@ -1,4 +1,4 @@
-module RegSearchBlocks
+module AutoRegressions
 # classification search blocks
 
 
@@ -12,7 +12,7 @@ using ..Utils
 
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
-export RegSearchBlock
+export AutoRegression
 
 include("./pipelinesearch.jl")
 
@@ -37,11 +37,11 @@ const _glearnerdictr = Dict("rfr" => rfr, "gbr" => gbr, "ridger" => ridger,
 )
 
 # define customized type
-mutable struct RegSearchBlock <: Workflow
+mutable struct AutoRegression <: Workflow
     name::String
     model::Dict{Symbol,Any}
 
-    function RegSearchBlock(args=Dict())
+    function AutoRegression(args=Dict())
         default_args = Dict(
             :name => "regsearchblock",
             :complexity => "low",
@@ -76,26 +76,26 @@ function listreglearners()
     println()
 end
 
-function fit!(regblock::RegSearchBlock, X::DataFrame, Y::Vector)
-    strscalers = regblock.model[:scalers]
-    strextractors = regblock.model[:extractors]
-    strlearners = regblock.model[:learners]
+function fit!(autoreg::AutoRegression, X::DataFrame, Y::Vector)
+    strscalers = autoreg.model[:scalers]
+    strextractors = autoreg.model[:extractors]
+    strlearners = autoreg.model[:learners]
 
     # get objects from dictionary
     olearners = [_glearnerdictr[k] for k in strlearners]
     oextractors = [_gextractordict[k] for k in strextractors]
     oscalers = [_gscalersdict[k] for k in strscalers]
-    regblock.model[:olearners] = olearners
-    regblock.model[:oextractors] = oextractors
-    regblock.model[:oscalers] = oscalers
+    autoreg.model[:olearners] = olearners
+    autoreg.model[:oextractors] = oextractors
+    autoreg.model[:oscalers] = oscalers
 
     # store pipelines
-    dfpipelines = model_selection_pipeline(regblock)
-    regblock.model[:dfpipelines] = dfpipelines
+    dfpipelines = model_selection_pipeline(autoreg)
+    autoreg.model[:dfpipelines] = dfpipelines
 
     # find the best model by evaluating the models
-    modelsperf = evaluate_pipeline(regblock, X, Y)
-    sort!(modelsperf, :mean, rev=regblock.model[:sortrev])
+    modelsperf = evaluate_pipeline(autoreg, X, Y)
+    sort!(modelsperf, :mean, rev=autoreg.model[:sortrev])
 
     # get the string name of the top model
     @show modelsperf
@@ -103,34 +103,34 @@ function fit!(regblock::RegSearchBlock, X::DataFrame, Y::Vector)
 
     # get corresponding model object
     bestlearner = _glearnerdictr[bestm]
-    regblock.model[:bestlearner] = bestlearner
+    autoreg.model[:bestlearner] = bestlearner
     optmodel = DataFrame()
-    if regblock.model[:complexity] == "low"
-        optmodel = oneblocksearch(regblock, X, Y)
+    if autoreg.model[:complexity] == "low"
+        optmodel = oneblocksearch(autoreg, X, Y)
     else
-        optmodel = twoblocksearch(regblock, X, Y)
+        optmodel = twoblocksearch(autoreg, X, Y)
     end
     bestpipeline = optmodel.Pipeline
     # train the best pipeline and store it
     fit!(bestpipeline, X, Y)
     bestpipeline.model[:description] = optmodel.Description
-    regblock.model[:bestpipeline] = bestpipeline
+    autoreg.model[:bestpipeline] = bestpipeline
     return nothing
 end
 
-function fit(regb::RegSearchBlock, X::DataFrame, Y::Vector)
-    regblock = deepcopy(regb)
-    fit!(regblock, X, Y)
-    return regblock
+function fit(regb::AutoRegression, X::DataFrame, Y::Vector)
+    autoreg = deepcopy(regb)
+    fit!(autoreg, X, Y)
+    return autoreg
 end
 
-function transform!(regblock::RegSearchBlock, X::DataFrame)
-    bestpipeline = regblock.model[:bestpipeline]
+function transform!(autoreg::AutoRegression, X::DataFrame)
+    bestpipeline = autoreg.model[:bestpipeline]
     transform!(bestpipeline, X)
 end
 
-function transform(regblock::RegSearchBlock, X::DataFrame)
-    bestpipeline = deepcopy(regblock.model[:bestpipeline])
+function transform(autoreg::AutoRegression, X::DataFrame)
+    bestpipeline = deepcopy(autoreg.model[:bestpipeline])
     transform!(bestpipeline, X)
 end
 
