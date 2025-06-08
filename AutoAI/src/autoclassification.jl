@@ -1,4 +1,4 @@
-module ClfSearchBlocks
+module AutoClassifications
 # classification search blocks
 
 
@@ -12,7 +12,7 @@ using ..Utils
 
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
-export ClfSearchBlock
+export AutoClassification
 
 include("./pipelinesearch.jl")
 
@@ -37,11 +37,11 @@ const _glearnerdict = Dict("rfc" => rfc, "gbc" => gbc,
 )
 
 # define customized type
-mutable struct ClfSearchBlock <: Workflow
+mutable struct AutoClassification <: Workflow
     name::String
     model::Dict{Symbol,Any}
 
-    function ClfSearchBlock(args=Dict())
+    function AutoClassification(args=Dict())
         default_args = Dict(
             :name => "clfsearchblock",
             :complexity => "high",
@@ -76,26 +76,26 @@ function listclasslearners()
     println()
 end
 
-function fit!(clfblock::ClfSearchBlock, X::DataFrame, Y::Vector)
-    strscalers = clfblock.model[:scalers]
-    strextractors = clfblock.model[:extractors]
-    strlearners = clfblock.model[:learners]
+function fit!(autoclass::AutoClassification, X::DataFrame, Y::Vector)
+    strscalers = autoclass.model[:scalers]
+    strextractors = autoclass.model[:extractors]
+    strlearners = autoclass.model[:learners]
 
     # get objects from dictionary
     olearners = [_glearnerdict[k] for k in strlearners]
     oextractors = [_gextractordict[k] for k in strextractors]
     oscalers = [_gscalersdict[k] for k in strscalers]
-    clfblock.model[:olearners] = olearners
-    clfblock.model[:oextractors] = oextractors
-    clfblock.model[:oscalers] = oscalers
+    autoclass.model[:olearners] = olearners
+    autoclass.model[:oextractors] = oextractors
+    autoclass.model[:oscalers] = oscalers
 
     # store pipelines
-    dfpipelines = model_selection_pipeline(clfblock)
-    clfblock.model[:dfpipelines] = dfpipelines
+    dfpipelines = model_selection_pipeline(autoclass)
+    autoclass.model[:dfpipelines] = dfpipelines
 
     # find the best model by evaluating the models
-    modelsperf = evaluate_pipeline(clfblock, X, Y)
-    sort!(modelsperf, :mean, rev=clfblock.model[:sortrev])
+    modelsperf = evaluate_pipeline(autoclass, X, Y)
+    sort!(modelsperf, :mean, rev=autoclass.model[:sortrev])
 
     # get the string name of the top model
     @show modelsperf
@@ -103,34 +103,34 @@ function fit!(clfblock::ClfSearchBlock, X::DataFrame, Y::Vector)
 
     # get corresponding model object
     bestlearner = _glearnerdict[bestm]
-    clfblock.model[:bestlearner] = bestlearner
+    autoclass.model[:bestlearner] = bestlearner
     optmodel = DataFrame()
-    if clfblock.model[:complexity] == "low"
-        optmodel = oneblocksearch(clfblock, X, Y)
+    if autoclass.model[:complexity] == "low"
+        optmodel = oneblocksearch(autoclass, X, Y)
     else
-        optmodel = twoblocksearch(clfblock, X, Y)
+        optmodel = twoblocksearch(autoclass, X, Y)
     end
     bestpipeline = optmodel.Pipeline
     # train the best pipeline and store it
     fit!(bestpipeline, X, Y)
     bestpipeline.model[:description] = optmodel.Description
-    clfblock.model[:bestpipeline] = bestpipeline
+    autoclass.model[:bestpipeline] = bestpipeline
     return nothing
 end
 
-function fit(clfb::ClfSearchBlock, X::DataFrame, Y::Vector)
-    clfblock = deepcopy(clfb)
-    fit!(clfblock, X, Y)
-    return clfblock
+function fit(clfb::AutoClassification, X::DataFrame, Y::Vector)
+    autoclass = deepcopy(clfb)
+    fit!(autoclass, X, Y)
+    return autoclass
 end
 
-function transform!(clfblock::ClfSearchBlock, X::DataFrame)
-    bestpipeline = clfblock.model[:bestpipeline]
+function transform!(autoclass::AutoClassification, X::DataFrame)
+    bestpipeline = autoclass.model[:bestpipeline]
     transform!(bestpipeline, X)
 end
 
-function transform(clfblock::ClfSearchBlock, X::DataFrame)
-    bestpipeline = deepcopy(clfblock.model[:bestpipeline])
+function transform(autoclass::AutoClassification, X::DataFrame)
+    bestpipeline = deepcopy(autoclass.model[:bestpipeline])
     transform!(bestpipeline, X)
 end
 
