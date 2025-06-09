@@ -12,7 +12,7 @@ df = CSV.File("./test/iris.csv") |> DataFrame
 X = df[:, 1:end-1]
 Y = df[:, end] |> collect
 autoclass = AutoClassification()
-fit_transform!(autoclas, X, Y)
+fit_transform!(autoclass, X, Y)
 
 serialize("autoclass.bin", autoclass)
 bestm = deserialize("./autoclass.bin")
