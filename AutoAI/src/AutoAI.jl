@@ -17,5 +17,11 @@ include("autoregression.jl")
 using .AutoRegressions
 export AutoRegression
 
+include("skanomalydetector.jl")
+using .SKAnomalyDetectors
+export SKAnomalyDetector, skanomalydetectors
+export driver
+
+
 greet() = print("Hello World!")
 end # module AutoAI
