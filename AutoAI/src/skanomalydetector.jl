@@ -12,19 +12,19 @@ using ..Utils
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
 export SKAnomalyDetector, skanomalydetectors
-export driver;
+export driver
 
 const adlearner_dict = Dict{String,PYC.Py}()
-const AENS=PYC.pynew()
-const ACOV=PYC.pynew()
-const ASVM=PYC.pynew()
-const ASNN=PYC.pynew()
+const AENS = PYC.pynew()
+const ACOV = PYC.pynew()
+const ASVM = PYC.pynew()
+const ASNN = PYC.pynew()
 
 function __init__()
-  PYC.pycopy!(AENS,PYC.pyimport("sklearn.ensemble"))
-  PYC.pycopy!(ACOV,PYC.pyimport("sklearn.covariance"))
-  PYC.pycopy!(ASVM,PYC.pyimport("sklearn.svm"))
-  PYC.pycopy!(ASNN,PYC.pyimport("sklearn.neighbors"))
+  PYC.pycopy!(AENS, PYC.pyimport("sklearn.ensemble"))
+  PYC.pycopy!(ACOV, PYC.pyimport("sklearn.covariance"))
+  PYC.pycopy!(ASVM, PYC.pyimport("sklearn.svm"))
+  PYC.pycopy!(ASNN, PYC.pyimport("sklearn.neighbors"))
 end
 
 adlearner_dict["IsolationForest"] = AENS
@@ -33,26 +33,26 @@ adlearner_dict["OneClassSVM"] = ASVM
 adlearner_dict["LocalOutlierFactor"] = ASNN
 
 function skanomalydetectors()
-    detectors = keys(adlearner_dict) |> collect |> x -> sort(x, lt=(x, y) -> lowercase(x) < lowercase(y))
-    println("syntax: SKAnomalyDetector(name::String, args::Dict=Dict())")
-    println("where 'name' can be one of:")
-    println()
-    [print(learner, " ") for learner in detectors]
-    println()
-    println()
-    println("and 'args' are the corresponding learner's initial parameters.")
-    println("Note: Consult Scikitlearn's online help for more details about the learner's arguments.")
+  detectors = keys(adlearner_dict) |> collect |> x -> sort(x, lt=(x, y) -> lowercase(x) < lowercase(y))
+  println("syntax: SKAnomalyDetector(name::String, args::Dict=Dict())")
+  println("where 'name' can be one of:")
+  println()
+  [print(learner, " ") for learner in detectors]
+  println()
+  println()
+  println("and 'args' are the corresponding learner's initial parameters.")
+  println("Note: Consult Scikitlearn's online help for more details about the learner's arguments.")
 end
 
 mutable struct SKAnomalyDetector <: Learner
   name::String
   model::Dict{Symbol,Any}
-  function  SKAnomalyDetector(args=Dict())
-    default_args=Dict(
-        :name=>"skad",
-        :learner=>"IsolationForest",
-        :output=>"anomalies",
-        :impl_args=>Dict{Symbol,Any}()
+  function SKAnomalyDetector(args=Dict())
+    default_args = Dict(
+      :name => "skad",
+      :learner => "IsolationForest",
+      :output => "anomalies",
+      :impl_args => Dict{Symbol,Any}()
     )
     cargs = nested_dict_merge(default_args, args)
     cargs[:name] = cargs[:name] * "_" * randstring(3)
@@ -68,29 +68,24 @@ mutable struct SKAnomalyDetector <: Learner
 end
 
 function SKAnomalyDetector(learner::String, args::Dict)
-    SKAnomalyDetector(Dict(:learner => learner, :name => learner, args...))
+  SKAnomalyDetector(Dict(:learner => learner, :name => learner, args...))
 end
 
 function SKAnomalyDetector(learner::String; args...)
-    SKAnomalyDetector(Dict(:learner => learner, :name => learner, :impl_args => Dict(pairs(args))))
+  SKAnomalyDetector(Dict(:learner => learner, :name => learner, :impl_args => Dict(pairs(args))))
 end
 
 function (adl::SKAnomalyDetector)(; objargs...)
-    adl.model[:impl_args] = Dict(pairs(objargs))
-    adname = adl.model[:learner]
-    skobj = getproperty(adlearner_dict[adname], adname)
-    newskobj = skobj(; objargs...)
-    adl.model[:sklearner] = newskobj
-    return adl
+  adl.model[:impl_args] = Dict(pairs(objargs))
+  adname = adl.model[:learner]
+  skobj = getproperty(adlearner_dict[adname], adname)
+  newskobj = skobj(; objargs...)
+  adl.model[:sklearner] = newskobj
+  return adl
 end
 
-function fit!(adl::SKAnomalyDetector,xx::DataFrame,yy::Vector=[])::Nothing
+function fit!(adl::SKAnomalyDetector, xx::DataFrame, ::Vector=[])::Nothing
   x = xx |> Array
-  #y = yy
-  #if !(eltype(yy) <: Real)
-  #    y = yy |> Vector{String}
-  #end
-
   impl_args = copy(adl.model[:impl_args])
   learner = adl.model[:learner]
   py_learner = getproperty(adlearner_dict[learner], learner)
@@ -105,29 +100,28 @@ function fit!(adl::SKAnomalyDetector,xx::DataFrame,yy::Vector=[])::Nothing
 end
 
 function transform!(adl::SKAnomalyDetector, xx::DataFrame)::Vector
-    x = deepcopy(xx) |> Array
-    adlearner = adl.model[:adlearner]
-    if adl.model[:learner] == "LocalOutlierFactor"
-        res = adlearner.fit_predict(x)
-        println(typeof(res))
-    else
-        res = adlearner.predict(x)
-    end
-    return res |> PYC.PyArray |> Vector
+  x = deepcopy(xx) |> Array
+  adlearner = adl.model[:adlearner]
+  if adl.model[:learner] == "LocalOutlierFactor"
+    res = adlearner.fit_predict(x)
+    println(typeof(res))
+  else
+    res = adlearner.predict(x)
+  end
+  return res |> PYC.PyArray |> Vector
 end
 
 function driver()
-    X=rand(20,2) |> x->DataFrame(x,:auto)
-    #X = [-1.1; 0.3; 0.5; 100] |> x-> DataFrame(x=x)
-    clf1 = SKAnomalyDetector("IsolationForest")
-    clf2 = SKAnomalyDetector("EllipticEnvelope")
-    clf3 = SKAnomalyDetector("OneClassSVM")
-    clf4 = SKAnomalyDetector("LocalOutlierFactor")
-    res1=fit_transform!(clf1,X)
-    res2=fit_transform!(clf2,X)
-    res3=fit_transform!(clf3,X)
-    res4=fit_transform!(clf4,X)
-    return DataFrame(iso=res1, eli=res2, osvm = res3, lcl = res4)
+  X = rand(20, 2) |> x -> DataFrame(x, :auto)
+  clf1 = SKAnomalyDetector("IsolationForest")
+  clf2 = SKAnomalyDetector("EllipticEnvelope")
+  clf3 = SKAnomalyDetector("OneClassSVM")
+  clf4 = SKAnomalyDetector("LocalOutlierFactor")
+  res1 = fit_transform!(clf1, X)
+  res2 = fit_transform!(clf2, X)
+  res3 = fit_transform!(clf3, X)
+  res4 = fit_transform!(clf4, X)
+  return DataFrame(iso=res1, eli=res2, osvm=res3, lcl=res4)
 end
 
 
