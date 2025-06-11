@@ -30,14 +30,11 @@ function curvefit(df)
     return Yhat, Y
 end
 
-@testset "autoclassification" begin
-    Yhat, Y = classify(df)
-    @test mean(Yhat .== Y) > 0.95
-end
-
-@testset "autoregression" begin
-    Yhat, Y = curvefit(df)
-    @test mean((Yhat .- Y) .^ 2) < 0.03
+@testset "autoclassification and autoregression" begin
+    Yhatc, Yc = classify(df)
+    Yhatr, Yr = curvefit(df)
+    @test mean(Yhatc .== Yc) > 0.95
+    @test mean((Yhatr .- Yr) .^ 2) < 0.03
 end
 
 end
