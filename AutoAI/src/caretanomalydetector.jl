@@ -15,6 +15,9 @@ export CaretAnomalyDetector, caretanomalydetectors
 export caretdriver
 
 function caretanomalydetectors()
+  println("Use available learners:")
+  [print(learner, " ") for learner in keys(caretadlearner_dict)]
+  println()
 end
 
 const CADX = PYC.pynew()
@@ -108,7 +111,7 @@ function caretdriver()
   #aexpr.create_model(learner)
   #aexpr.models()
   df = rand(100, 3) |> x -> DataFrame(x, :auto)
-  caretad = CaretAnomalyDetector()
+  caretad = CaretAnomalyDetector("iforest")
   fit!(caretad, df)
   transform!(caretad, df)
 

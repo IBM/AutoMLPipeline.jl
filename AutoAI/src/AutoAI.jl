@@ -24,6 +24,7 @@ export driver
 
 include("caretanomalydetector.jl")
 using .CaretAnomalyDetectors
+export CaretAnomalyDetectors, CaretAnomalyDetector
 export caretdriver
 
 greet() = print("Hello World!")
