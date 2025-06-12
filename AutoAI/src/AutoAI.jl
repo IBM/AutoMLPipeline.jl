@@ -22,6 +22,9 @@ using .SKAnomalyDetectors
 export SKAnomalyDetector, skanomalydetectors
 export driver
 
+include("caretanomalydetector.jl")
+using .CaretAnomalyDetectors
+export caretdriver
 
 greet() = print("Hello World!")
 end # module AutoAI

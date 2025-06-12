@@ -96,7 +96,6 @@ function fit!(adl::SKAnomalyDetector, xx::DataFrame, ::Vector=[])::Nothing
   adl.model[:adlearner] = modelobj
   adl.model[:impl_args] = impl_args
   return nothing
-
 end
 
 function transform!(adl::SKAnomalyDetector, xx::DataFrame)::Vector
