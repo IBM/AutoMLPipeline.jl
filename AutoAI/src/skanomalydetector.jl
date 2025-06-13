@@ -107,7 +107,7 @@ function transform!(adl::SKAnomalyDetector, xx::DataFrame)::Vector
   else
     res = adlearner.predict(x)
   end
-  return res |> PYC.PyArray |> Vector
+  return res |> PYC.PyArray |> Vector |> x -> replace(x, -1 => 0)
 end
 
 function skaddriver()
@@ -123,6 +123,5 @@ function skaddriver()
   res4 = fit_transform!(clf4, X)
   return DataFrame(iso=res1, eli=res2, osvm=res3, lcl=res4)
 end
-
 
 end
