@@ -23,7 +23,6 @@ end
 const CADX = PYC.pynew()
 const CDATA = PYC.pynew()
 
-
 function __init__()
   PYC.pycopy!(CADX, PYC.pyimport("pycaret.anomaly"))
   PYC.pycopy!(CDATA, PYC.pyimport("pycaret.datasets"))
@@ -96,7 +95,6 @@ function transform!(adl::CaretAnomalyDetector, xx::DataFrame)
   return res.Anomaly |> PYC.PyArray |> Vector
 end
 
-
 function caretdriver()
   Random.seed!(3)
   df = rand(100, 1) |> x -> DataFrame(x, :auto)
@@ -109,6 +107,5 @@ function caretdriver()
   end
   return dfres
 end
-
 
 end
