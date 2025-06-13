@@ -20,7 +20,7 @@ export AutoRegression
 include("skanomalydetector.jl")
 using .SKAnomalyDetectors
 export SKAnomalyDetector, skanomalydetectors
-export driver
+export skaddriver
 
 include("caretanomalydetector.jl")
 using .CaretAnomalyDetectors

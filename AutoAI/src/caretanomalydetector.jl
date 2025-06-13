@@ -98,23 +98,16 @@ end
 
 
 function caretdriver()
-  # load sample dataset
-  #get_data = CDATA.get_data
-  #data = get_data("anomaly")
-  #caretad = CaretAnomalyDetector()
-  #expt = caretad.model[:experiment]
-  #learner = caretad.model[:learner]
-  #println(expt)
-  #println(learner)
-  #aexpr = CADX.AnomalyExperiment()
-  #aexpr.setup(data, session_id=123)
-  #aexpr.create_model(learner)
-  #aexpr.models()
-  df = rand(100, 3) |> x -> DataFrame(x, :auto)
-  caretad = CaretAnomalyDetector("iforest")
-  fit!(caretad, df)
-  transform!(caretad, df)
-
+  Random.seed!(3)
+  df = rand(100, 1) |> x -> DataFrame(x, :auto)
+  dfres = DataFrame()
+  for learner in keys(caretadlearner_dict)
+    model = CaretAnomalyDetector(learner)
+    res = fit_transform!(model, df)
+    mname = string(learner)
+    dfres = hcat(dfres, DataFrame(mname => res; makeunique=true))
+  end
+  return dfres
 end
 
 

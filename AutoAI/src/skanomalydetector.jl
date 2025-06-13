@@ -12,7 +12,7 @@ using ..Utils
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
 export SKAnomalyDetector, skanomalydetectors
-export driver
+export skaddriver
 
 const adlearner_dict = Dict{String,PYC.Py}()
 const AENS = PYC.pynew()
@@ -110,8 +110,9 @@ function transform!(adl::SKAnomalyDetector, xx::DataFrame)::Vector
   return res |> PYC.PyArray |> Vector
 end
 
-function driver()
-  X = rand(20, 2) |> x -> DataFrame(x, :auto)
+function skaddriver()
+  Random.seed!(3)
+  X = rand(100, 1) |> x -> DataFrame(x, :auto)
   clf1 = SKAnomalyDetector("IsolationForest")
   clf2 = SKAnomalyDetector("EllipticEnvelope")
   clf3 = SKAnomalyDetector("OneClassSVM")
