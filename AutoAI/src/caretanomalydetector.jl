@@ -81,14 +81,14 @@ function fit!(adl::CaretAnomalyDetector, xx::DataFrame, ::Vector=[])::Nothing
   py_experiment.create_model(learner)
 
   # save model
-  adl.model[:adlearner] = py_experiment
+  adl.model[:py_experiment] = py_experiment
   return nothing
 end
 
 function transform!(adl::CaretAnomalyDetector, xx::DataFrame)
   x = deepcopy(xx) |> Array
   learner = adl.model[:learner]
-  py_experiment = adl.model[:adlearner]
+  py_experiment = adl.model[:py_experiment]
   py_experiment.setup(x, session_id=123)
   clearner = py_experiment.create_model(learner)
   res = py_experiment.assign_model(clearner)
