@@ -1,4 +1,4 @@
-module TestAnomalyDetection
+module TestSKAnomalyDetection
 using Test
 using CSV
 using AutoAI
