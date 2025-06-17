@@ -54,6 +54,7 @@ mutable struct CaretTSPredictor <: Learner
   function CaretTSPredictor(args=Dict())
     default_args = Dict(
       :name => "caretts",
+      :verbose => false,
       :learner => "auto",
       :experiment => "TSForecastingExperiment",
       :output => "forecast",
@@ -89,14 +90,15 @@ function fit!(adl::CaretTSPredictor, xx::DataFrame, ::Vector=[])::Nothing
   expt = adl.model[:experiment]
   learner = adl.model[:learner]
   py_experiment = getproperty(carettsexp_dict[expt], expt)()
-  py_experiment.setup(x, session_id=123, verbose=false)
+  _verbose = adl.model[:verbose]
+  py_experiment.setup(x, session_id=123, verbose=_verbose)
   if learner != "auto"
-    clearner = py_experiment.create_model(learner, verbose=false)
-    @info "evaluating the best model: $clearner"
+    clearner = py_experiment.create_model(learner, verbose=_verbose)
+    @info "evaluating the model: $clearner"
     finalmodel = py_experiment.finalize_model(clearner)
     adl.model[:finalmodel] = finalmodel
   else
-    best = py_experiment.compare_models()
+    best = py_experiment.compare_models(verbose=_verbose)
     @info "evaluating the best model: $best"
     finalmodel = py_experiment.finalize_model(best)
     adl.model[:finalmodel] = finalmodel
@@ -113,26 +115,32 @@ function transform!(adl::CaretTSPredictor, xx::DataFrame)
   x = py_dataframe(xh)
   learner = adl.model[:learner]
   py_experiment = adl.model[:py_experiment]
-  py_experiment.setup(x, session_id=123, verbose=false)
+  _verbose = adl.model[:verbose]
+  py_experiment.setup(x, session_id=123, verbose=_verbose)
   forecast_horizon = adl.model[:forecast_horizon]
   finalmodel = adl.model[:finalmodel]
-  res = py_experiment.predict_model(finalmodel, fh=forecast_horizon, verbose=false)
+  res = py_experiment.predict_model(finalmodel, fh=forecast_horizon, verbose=_verbose)
   finalres = res.y_pred |> PYC.PyArray |> Vector
   return finalres
 end
 
 function carettsdriver()
-  DT = PYC.pyimport("pycaret.datasets")
-  PD = PYC.pyimport("pandas")
-  get_data = getproperty(DT, "get_data")
-  df = get_data("airline")
+  #DT = PYC.pyimport("pycaret.datasets")
+  #PD = PYC.pyimport("pandas")
+  #get_data = getproperty(DT, "get_data")
+  #df = get_data("airline")
   df = rand(100, 1) |> x -> DataFrame(x, :auto)
-  model = CaretTSPredictor("auto")
-  @sync @distributed for learner in (keys(carettspredictor_dict) |> collect)
-    model = CaretTSPredictor(learner)
+  bmodel = CaretTSPredictor("auto", Dict(:verbose => true))
+  bestres = fit_transform!(bmodel, df)
+  tabres = @sync @distributed (hcat) for learner in ["ridge_cds_dt", "auto_arima", "ets", "rf_cds_dt"]
+    model = CaretTSPredictor(learner, Dict(:verbose => false))
     res = fit_transform!(model, df)
-    @assert typeof(res) <: Vector
+    DataFrame(learner => res)
   end
+  @show hcat(tabres, DataFrame(:best => bestres))
+  print(bmodel.model[:finalmodel])
+  return nothing
 end
 
 end
+
