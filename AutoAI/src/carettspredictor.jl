@@ -1,5 +1,6 @@
 module CaretTSPredictors
 
+using Distributed
 import PythonCall
 const PYC = PythonCall
 
@@ -16,7 +17,7 @@ export carettsdriver
 
 function carettspredictors()
   println("Use available learners:")
-  [print(learner, " ") for learner in keys(caretadlearner_dict)]
+  [print(learner, " ") for learner in keys(carettspredictor_dict)]
   println()
 end
 
@@ -29,15 +30,18 @@ function __init__()
 end
 
 const carettspredictor_dict = Dict{String,PYC.Py}(
-  "expt_smooth" => CTS, "ets" => CTS, "arima" => CTS,
-  "auto_arima" => CTS, "par_cds_ct" => CTS, "theta" => CTS,
-  "huber_cds_dt" => CTS, "knn_cds_dt" => CTS, "lar_cd_dt" => CTS,
+  "exp_smooth" => CTS, "ets" => CTS, "arima" => CTS,
+  "auto_arima" => CTS, "theta" => CTS,
+  "huber_cds_dt" => CTS, "knn_cds_dt" => CTS,
   "lr_cds_dt" => CTS, "ridge_cds_dt" => CTS, "br_cds_dt" => CTS,
   "en_cds_dt" => CTS, "lasso_cds_dt" => CTS, "et_cds_dt" => CTS,
-  "rf_cds_dt" => CTS, "dt_cds_dt" => CTS, "lighgbm_cds_dt" => CTS,
+  "rf_cds_dt" => CTS, "dt_cds_dt" => CTS, "lightgbm_cds_dt" => CTS,
   "ada_cds_dt" => CTS, "omp_cds_dt" => CTS, "gbr_cds_dt" => CTS,
-  "liar_cds_dt" => CTS, "naive" => CTS, "snaive" => CTS,
-  "polytrend" => CTS, "croston" => CTS, "grand_means" => CTS
+  "llar_cds_dt" => CTS, "naive" => CTS,
+  "polytrend" => CTS, "croston" => CTS, "grand_means" => CTS,
+  "bats" => CTS, "tbats" => CTS
+  #"snaive","stlf","prophet","catboost_cds_dt"
+
 )
 
 const carettsexp_dict = Dict{String,PYC.Py}()
@@ -85,13 +89,21 @@ function fit!(adl::CaretTSPredictor, xx::DataFrame, ::Vector=[])::Nothing
   expt = adl.model[:experiment]
   learner = adl.model[:learner]
   py_experiment = getproperty(carettsexp_dict[expt], expt)()
-  py_experiment.setup(x, session_id=123)
-  clearner = py_experiment.create_model(learner)
-  finalmodel = py_experiment.finalize_model(clearner)
+  py_experiment.setup(x, session_id=123, verbose=false)
+  if learner != "auto"
+    clearner = py_experiment.create_model(learner, verbose=false)
+    @info "evaluating the best model: $clearner"
+    finalmodel = py_experiment.finalize_model(clearner)
+    adl.model[:finalmodel] = finalmodel
+  else
+    best = py_experiment.compare_models()
+    @info "evaluating the best model: $best"
+    finalmodel = py_experiment.finalize_model(best)
+    adl.model[:finalmodel] = finalmodel
+  end
 
-  # save model
+  # save experiment
   adl.model[:py_experiment] = py_experiment
-  adl.model[:finalmodel] = finalmodel
   return nothing
 end
 
@@ -99,14 +111,14 @@ function transform!(adl::CaretTSPredictor, xx::DataFrame)
   xh = deepcopy(xx) |> Array
   py_dataframe = getproperty(PD, "DataFrame")
   x = py_dataframe(xh)
-  finalmodel = adl.model[:finalmodel]
+  learner = adl.model[:learner]
   py_experiment = adl.model[:py_experiment]
-  py_experiment.setup(x, session_id=123)
+  py_experiment.setup(x, session_id=123, verbose=false)
   forecast_horizon = adl.model[:forecast_horizon]
-  #best = py_experiment.compare_models()
-  #best_model = py_experiment.finalize_model(best)
-  #res = py_experiment.predict_model(best_model, fh=forecast_horizon)
-  py_experiment.predict_model(finalmodel, fh=forecast_horizon)
+  finalmodel = adl.model[:finalmodel]
+  res = py_experiment.predict_model(finalmodel, fh=forecast_horizon, verbose=false)
+  finalres = res.y_pred |> PYC.PyArray |> Vector
+  return finalres
 end
 
 function carettsdriver()
@@ -115,9 +127,12 @@ function carettsdriver()
   get_data = getproperty(DT, "get_data")
   df = get_data("airline")
   df = rand(100, 1) |> x -> DataFrame(x, :auto)
-  model = CaretTSPredictor("arima")
-  fit!(model, df)
-  transform!(model, df)
+  model = CaretTSPredictor("auto")
+  @sync @distributed for learner in (keys(carettspredictor_dict) |> collect)
+    model = CaretTSPredictor(learner)
+    res = fit_transform!(model, df)
+    @assert typeof(res) <: Vector
+  end
 end
 
 end
