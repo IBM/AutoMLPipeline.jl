@@ -107,7 +107,7 @@ function transform!(adl::SKAnomalyDetector, xx::DataFrame)::Vector
   else
     res = adlearner.predict(x)
   end
-  return res |> PYC.PyArray |> Vector |> x -> replace(x, -1 => 0)
+  return res |> PYC.PyArray |> Vector |> x -> replace(x, 1 => 0, -1 => 1)
 end
 
 function skaddriver()
