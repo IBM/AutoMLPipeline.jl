@@ -77,8 +77,8 @@ function fit!(adl::CaretAnomalyDetector, xx::DataFrame, ::Vector=[])::Nothing
   expt = adl.model[:experiment]
   learner = adl.model[:learner]
   py_experiment = getproperty(caretexperiment_dict[expt], expt)()
-  py_experiment.setup(x, session_id=123, verbose=false)
-  py_experiment.create_model(learner, verbose=false)
+  #py_experiment.setup(x, session_id=123, verbose=false)
+  #py_experiment.create_model(learner, verbose=false)
 
   # save model
   adl.model[:py_experiment] = py_experiment
