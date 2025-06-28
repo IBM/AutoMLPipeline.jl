@@ -17,10 +17,9 @@ jobs:
       fail-fast: true
       matrix:
         version:
+          - "1"
           - "1.9"
-          - "1" # Leave this line unchanged. '1' will automatically expand to the latest stable 1.x release of Julia.
-          #  - "nightly"
-        python: [3.9]
+          - "nightly"
         os:
           - ubuntu-latest
           - macOS-latest # issue with libmkl location
@@ -55,8 +54,8 @@ jobs:
       - name: Run tests
         uses: julia-actions/julia-runtest@v1
         env:
-          JULIA_DEBUG: PythonCall
-          JULIA_NUM_THREADS: "2"
+          #JULIA_DEBUG: PythonCall
+          JULIA_NUM_THREADS: "8"
 
       - name: Process coverage
         uses: julia-actions/julia-processcoverage@v1
