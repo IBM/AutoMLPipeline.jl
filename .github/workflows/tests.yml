@@ -1,0 +1,132 @@
+name: Tests
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
+
+jobs:
+  test:
+    name: Test ${{ matrix.version }} - julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        version:
+          - "1.9"
+          - "1" # Leave this line unchanged. '1' will automatically expand to the latest stable 1.x release of Julia.
+          #  - "nightly"
+        python: [3.9]
+        os:
+          - ubuntu-latest
+          - macOS-latest # issue with libmkl location
+          - windows-latest
+        arch:
+          - x64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Python Tasks
+      - name: Setup ${{ matrix.os }}, python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Display Python Version
+        run: python -c "import sys; print(sys.version)"
+
+        #- name: Install dependencies
+        #  run: |
+        #    python -m pip install --upgrade pip
+        #    pip install numpy scipy scikit-learn
+
+      # Julia Tasks
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
+
+      - uses: julia-actions/cache@v2
+        #env:
+        #  cache-name: cache-artifacts
+        #with:
+        #  path: ~/.julia/artifacts
+        #  key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+        #  restore-keys: |
+        #    ${{ runner.os }}-test-${{ env.cache-name }}-
+        #    ${{ runner.os }}-test-
+        #    ${{ runner.os }}-
+
+      - name: Build package
+        uses: julia-actions/julia-buildpkg@v1
+
+      - name: Run tests
+        uses: julia-actions/julia-runtest@v1
+        env:
+          JULIA_DEBUG: PythonCall
+          JULIA_NUM_THREADS: "2"
+
+      - name: Process coverage
+        uses: julia-actions/julia-processcoverage@v1
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #  env:
+      #    PYTHON: ""
+      #- uses: julia-actions/julia-runtest@v1
+      #- uses: julia-actions/julia-processcoverage@v1
+      #- uses: codecov/codecov-action@v1
+      #  with:
+      #    file: lcov.info
+  docs:
+    if: ${{ !(github.event_name == 'pull_request') || contains(github.event.pull_request.labels.*.name, 'documentation') }}
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      #- name: Setup python
+      #  uses: actions/setup-python@v2
+      #  with:
+      #    python-version: 3.7
+      #- name: Set ENV Variables in Python
+      #  run: |
+      #    sudo apt-get update
+      #    echo ENV["PYTHON"] = "" >> $GITHUB_ENV
+
+      #- name: Install APT packages
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install python3-numpy python3-scipy
+
+      #- name: Install dependencies
+      #  run: |
+      #    sudo apt-get update
+      #    python -m pip install --upgrade pip
+      #    pip install numpy scipy scikit-learn
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: "1"
+        env:
+          PYTHON: ""
+      - run: |
+          julia --project=docs -e '
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()'
+      - run: |
+          julia --project=docs -e '
+            using Documenter: doctest
+            using AutoMLPipeline
+            doctest(AutoMLPipeline)' # change MYPACKAGE to the name of your package
+      - run: julia --project=docs docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
