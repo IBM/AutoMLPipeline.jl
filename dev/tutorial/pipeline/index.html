@@ -75,13 +75,13 @@ fold: 3, 0.6807142857142857
 fold: 4, 0.774120145631068
 fold: 5, 0.6845959595959596
 errors: 0
-(mean = 0.7036700445952289, std = 0.039677479749585215, folds = 5, errors = 0)</code></pre><p>What about using Gradient Boosting model?</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; gb;</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.5865384615384616
-fold: 2, 0.6647869674185464
-fold: 3, 0.5640394088669951
-fold: 4, 0.6708333333333334
-fold: 5, 0.61991341991342
+(mean = 0.7036700445952289, std = 0.039677479749585215, folds = 5, errors = 0)</code></pre><p>What about using Gradient Boosting model?</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_gb = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; gb;</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_gb = crossvalidate(pop_gb,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.5912651782217
+fold: 2, 0.6521739130434783
+fold: 3, 0.5772435897435897
+fold: 4, 0.6752136752136753
+fold: 5, 0.6037786774628879
 errors: 0
-(mean = 0.6212223182141512, std = 0.046993881866484066, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_rf = crossvalidate(pop_rf,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.5865384615384616
+(mean = 0.6199350067370663, std = 0.04183485806121355, folds = 5, errors = 0)</code></pre><p>What about using Random Forest model?</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(12345);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pop_rf = @pipeline ( (numf |&gt; rb) + (catf |&gt; ohe) + (numf |&gt; pt)) |&gt; jrf;</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; tr_rf = crossvalidate(pop_rf,X,Y,&quot;balanced_accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.5865384615384616
 fold: 2, 0.6352872670807453
 fold: 3, 0.6108675227059193
 fold: 4, 0.6480978260869565
@@ -132,16 +132,16 @@ fold: 9, 0.6567164179104478
 fold: 10, 0.6865671641791045
 errors: 0
 SGDClassifier_lmf
-fold: 1, 0.7313432835820896
-fold: 2, 0.746268656716418
-fold: 3, 0.6911764705882353
-fold: 4, 0.7014925373134329
+fold: 1, 0.7164179104477612
+fold: 2, 0.8507462686567164
+fold: 3, 0.6617647058823529
+fold: 4, 0.7761194029850746
 fold: 5, 0.7164179104477612
-fold: 6, 0.7910447761194029
-fold: 7, 0.7313432835820896
-fold: 8, 0.7205882352941176
-fold: 9, 0.6567164179104478
-fold: 10, 0.7910447761194029
+fold: 6, 0.6268656716417911
+fold: 7, 0.7164179104477612
+fold: 8, 0.7794117647058824
+fold: 9, 0.6119402985074627
+fold: 10, 0.7014925373134329
 errors: 0
 prunetree_AZS
 fold: 1, 0.6268656716417911
@@ -172,38 +172,38 @@ errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display
 ─────┼─────────────────────────────────────────────
    1 │ rf_4Lh                  0.654895  0.0724959
    2 │ AdaBoostClassifier_cuB  0.663499  0.0586239
-   3 │ SGDClassifier_lmf       0.727744  0.0416784
+   3 │ SGDClassifier_lmf       0.715759  0.0728142
    4 │ prunetree_AZS           0.575878  0.0293349
    5 │ LinearSVC_J7X           0.723134  0.0391873</code></pre><div class="admonition is-info" id="Note-dca56c1fd5ae9c55"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-dca56c1fd5ae9c55" title="Permalink"></a></header><div class="admonition-body"><p>It can be inferred from the results that linear SVC has the best performance with respect to the different pipelines evaluated. The compact expression supported by the  pipeline makes testing of the different combination of features  and models trivial. It makes performance evaluation   of the pipeline easily manageable in a systematic way.</p></div></div><h3 id="Learners-as-Filters"><a class="docs-heading-anchor" href="#Learners-as-Filters">Learners as Filters</a><a id="Learners-as-Filters-1"></a><a class="docs-heading-anchor-permalink" href="#Learners-as-Filters" title="Permalink"></a></h3><p>It is also possible to use learners in the middle of  expression to serve as filters and their outputs become  input to the final learner as illustrated below.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; expr = @pipeline (
                           ((numf |&gt; pca) |&gt; gb) + ((numf |&gt; pca) |&gt; jrf)
-                        ) |&gt; ohe |&gt; ada;</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(expr,X,Y,&quot;accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.6940298507462687
-fold: 2, 0.6592592592592592
+                        ) |&gt; ohe |&gt; ada;</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(expr,X,Y,&quot;accuracy_score&quot;,5)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.7014925373134329
+fold: 2, 0.6518518518518519
 fold: 3, 0.5970149253731343
 fold: 4, 0.6370370370370371
 fold: 5, 0.5671641791044776
 errors: 0
-(mean = 0.6309010503040354, std = 0.050094266155800406, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline">Advanced Expressions using Selector Pipeline</a><a id="Advanced-Expressions-using-Selector-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
+(mean = 0.6309121061359867, std = 0.05164881910282667, folds = 5, errors = 0)</code></pre><p>It is important to take note that <code>ohe</code> is necessary because the outputs of the two learners (<code>gb</code> and <code>jrf</code>)  are categorical values that need to be hot-bit encoded before  feeding them to the final <code>ada</code> learner.</p><h3 id="Advanced-Expressions-using-Selector-Pipeline"><a class="docs-heading-anchor" href="#Advanced-Expressions-using-Selector-Pipeline">Advanced Expressions using Selector Pipeline</a><a id="Advanced-Expressions-using-Selector-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Expressions-using-Selector-Pipeline" title="Permalink"></a></h3><p>You can use <code>*</code> operation as a selector  function which outputs the result of the best learner. Instead of looping over the different learners to identify the best learner, you can use the selector function  to automatically determine the best learner and output its  prediction. </p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pcmc = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
                         (jrf * ada * sgd * tree * lsvc);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pcmc,X,Y,&quot;accuracy_score&quot;,10)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.7313432835820896
 fold: 2, 0.746268656716418
-fold: 3, 0.7352941176470589
-fold: 4, 0.6716417910447762
+fold: 3, 0.7794117647058824
+fold: 4, 0.7611940298507462
 fold: 5, 0.7611940298507462
 fold: 6, 0.7014925373134329
 fold: 7, 0.7611940298507462
 fold: 8, 0.6617647058823529
-fold: 9, 0.582089552238806
+fold: 9, 0.6567164179104478
 fold: 10, 0.6567164179104478
 errors: 0
-(mean = 0.7008999122036875, std = 0.05763378685798944, folds = 10, errors = 0)</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
+(mean = 0.7217295873573311, std = 0.04848012070893445, folds = 10, errors = 0)</code></pre><p>Here is another example using the Selector Pipeline as a preprocessor in the feature extraction stage of the pipeline:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Random.seed!(1);</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pjrf = @pipeline disc |&gt; ((catf |&gt; ohe) + (numf |&gt; std)) |&gt;
                         ((jrf * ada ) + (sgd * tree * lsvc)) |&gt; ohe |&gt; ada;</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; crossvalidate(pjrf,X,Y,&quot;accuracy_score&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">fold: 1, 0.7313432835820896
 fold: 2, 0.5970149253731343
 fold: 3, 0.7941176470588235
 fold: 4, 0.582089552238806
-fold: 5, 0.746268656716418
-fold: 6, 0.7164179104477612
+fold: 5, 0.7761194029850746
+fold: 6, 0.7611940298507462
 fold: 7, 0.7313432835820896
 fold: 8, 0.6323529411764706
 fold: 9, 0.746268656716418
 fold: 10, 0.7611940298507462
 errors: 0
-(mean = 0.7038410886742756, std = 0.0730723787559035, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Saturday 28 June 2025 11:51">Saturday 28 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+(mean = 0.7113037752414397, std = 0.0774987279685776, folds = 10, errors = 0)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« HOME</a><a class="docs-footer-nextpage" href="../preprocessing/">Preprocessing »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Saturday 28 June 2025 12:05">Saturday 28 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
