@@ -22,11 +22,12 @@ jobs:
           - "nightly"
         os:
           - ubuntu-latest
-          - macOS-latest # issue with libmkl location
+          - macOS-latest
           - windows-latest
         pyversion: [3.9]
         arch:
           - x64
+          - aarch64
 
     steps:
       - uses: actions/checkout@v4
