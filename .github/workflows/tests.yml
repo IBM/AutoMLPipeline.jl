@@ -27,7 +27,6 @@ jobs:
         pyversion: [3.9]
         arch:
           - x64
-          - aarch64
 
     steps:
       - uses: actions/checkout@v4
