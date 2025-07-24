@@ -82,11 +82,11 @@ fold: 4, 0.5340136054421769
 fold: 5, 0.5389830508474577
 errors: 0
 SGDClassifier_RCa
-fold: 1, 0.46440677966101696
-fold: 2, 0.48299319727891155
-fold: 3, 0.423728813559322
-fold: 4, 0.4523809523809524
-fold: 5, 0.4576271186440678
+fold: 1, 0.4101694915254237
+fold: 2, 0.445578231292517
+fold: 3, 0.488135593220339
+fold: 4, 0.4897959183673469
+fold: 5, 0.45084745762711864
 errors: 0
 prunetree_YSp
 fold: 1, 0.4745762711864407
@@ -100,7 +100,7 @@ errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display
 ─────┼────────────────────────────────────────────────────
    1 │ rf_fvh                  0.51863   0.0286669      5
    2 │ AdaBoostClassifier_hsP  0.541739  0.0113626      5
-   3 │ SGDClassifier_RCa       0.456227  0.021542       5
+   3 │ SGDClassifier_RCa       0.456905  0.0331902      5
    4 │ prunetree_YSp           0.476582  0.0170585      5</code></pre><p>For this particular pipeline, Adaboost has the best performance followed by RandomForest.</p><p>Let&#39;s extend the pipeline adding Gradient Boost learner and Robust Scaler.</p><pre><code class="language-julia hljs">rbs = SKPreprocessor(&quot;RobustScaler&quot;)
 gb = SKLearner(&quot;GradientBoostingClassifier&quot;)
 learners = DataFrame()
@@ -126,11 +126,11 @@ fold: 4, 0.5476190476190477
 fold: 5, 0.576271186440678
 errors: 0
 SGDClassifier_RCa
-fold: 1, 0.4440677966101695
-fold: 2, 0.4557823129251701
-fold: 3, 0.43728813559322033
-fold: 4, 0.5238095238095238
-fold: 5, 0.43728813559322033
+fold: 1, 0.42033898305084744
+fold: 2, 0.5306122448979592
+fold: 3, 0.3898305084745763
+fold: 4, 0.43537414965986393
+fold: 5, 0.4440677966101695
 errors: 0
 prunetree_YSp
 fold: 1, 0.5457627118644067
@@ -151,6 +151,6 @@ errors: 0</code></pre><pre><code class="language-julia-repl hljs" style="display
 ─────┼────────────────────────────────────────────────────────────
    1 │ rf_fvh                          0.5214    0.0229989      5
    2 │ AdaBoostClassifier_hsP          0.555316  0.0181595      5
-   3 │ SGDClassifier_RCa               0.459647  0.0366549      5
+   3 │ SGDClassifier_RCa               0.444045  0.0526076      5
    4 │ prunetree_YSp                   0.490792  0.0368245      5
-   5 │ GradientBoostingClassifier_Cl1  0.560092  0.0369786      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 21 July 2025 15:10">Monday 21 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   5 │ GradientBoostingClassifier_Cl1  0.560092  0.0369786      5</code></pre><p>This time, Gradient boost has the best performance.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../preprocessing/">« Preprocessing</a><a class="docs-footer-nextpage" href="../extending/">Extending AutoMLPipeline »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 24 July 2025 09:27">Thursday 24 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
