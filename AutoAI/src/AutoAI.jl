@@ -17,5 +17,20 @@ include("autoregression.jl")
 using .AutoRegressions
 export AutoRegression
 
+include("skanomalydetector.jl")
+using .SKAnomalyDetectors
+export SKAnomalyDetector, skanomalydetectors
+export skaddriver
+
+include("caretanomalydetector.jl")
+using .CaretAnomalyDetectors
+export CaretAnomalyDetectors, CaretAnomalyDetector
+export caretdriver
+
+
+include("carettspredictor.jl")
+using .CaretTSPredictors
+export CaretTSPredictor, carettsdriver
+
 greet() = print("Hello World!")
 end # module AutoAI

@@ -1,9 +1,11 @@
 - add support for twoblocks pipeline search
   for regression/classification (done)
+- add unit-testing (done)
 - add argparse (use E2EAI/main_parse.jl)
 - create dockerized image
-- add isolation forest support
 - add autoad
+  - lightwood, pycaret
+  - outlierdetection.jl including isolation forest
 - add support for mlflow
 - add serialization to mlflow
 - add unit-testing
