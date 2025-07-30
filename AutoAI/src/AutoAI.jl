@@ -32,5 +32,9 @@ include("carettspredictor.jl")
 using .CaretTSPredictors
 export CaretTSPredictor, carettsdriver
 
+include("automlflow.jl")
+using .AutoMLFlows
+export mlfdriver
+
 greet() = print("Hello World!")
 end # module AutoAI
