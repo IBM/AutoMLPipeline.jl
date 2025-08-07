@@ -1,4 +1,4 @@
-module AutoMLFlowClassifications
+module AutoMLFlowRegressions
 using Statistics
 using Serialization
 import PythonCall
@@ -8,12 +8,12 @@ using DataFrames: DataFrame
 using Random
 using ..AbsTypes
 using ..Utils
-using ..AutoClassifications
+using ..AutoRegressions
 using ..AutoMLPipeline: getiris
 
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
-export mlfcldriver, AutoMLFlowClassification
+export mlfregdriver, AutoMLFlowRegression
 
 const MLF = PYC.pynew()
 const REQ = PYC.pynew()
@@ -23,17 +23,17 @@ function __init__()
   PYC.pycopy!(REQ, PYC.pyimport("requests"))
 end
 
-mutable struct AutoMLFlowClassification <: Workflow
+mutable struct AutoMLFlowRegression <: Workflow
   name::String
   model::Dict{Symbol,Any}
 
-  function AutoMLFlowClassification(args=Dict())
+  function AutoMLFlowRegression(args=Dict())
     default_args = Dict(
-      :name => "AutoMLClassification",
-      :projectname => "AutoMLClassification",
+      :name => "AutoMLRegression",
+      :projectname => "AutoMLRegression",
       :url => "http://localhost:8080",
-      :description => "Automated Classification",
-      :projecttype => "classification",
+      :description => "Automated Regression",
+      :projecttype => "regression",
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
@@ -45,8 +45,8 @@ mutable struct AutoMLFlowClassification <: Workflow
     )
     # check if mlflow server exists
     try
-      httpget=getproperty(REQ,"get")
-      res=httpget(cargs[:url]*"/health")
+      httpget = getproperty(REQ, "get")
+      res = httpget(cargs[:url] * "/health")
     catch
       @error("Mlflow Server Unreachable")
       exit(1)
@@ -64,22 +64,22 @@ mutable struct AutoMLFlowClassification <: Workflow
   end
 end
 
-function AutoMLFlowClassification(name::String, args::Dict)
-  AutoMLFlowClassification(Dict(:name => name, args...))
+function AutoMLFlowRegression(name::String, args::Dict)
+  AutoMLFlowRegression(Dict(:name => name, args...))
 end
 
-function AutoMLFlowClassification(name::String; args...)
-  AutoMLFlowClassification(Dict(Dict(pairs(args))...))
+function AutoMLFlowRegression(name::String; args...)
+  AutoMLFlowRegression(Dict(Dict(pairs(args))...))
 end
 
-function (obj::AutoMLFlowClassification)(; args...)
+function (obj::AutoMLFlowRegression)(; args...)
   model = obj.model
   cargs = nested_dict_merge(model, Dict(pairs(args)))
   obj.model = cargs
   return obj
 end
 
-function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
+function fit!(mlfcl::AutoMLFlowRegression, X::DataFrame, Y::Vector)
   # end any running experiment
   # MLF.end_run()
   # generate run name
@@ -88,7 +88,7 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   MLF.set_experiment(mlfcl.model[:name])
   MLF.start_run(run_name=run_name)
   # automate classification
-  autoclass = AutoClassification()
+  autoclass = AutoRegression()
   fit_transform!(autoclass, X, Y)
   bestmodel = autoclass.model[:bestpipeline].model[:description]
   MLF.log_param("bestmodel", bestmodel)
@@ -105,13 +105,13 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   MLF.end_run()
 end
 
-function fit(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
+function fit(mlfcl::AutoMLFlowRegression, X::DataFrame, Y::Vector)
   mlfcopy = deepcopy(mlfcl)
   fit!(mlfcopy, X, Y)
   return mlfcopy
 end
 
-function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
+function transform!(mlfcl::AutoMLFlowRegression, X::DataFrame)
   # download model artifact
   #MLF.end_run()
   run_name = mlfcl.model[:name] * "_" * "transform" * "_" * randstring(3)
@@ -127,25 +127,25 @@ function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
   return Y
 end
 
-function mlfcldriver()
+function mlfregdriver()
   df = getiris()
-  X = df[:, 1:end-1]
-  Y = df[:, end] |> collect
+  X = df[:, [1, 2, 3, 5]]
+  Y = df[:, 4] |> collect
 
   # test prediction using exisiting trained model from artifacts
-  bestmodel_uri = "mlflow-artifacts:/837314957779109157/0c63c0edb5e8482596644124ef969999/artifacts/autoclass.bin"
+  bestmodel_uri = "mlflow-artifacts:/302072302555887451/3c2e2a57955b4371ad894ed17bd8aeb0/artifacts/autoclass.bin"
   # caret new automl classification with saved artifact uri
-  #newmfclass = AutoMLFlowClassification(Dict(:bestmodel_uri => bestmodel_uri))
+  #newmfclass = AutoMLFlowRegression(Dict(:bestmodel_uri => bestmodel_uri))
   # create default automl classification type
-  newmfclass = AutoMLFlowClassification()
+  newmfclass = AutoMLFlowRegression()
   # add the existing best model uri location
   newmfclass(; bestmodel_uri)
   Yn = transform!(newmfclass, X)
-  println("accuracy = ", mean(Yn .== Y))
+  println("accuracy = ", mean((Y - Yn) .^ 2))
 
-  #mlfclass = AutoMLFlowClassification()
+  #mlfclass = AutoMLFlowRegression()
   #Yc = fit_transform!(mlfclass, X, Y)
-  #println("accuracy = ", mean(Y .== Yc))
+  #println("accuracy = ", mean((Y - Yc) .^ 2))
 end
 
 end
