@@ -34,6 +34,10 @@ export CaretTSPredictor, carettsdriver
 
 include("automlflowclassification.jl")
 using .AutoMLFlowClassifications
-export mlfdriver
+export mlfcldriver
+
+include("automlflowregression.jl")
+using .AutoMLFlowRegressions
+export mlfregdriver
 
 end # module AutoAI
