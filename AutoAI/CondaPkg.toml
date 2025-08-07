@@ -1,3 +1,4 @@
 [deps]
 mlflow = ""
 pycaret = ""
+requests = ""
