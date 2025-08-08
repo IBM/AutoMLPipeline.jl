@@ -121,16 +121,19 @@ function transform!(mlfreg::AutoMLFlowRegression, X::DataFrame)
   MLF.end_run()
   # download model artifact
   run_id = mlfreg.model[:run_id]
-  model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
-  if PYC.pylen(model_artifacts) == 0
-    @error "Artifact does not exist in run_id = $run_id"
-    exit(1)
+  artifact_name = mlfreg.model[:artifact_name]
+
+  try
+    model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
+  catch e
+    @info e
+    throw("Artifact $artifact_name does not exist in run_id = $run_id")
   end
+
   run_name = mlfreg.model[:name] * "_" * "transform" * "_" * randstring(3)
   mlfreg.model[:run_name] = run_name
   MLF.set_experiment(mlfreg.model[:name])
   MLF.start_run(run_name=run_name)
-  artifact_name = mlfreg.model[:artifact_name]
   pylocalpath = MLF.artifacts.download_artifacts(run_id=run_id, artifact_path=artifact_name)
   bestmodel = deserialize(string(pylocalpath))
   Y = transform!(bestmodel, X)
