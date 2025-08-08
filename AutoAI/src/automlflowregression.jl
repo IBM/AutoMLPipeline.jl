@@ -141,11 +141,11 @@ function mlfregdriver()
   # add the existing best model uri location
   newmfclass(; bestmodel_uri)
   Yn = transform!(newmfclass, X)
-  println("accuracy = ", mean((Y - Yn) .^ 2))
+  println("mse = ", mean((Y - Yn) .^ 2))
 
   #mlfclass = AutoMLFlowRegression()
   #Yc = fit_transform!(mlfclass, X, Y)
-  #println("accuracy = ", mean((Y - Yc) .^ 2))
+  #println("mse = ", mean((Y - Yc) .^ 2))
 end
 
 end
