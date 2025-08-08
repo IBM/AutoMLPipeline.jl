@@ -80,57 +80,57 @@ function (obj::AutoMLFlowRegression)(; args...)
   return obj
 end
 
-function fit!(mlfcl::AutoMLFlowRegression, X::DataFrame, Y::Vector)
+function fit!(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
   MLF.end_run()
   # end any running experiment
   # MLF.end_run()
   # generate run name
-  run_name = mlfcl.model[:name] * "_" * "fit" * "_" * randstring(3)
-  mlfcl.model[:run_name] = run_name
-  MLF.set_experiment(mlfcl.model[:name])
+  run_name = mlfreg.model[:name] * "_" * "fit" * "_" * randstring(3)
+  mlfreg.model[:run_name] = run_name
+  MLF.set_experiment(mlfreg.model[:name])
   MLF.start_run(run_name=run_name)
   # get run_id
   run = MLF.active_run()
-  mlfcl.model[:run_id] = run.info.run_id
-  # automate classification
-  autoclass = AutoRegression()
-  fit_transform!(autoclass, X, Y)
-  bestmodel = autoclass.model[:bestpipeline].model[:description]
+  mlfreg.model[:run_id] = run.info.run_id
+  # automate regression
+  autoreg = AutoRegression()
+  fit_transform!(autoreg, X, Y)
+  bestmodel = autoreg.model[:bestpipeline].model[:description]
   MLF.log_param("bestmodel", bestmodel)
-  MLF.log_param("pipelines", autoclass.model[:dfpipelines].Description)
-  MLF.log_metric("bestperformance", autoclass.model[:performance].mean[1])
+  MLF.log_param("pipelines", autoreg.model[:dfpipelines].Description)
+  MLF.log_metric("bestperformance", autoreg.model[:performance].mean[1])
   # save model in mlflow
-  artifact_name = mlfcl.model[:artifact_name]
-  serialize(artifact_name, autoclass)
+  artifact_name = mlfreg.model[:artifact_name]
+  serialize(artifact_name, autoreg)
   MLF.log_artifact(artifact_name)
   # save model in memory
-  mlfcl.model[:autoclass] = autoclass
+  mlfreg.model[:autoreg] = autoreg
   bestmodel_uri = MLF.get_artifact_uri(artifact_path=artifact_name)
   # save model  uri location
-  mlfcl.model[:bestmodel_uri] = bestmodel_uri
+  mlfreg.model[:bestmodel_uri] = bestmodel_uri
   MLF.end_run()
 end
 
-function fit(mlfcl::AutoMLFlowRegression, X::DataFrame, Y::Vector)
-  mlfcopy = deepcopy(mlfcl)
+function fit(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
+  mlfcopy = deepcopy(mlfreg)
   fit!(mlfcopy, X, Y)
   return mlfcopy
 end
 
-function transform!(mlfcl::AutoMLFlowRegression, X::DataFrame)
+function transform!(mlfreg::AutoMLFlowRegression, X::DataFrame)
   MLF.end_run()
   # download model artifact
-  run_id = mlfcl.model[:run_id]
+  run_id = mlfreg.model[:run_id]
   model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
   if PYC.pylen(model_artifacts) == 0
     @error "Artifact does not exist in run_id = $run_id"
-    return []
+    exit(1)
   end
-  run_name = mlfcl.model[:name] * "_" * "transform" * "_" * randstring(3)
-  mlfcl.model[:run_name] = run_name
-  MLF.set_experiment(mlfcl.model[:name])
+  run_name = mlfreg.model[:name] * "_" * "transform" * "_" * randstring(3)
+  mlfreg.model[:run_name] = run_name
+  MLF.set_experiment(mlfreg.model[:name])
   MLF.start_run(run_name=run_name)
-  artifact_name = mlfcl.model[:artifact_name]
+  artifact_name = mlfreg.model[:artifact_name]
   pylocalpath = MLF.artifacts.download_artifacts(run_id=run_id, artifact_path=artifact_name)
   bestmodel = deserialize(string(pylocalpath))
   Y = transform!(bestmodel, X)
@@ -144,16 +144,16 @@ function mlfregdriver()
   X = df[:, [1, 2, 3, 5]]
   Y = df[:, 4] |> collect
 
-  mlfclass = AutoMLFlowRegression()
-  Yc = fit_transform!(mlfclass, X, Y)
+  mlfreg = AutoMLFlowRegression()
+  Yc = fit_transform!(mlfreg, X, Y)
   println("mse = ", mean((Y - Yc) .^ 2))
 
   ### test prediction using exisiting trained model from artifacts
-  run_id = mlfclass.model[:run_id]
-  newmfclass = AutoMLFlowRegression(Dict(:run_id => run_id))
-  newmfclass = AutoMLFlowRegression()
-  newmfclass(; run_id=run_id)
-  Yn = transform!(newmfclass, X)
+  run_id = mlfreg.model[:run_id]
+  newmfreg = AutoMLFlowRegression(Dict(:run_id => run_id))
+  newmfreg = AutoMLFlowRegression()
+  newmfreg(; run_id=run_id)
+  Yn = transform!(newmfreg, X)
   println("mse = ", mean((Y - Yn) .^ 2))
 
   return nothing

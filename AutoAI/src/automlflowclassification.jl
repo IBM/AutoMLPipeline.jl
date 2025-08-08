@@ -34,6 +34,7 @@ mutable struct AutoMLFlowClassification <: Workflow
       :url => "http://localhost:8080",
       :description => "Automated Classification",
       :projecttype => "classification",
+      :artifact_name => "autoclass.bin",
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
@@ -87,6 +88,9 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   mlfcl.model[:run_name] = run_name
   MLF.set_experiment(mlfcl.model[:name])
   MLF.start_run(run_name=run_name)
+  # get run_id
+  run = MLF.active_run()
+  mlfcl.model[:run_id] = run.info.run_id
   # automate classification
   autoclass = AutoClassification()
   fit_transform!(autoclass, X, Y)
@@ -95,11 +99,12 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   MLF.log_param("pipelines", autoclass.model[:dfpipelines].Description)
   MLF.log_metric("bestperformance", autoclass.model[:performance].mean[1])
   # save model in mlflow
-  serialize("./autoclass.bin", autoclass)
-  MLF.log_artifact("./autoclass.bin")
+  artifact_name = mlfcl.model[:artifact_name]
+  serialize(artifact_name, autoclass)
+  MLF.log_artifact(artifact_name)
   # save model in memory
   mlfcl.model[:autoclass] = autoclass
-  bestmodel_uri = MLF.get_artifact_uri(artifact_path="autoclass.bin")
+  bestmodel_uri = MLF.get_artifact_uri(artifact_path=artifact_name)
   # save model  uri location
   mlfcl.model[:bestmodel_uri] = bestmodel_uri
   MLF.end_run()
@@ -112,14 +117,20 @@ function fit(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
 end
 
 function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
+  MLF.end_run()
   # download model artifact
-  #MLF.end_run()
+  run_id = mlfcl.model[:run_id]
+  model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
+  if PYC.pylen(model_artifacts) == 0
+    @error "Artifact does not exist in run_id = $run_id"
+    exit(1)
+  end
   run_name = mlfcl.model[:name] * "_" * "transform" * "_" * randstring(3)
   mlfcl.model[:run_name] = run_name
   MLF.set_experiment(mlfcl.model[:name])
   MLF.start_run(run_name=run_name)
-  bestmodel_uri = mlfcl.model[:bestmodel_uri]
-  pylocalpath = MLF.artifacts.download_artifacts(bestmodel_uri)
+  artifact_name = mlfcl.model[:artifact_name]
+  pylocalpath = MLF.artifacts.download_artifacts(run_id=run_id, artifact_path=artifact_name)
   bestmodel = deserialize(string(pylocalpath))
   Y = transform!(bestmodel, X)
   MLF.log_param("output", Y)
@@ -132,20 +143,19 @@ function mlfcldriver()
   X = df[:, 1:end-1]
   Y = df[:, end] |> collect
 
+  mlfclass = AutoMLFlowClassification()
+  Yc = fit_transform!(mlfclass, X, Y)
+  println("accuracy = ", mean(Y .== Yc))
+
   # test prediction using exisiting trained model from artifacts
-  bestmodel_uri = "mlflow-artifacts:/837314957779109157/0c63c0edb5e8482596644124ef969999/artifacts/autoclass.bin"
-  # caret new automl classification with saved artifact uri
-  #newmfclass = AutoMLFlowClassification(Dict(:bestmodel_uri => bestmodel_uri))
-  # create default automl classification type
+  run_id = mlfclass.model[:run_id]
+  newmfclass = AutoMLFlowClassification(Dict(:run_id => run_id))
   newmfclass = AutoMLFlowClassification()
-  # add the existing best model uri location
-  newmfclass(; bestmodel_uri)
+  newmfclass(; run_id=run_id)
   Yn = transform!(newmfclass, X)
   println("accuracy = ", mean(Yn .== Y))
 
-  #mlfclass = AutoMLFlowClassification()
-  #Yc = fit_transform!(mlfclass, X, Y)
-  #println("accuracy = ", mean(Y .== Yc))
+  return nothing
 end
 
 end
