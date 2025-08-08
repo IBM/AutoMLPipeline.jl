@@ -46,8 +46,8 @@ mutable struct AutoMLFlowClassification <: Workflow
     )
     # check if mlflow server exists
     try
-      httpget=getproperty(REQ,"get")
-      res=httpget(cargs[:url]*"/health")
+      httpget = getproperty(REQ, "get")
+      res = httpget(cargs[:url] * "/health")
     catch
       @error("Mlflow Server Unreachable")
       exit(1)
@@ -120,16 +120,19 @@ function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
   MLF.end_run()
   # download model artifact
   run_id = mlfcl.model[:run_id]
-  model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
-  if PYC.pylen(model_artifacts) == 0
-    @error "Artifact does not exist in run_id = $run_id"
-    exit(1)
+  artifact_name = mlfcl.model[:artifact_name]
+
+  try
+    model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
+  catch e
+    @info e
+    throw("Artifact $artifact_name does not exist in run_id = $run_id")
   end
+
   run_name = mlfcl.model[:name] * "_" * "transform" * "_" * randstring(3)
   mlfcl.model[:run_name] = run_name
   MLF.set_experiment(mlfcl.model[:name])
   MLF.start_run(run_name=run_name)
-  artifact_name = mlfcl.model[:artifact_name]
   pylocalpath = MLF.artifacts.download_artifacts(run_id=run_id, artifact_path=artifact_name)
   bestmodel = deserialize(string(pylocalpath))
   Y = transform!(bestmodel, X)
