@@ -40,4 +40,8 @@ include("automlflowregression.jl")
 using .AutoMLFlowRegressions
 export mlfregdriver
 
+include("autoanomalydetector.jl")
+using .AutoAnomalyDetectors
+export autoaddriver
+
 end # module AutoAI
