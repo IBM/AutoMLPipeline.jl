@@ -101,8 +101,11 @@ function fit!(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
   MLF.log_metric("bestperformance", autoreg.model[:performance].mean[1])
   # save model in mlflow
   artifact_name = mlfreg.model[:artifact_name]
-  serialize(artifact_name, autoreg)
-  MLF.log_artifact(artifact_name)
+  # use temporary directory
+  tmpdir = tempdir()
+  artifact_location = joinpath(tmpdir, artifact_name)
+  serialize(artifact_location, autoreg)
+  MLF.log_artifact(artifact_location)
   # save model in memory
   mlfreg.model[:autoreg] = autoreg
   bestmodel_uri = MLF.get_artifact_uri(artifact_path=artifact_name)
@@ -125,6 +128,7 @@ function transform!(mlfreg::AutoMLFlowRegression, X::DataFrame)
 
   try
     model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
+    @assert model_artifacts[0].path |> string == "autoreg.bin"
   catch e
     @info e
     throw("Artifact $artifact_name does not exist in run_id = $run_id")
@@ -151,8 +155,9 @@ function mlfregdriver()
   Yc = fit_transform!(mlfreg, X, Y)
   println("mse = ", mean((Y - Yc) .^ 2))
 
-  ### test prediction using exisiting trained model from artifacts
+  ## test prediction using exisiting trained model from artifacts
   run_id = mlfreg.model[:run_id]
+  #run_id = "d7ea4d0582bb4519a96b36efbe1eda6a"
   newmfreg = AutoMLFlowRegression(Dict(:run_id => run_id))
   newmfreg = AutoMLFlowRegression()
   newmfreg(; run_id=run_id)

@@ -100,8 +100,11 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   MLF.log_metric("bestperformance", autoclass.model[:performance].mean[1])
   # save model in mlflow
   artifact_name = mlfcl.model[:artifact_name]
-  serialize(artifact_name, autoclass)
-  MLF.log_artifact(artifact_name)
+  # use temporary directory
+  tmpdir = tempdir()
+  artifact_location = joinpath(tmpdir, artifact_name)
+  serialize(artifact_location, autoclass)
+  MLF.log_artifact(artifact_location)
   # save model in memory
   mlfcl.model[:autoclass] = autoclass
   bestmodel_uri = MLF.get_artifact_uri(artifact_path=artifact_name)
@@ -124,6 +127,7 @@ function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
 
   try
     model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
+    @assert model_artifacts[0].path |> string == "autoclass.bin"
   catch e
     @info e
     throw("Artifact $artifact_name does not exist in run_id = $run_id")
