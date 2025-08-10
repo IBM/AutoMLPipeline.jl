@@ -103,7 +103,6 @@ function transform!(adl::SKAnomalyDetector, xx::DataFrame)::Vector
   adlearner = adl.model[:adlearner]
   if adl.model[:learner] == "LocalOutlierFactor"
     res = adlearner.fit_predict(x)
-    println(typeof(res))
   else
     res = adlearner.predict(x)
   end

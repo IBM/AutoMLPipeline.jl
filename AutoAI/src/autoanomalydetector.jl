@@ -1,7 +1,4 @@
 module AutoAnomalyDetectors
-# classification search blocks
-
-
 using Distributed
 using AutoMLPipeline
 using DataFrames: DataFrame, nrow, rename!
@@ -26,7 +23,7 @@ mutable struct AutoAnomalyDetector <: Workflow
   function AutoAnomalyDetector(args=Dict())
     default_args = Dict(
       :name => "autoad",
-      :votepercent => 0.3,
+      :votepercent => 0.0, # output all votepercent if 0.0, otherwise get specific votepercent
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
@@ -68,22 +65,27 @@ function transform!(autodt::AutoAnomalyDetector, X::DataFrame)
   mdf = hcat(dfres1, dfres2)
   mdfm = hcat(mdf, DataFrame(admean=mean.(eachrow(mdf))))
   # filter anomalies based on mean cut-off
-  # cutoff = autodt.model[:votepercent]
-  dfad = DataFrame()
-  for cutoff in 0.1:0.1:1.0
-    ndx = map(x -> x >= cutoff, mdfm.admean)
-    dfad = hcat(dfad, DataFrame(n=ndx); makeunique=true)
+  votepercent = autodt.model[:votepercent]
+  if votepercent == 0.0
+    dfad = @distributed (hcat) for cutoff in 0.1:0.1:1.0
+      ndx = map(x -> x >= cutoff, mdfm.admean)
+      n = string(cutoff)
+      DataFrame(n => ndx)
+    end
+    return dfad
+  else
+    ndx = map(x -> x >= votepercent, mdfm.admean)
+    n = string(votepercent)
+    dfad = DataFrame(n => ndx)
+    return dfad
   end
-  names = map(x -> string(x), 0.1:0.1:1.0)
-  rename!(dfad, names)
-  return dfad
 end
 
 function transform(autodt::AutoAnomalyDetector, X::DataFrame)
 end
 
 function autoaddriver()
-  autoaddt = AutoAnomalyDetector(Dict(:votepercent => 0.1))
+  autoaddt = AutoAnomalyDetector(Dict(:votepercent => 0.0))
   X = vcat(5 * cos.(-10:10), sin.(-30:30), 3 * cos.(-10:10), 2 * tan.(-10:10), sin.(-30:30)) |> x -> DataFrame([x], :auto)
   fit_transform!(autoaddt, X)
 end
