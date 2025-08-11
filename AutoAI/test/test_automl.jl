@@ -7,7 +7,7 @@ using Serialization
 using Distributed
 using Statistics
 
-df = CSV.File("./iris.csv") |> DataFrame
+df = getiris()
 
 # classification
 function classify(df)
