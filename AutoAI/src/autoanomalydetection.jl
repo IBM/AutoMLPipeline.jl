@@ -84,6 +84,8 @@ function transform!(autodt::AutoAnomalyDetection, X::DataFrame)
 end
 
 function transform(autodt::AutoAnomalyDetection, X::DataFrame)
+  autodtc = deepcopy(autodt)
+  return transform!(autodtc, X)
 end
 
 function autoaddriver()
