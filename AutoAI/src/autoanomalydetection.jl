@@ -1,4 +1,4 @@
-module AutoAnomalyDetectors
+module AutoAnomalyDetections
 using Distributed
 using AutoMLPipeline
 using DataFrames: DataFrame, nrow, rename!
@@ -13,14 +13,14 @@ using ..SKAnomalyDetectors
 
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
-export AutoAnomalyDetector, autoaddriver
+export AutoAnomalyDetection, autoaddriver
 
 # define customized type
-mutable struct AutoAnomalyDetector <: Workflow
+mutable struct AutoAnomalyDetection <: Workflow
   name::String
   model::Dict{Symbol,Any}
 
-  function AutoAnomalyDetector(args=Dict())
+  function AutoAnomalyDetection(args=Dict())
     default_args = Dict(
       :name => "autoad",
       :votepercent => 0.0, # output all votepercent if 0.0, otherwise get specific votepercent
@@ -32,15 +32,15 @@ mutable struct AutoAnomalyDetector <: Workflow
   end
 end
 
-function fit!(autodt::AutoAnomalyDetector, X::DataFrame, Y::Vector)
+function fit!(autodt::AutoAnomalyDetection, X::DataFrame, Y::Vector)
   return nothing
 end
 
-function fit(clfb::AutoAnomalyDetector, X::DataFrame, Y::Vector)
+function fit(clfb::AutoAnomalyDetection, X::DataFrame, Y::Vector)
   return nothing
 end
 
-function transform!(autodt::AutoAnomalyDetector, X::DataFrame)
+function transform!(autodt::AutoAnomalyDetection, X::DataFrame)
   # detect anomalies using caret
   dfres1 = DataFrame()
   for learner in keys(caretadlearner_dict)
@@ -66,28 +66,33 @@ function transform!(autodt::AutoAnomalyDetector, X::DataFrame)
   mdfm = hcat(mdf, DataFrame(admean=mean.(eachrow(mdf))))
   # filter anomalies based on mean cut-off
   votepercent = autodt.model[:votepercent]
+  # if votepercent is 0.0 return all 0.1 to 1.0 votepercent output
+  # otherwise, return specific output for given votepercent
   if votepercent == 0.0
     dfad = @distributed (hcat) for cutoff in 0.1:0.1:1.0
       ndx = map(x -> x >= cutoff, mdfm.admean)
       n = string(cutoff)
       DataFrame(n => ndx)
     end
-    return dfad
+    return hcat(X, dfad)
   else
     ndx = map(x -> x >= votepercent, mdfm.admean)
     n = string(votepercent)
     dfad = DataFrame(n => ndx)
-    return dfad
+    return hcat(X, dfad)
   end
 end
 
-function transform(autodt::AutoAnomalyDetector, X::DataFrame)
+function transform(autodt::AutoAnomalyDetection, X::DataFrame)
 end
 
 function autoaddriver()
-  autoaddt = AutoAnomalyDetector(Dict(:votepercent => 0.0))
+  autoaddt = AutoAnomalyDetection(Dict(:votepercent => 0.0))
   X = vcat(5 * cos.(-10:10), sin.(-30:30), 3 * cos.(-10:10), 2 * tan.(-10:10), sin.(-30:30)) |> x -> DataFrame([x], :auto)
-  fit_transform!(autoaddt, X)
+  @info fit_transform!(autoaddt, X) |> x -> first(x, 5)
+  autoaddt1 = AutoAnomalyDetection(Dict(:votepercent => 0.3))
+  @info fit_transform!(autoaddt1, X) |> x -> first(x, 5)
+
 end
 
 
