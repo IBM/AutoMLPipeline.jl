@@ -49,9 +49,9 @@ mutable struct AutoRegression <: Workflow
       :nfolds => 3,
       :metric => "mean_squared_error",
       :nworkers => 5,
-      :learners => ["rfr", "svr", "gbr"],
-      :scalers => ["norm", "pt"],
-      :extractors => ["pca"],
+      :learners => ["rfr", "svr", "gbr", "adar"],
+      :scalers => ["norm", "pt", "mx", "std", "rb", "pt", "noop"],
+      :extractors => ["pca", "ica", "fa", "noop"],
       :sortrev => false,
       :impl_args => Dict()
     )

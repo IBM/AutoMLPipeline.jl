@@ -87,20 +87,22 @@ function transform!(mlfreg::AutoMLFlowRegression, X::DataFrame)
 end
 
 function mlfregdriver()
+  url = "http://mlflow.home"
+
   df = getiris()
   X = df[:, [1, 2, 3, 5]]
   Y = df[:, 4] |> collect
 
-  mlfreg = AutoMLFlowRegression()
+  mlfreg = AutoMLFlowRegression(Dict(:url => url))
   Yc = fit_transform!(mlfreg, X, Y)
   println("mse = ", mean((Y - Yc) .^ 2))
 
   ## test prediction using exisiting trained model from artifacts
   run_id = mlfreg.model[:run_id]
   #run_id = "d7ea4d0582bb4519a96b36efbe1eda6a"
-  newmfreg = AutoMLFlowRegression(Dict(:run_id => run_id))
-  newmfreg = AutoMLFlowRegression()
-  newmfreg(; run_id=run_id)
+  newmfreg = AutoMLFlowRegression(Dict(:run_id => run_id, :url => url))
+  newmfreg = AutoMLFlowRegression(Dict(:url => url))
+  newmfreg(; run_id, url)
   Yn = transform!(newmfreg, X)
   println("mse = ", mean((Y - Yn) .^ 2))
 
