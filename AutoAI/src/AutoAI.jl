@@ -32,16 +32,24 @@ include("carettspredictor.jl")
 using .CaretTSPredictors
 export CaretTSPredictor, carettsdriver
 
+include("autoanomalydetection.jl")
+using .AutoAnomalyDetections
+export AutoAnomalyDetection
+export autoaddriver
+
 include("automlflowclassification.jl")
 using .AutoMLFlowClassifications
+export AutoMLFlowClassification
 export mlfcldriver
 
 include("automlflowregression.jl")
 using .AutoMLFlowRegressions
+export AutoMLFlowRegression
 export mlfregdriver
 
-include("autoanomalydetector.jl")
-using .AutoAnomalyDetectors
-export autoaddriver
+include("automlflowanomalydetection.jl")
+using .AutoMLFlowAnomalyDetections
+export AutoMLFlowAnomalyDetection
+export mlfaddriver
 
 end # module AutoAI
