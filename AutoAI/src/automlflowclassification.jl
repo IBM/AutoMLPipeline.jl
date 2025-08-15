@@ -88,18 +88,19 @@ function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
 end
 
 function mlfcldriver()
+  url = "http://mlflow.home"
   df = getiris()
   X = df[:, 1:end-1]
   Y = df[:, end] |> collect
 
-  mlfclass = AutoMLFlowClassification()
+  mlfclass = AutoMLFlowClassification(Dict(:url => url))
   Yc = fit_transform!(mlfclass, X, Y)
   println("accuracy = ", mean(Y .== Yc))
 
   # test prediction using exisiting trained model from artifacts
   run_id = mlfclass.model[:run_id]
-  newmfclass = AutoMLFlowClassification(Dict(:run_id => run_id))
-  newmfclass = AutoMLFlowClassification()
+  newmfclass = AutoMLFlowClassification(Dict(:run_id => run_id, :url => url))
+  newmfclass = AutoMLFlowClassification(Dict(:url => url))
   newmfclass(; run_id=run_id)
   Yn = transform!(newmfclass, X)
   println("accuracy = ", mean(Yn .== Y))

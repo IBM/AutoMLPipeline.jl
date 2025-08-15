@@ -92,22 +92,23 @@ function transform(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame)
 end
 
 function mlfaddriver()
+  url = "http://mlflow.home"
 
   X = vcat(5 * cos.(-10:10), sin.(-30:30), 3 * cos.(-10:10), 2 * tan.(-10:10), sin.(-30:30)) |> x -> DataFrame([x], :auto)
 
-  mlfad = AutoMLFlowAnomalyDetection()
+  mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url))
   Yc = fit_transform!(mlfad, X)
   println(Yc |> x -> first(x, 5))
 
   # test prediction using exisiting trained model from artifacts
   run_id = mlfad.model[:run_id]
-  newmlad = AutoMLFlowAnomalyDetection(Dict(:run_id => run_id))
-  newmlad = AutoMLFlowAnomalyDetection()
-  newmlad(; run_id=run_id)
+  newmlad = AutoMLFlowAnomalyDetection(Dict(:run_id => run_id, :url => url))
+  newmlad = AutoMLFlowAnomalyDetection(Dict(:url => url))
+  newmlad(; run_id, url)
   Yn = transform!(newmlad, X)
   println(Yc |> x -> first(x, 5))
 
-  mlvad = AutoMLFlowAnomalyDetection(Dict(:votepercent => 0.5))
+  mlvad = AutoMLFlowAnomalyDetection(Dict(:url => url, :votepercent => 0.5))
   Yc = fit_transform!(mlvad, X)
   println(Yc |> x -> first(x, 5))
 
