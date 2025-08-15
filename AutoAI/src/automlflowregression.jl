@@ -23,6 +23,8 @@ function __init__()
   PYC.pycopy!(REQ, PYC.pyimport("requests"))
 end
 
+include("./mlflowutils.jl")
+
 mutable struct AutoMLFlowRegression <: Workflow
   name::String
   model::Dict{Symbol,Any}
@@ -38,29 +40,7 @@ mutable struct AutoMLFlowRegression <: Workflow
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
-    #cargs[:name] = cargs[:name] * "_" * randstring(3)
-    experiment_tags = Dict(
-      "projectname" => cargs[:projectname],
-      "projecttype" => cargs[:projecttype],
-      "notes" => cargs[:description]
-    )
-    # check if mlflow server exists
-    try
-      httpget = getproperty(REQ, "get")
-      res = httpget(cargs[:url] * "/health")
-    catch
-      @error("Mlflow Server Unreachable")
-      exit(1)
-    end
-    MLF.set_tracking_uri(uri=cargs[:url])
-    name = cargs[:name]
-    experiment = MLF.search_experiments(filter_string="name = \'$name\'")
-    if PYC.pylen(experiment) != 0
-      MLF.set_experiment(experiment[0].name)
-    else
-      theexperiment = MLF.create_experiment(name=name, tags=experiment_tags)
-      cargs[:experiment_id] = theexperiment
-    end
+    initmlflowcargs!(cargs)
     new(cargs[:name], cargs)
   end
 end
@@ -81,37 +61,19 @@ function (obj::AutoMLFlowRegression)(; args...)
 end
 
 function fit!(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
-  MLF.end_run()
-  # end any running experiment
-  # MLF.end_run()
-  # generate run name
-  run_name = mlfreg.model[:name] * "_" * "fit" * "_" * randstring(3)
-  mlfreg.model[:run_name] = run_name
-  MLF.set_experiment(mlfreg.model[:name])
-  MLF.start_run(run_name=run_name)
-  # get run_id
-  run = MLF.active_run()
-  mlfreg.model[:run_id] = run.info.run_id
+  setupautofit!(mlfreg)
   # automate regression
   autoreg = AutoRegression()
   fit_transform!(autoreg, X, Y)
+  # save model in memory
+  mlfreg.model[:automodel] = autoreg
+  # log info to mlflow
   bestmodel = autoreg.model[:bestpipeline].model[:description]
   MLF.log_param("bestmodel", bestmodel)
   MLF.log_param("pipelines", autoreg.model[:dfpipelines].Description)
   MLF.log_metric("bestperformance", autoreg.model[:performance].mean[1])
-  # save model in mlflow
-  artifact_name = mlfreg.model[:artifact_name]
-  # use temporary directory
-  tmpdir = tempdir()
-  artifact_location = joinpath(tmpdir, artifact_name)
-  serialize(artifact_location, autoreg)
-  MLF.log_artifact(artifact_location)
-  # save model in memory
-  mlfreg.model[:autoreg] = autoreg
-  bestmodel_uri = MLF.get_artifact_uri(artifact_path=artifact_name)
-  # save model  uri location
-  mlfreg.model[:bestmodel_uri] = bestmodel_uri
-  MLF.end_run()
+  # log artifacts, end experiment run
+  logmlartifact(mlfreg)
 end
 
 function fit(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
@@ -121,29 +83,7 @@ function fit(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
 end
 
 function transform!(mlfreg::AutoMLFlowRegression, X::DataFrame)
-  MLF.end_run()
-  # download model artifact
-  run_id = mlfreg.model[:run_id]
-  artifact_name = mlfreg.model[:artifact_name]
-
-  try
-    model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
-    @assert model_artifacts[0].path |> string == "autoreg.bin"
-  catch e
-    @info e
-    throw("Artifact $artifact_name does not exist in run_id = $run_id")
-  end
-
-  run_name = mlfreg.model[:name] * "_" * "transform" * "_" * randstring(3)
-  mlfreg.model[:run_name] = run_name
-  MLF.set_experiment(mlfreg.model[:name])
-  MLF.start_run(run_name=run_name)
-  pylocalpath = MLF.artifacts.download_artifacts(run_id=run_id, artifact_path=artifact_name)
-  bestmodel = deserialize(string(pylocalpath))
-  Y = transform!(bestmodel, X)
-  MLF.log_param("output", Y)
-  MLF.end_run()
-  return Y
+  return autotransform!(mlfreg, X)
 end
 
 function mlfregdriver()

@@ -23,6 +23,8 @@ function __init__()
   PYC.pycopy!(REQ, PYC.pyimport("requests"))
 end
 
+include("./mlflowutils.jl")
+
 mutable struct AutoMLFlowAnomalyDetection <: Workflow
   name::String
   model::Dict{Symbol,Any}
@@ -39,29 +41,7 @@ mutable struct AutoMLFlowAnomalyDetection <: Workflow
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
-    #cargs[:name] = cargs[:name] * "_" * randstring(3)
-    experiment_tags = Dict(
-      "projectname" => cargs[:projectname],
-      "projecttype" => cargs[:projecttype],
-      "notes" => cargs[:description]
-    )
-    # check if mlflow server exists
-    try
-      httpget = getproperty(REQ, "get")
-      res = httpget(cargs[:url] * "/health")
-    catch
-      @error("Mlflow Server Unreachable")
-      exit(1)
-    end
-    MLF.set_tracking_uri(uri=cargs[:url])
-    name = cargs[:name]
-    experiment = MLF.search_experiments(filter_string="name = \'$name\'")
-    if PYC.pylen(experiment) != 0
-      MLF.set_experiment(experiment[0].name)
-    else
-      theexperiment = MLF.create_experiment(name=name, tags=experiment_tags)
-      cargs[:experiment_id] = theexperiment
-    end
+    initmlflowcargs!(cargs)
     new(cargs[:name], cargs)
   end
 end
@@ -82,35 +62,18 @@ function (obj::AutoMLFlowAnomalyDetection)(; args...)
 end
 
 function fit!(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector)
-  # end any running experiment
-  # MLF.end_run()
-  # generate run name
-  run_name = mlfad.model[:name] * "_" * "fit" * "_" * randstring(3)
-  mlfad.model[:run_name] = run_name
-  MLF.set_experiment(mlfad.model[:name])
-  MLF.start_run(run_name=run_name)
-  # get run_id
-  run = MLF.active_run()
-  mlfad.model[:run_id] = run.info.run_id
+  setupautofit!(mlfad)
   # automate anomaly detection
   votepercent = mlfad.model[:votepercent]
   autoad = AutoAnomalyDetection(Dict(:votepercent => votepercent))
   adoutput = fit_transform!(autoad, X, Y)
+  # save model in memory
+  mlfad.model[:automodel] = autoad
+  # log info to mlflow
   MLF.log_param("ADOutput", adoutput)
   MLF.log_metric("votepercent", autoad.model[:votepercent])
-  # save model in mlflow
-  artifact_name = mlfad.model[:artifact_name]
-  # use temporary directory
-  tmpdir = tempdir()
-  artifact_location = joinpath(tmpdir, artifact_name)
-  serialize(artifact_location, autoad)
-  MLF.log_artifact(artifact_location)
-  # save model in memory
-  mlfad.model[:autoad] = autoad
-  bestmodel_uri = MLF.get_artifact_uri(artifact_path=artifact_name)
-  # save model  uri location
-  mlfad.model[:bestmodel_uri] = bestmodel_uri
-  MLF.end_run()
+  # log artifacts, end experiment run
+  logmlartifact(mlfad)
 end
 
 function fit(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector)
@@ -120,29 +83,7 @@ function fit(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector)
 end
 
 function transform!(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame)
-  MLF.end_run()
-  # download model artifact
-  run_id = mlfad.model[:run_id]
-  artifact_name = mlfad.model[:artifact_name]
-
-  try
-    model_artifacts = MLF.artifacts.list_artifacts(run_id=run_id)
-    @assert model_artifacts[0].path |> string == "autoad.bin"
-  catch e
-    @info e
-    throw("Artifact $artifact_name does not exist in run_id = $run_id")
-  end
-
-  run_name = mlfad.model[:name] * "_" * "transform" * "_" * randstring(3)
-  mlfad.model[:run_name] = run_name
-  MLF.set_experiment(mlfad.model[:name])
-  MLF.start_run(run_name=run_name)
-  pylocalpath = MLF.artifacts.download_artifacts(run_id=run_id, artifact_path=artifact_name)
-  bestmodel = deserialize(string(pylocalpath))
-  Y = transform!(bestmodel, X)
-  MLF.log_param("output", Y)
-  MLF.end_run()
-  return Y
+  return autotransform!(mlfad, X)
 end
 
 function transform(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame)
