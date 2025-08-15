@@ -44,7 +44,7 @@ mutable struct AutoClassification <: Workflow
   function AutoClassification(args=Dict())
     default_args = Dict(
       :name => "autoclass",
-      :complexity => "low",
+      :complexity => "high",
       :prediction_type => "classification",
       :nfolds => 3,
       :metric => "balanced_accuracy_score",

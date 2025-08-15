@@ -83,7 +83,11 @@ function fit(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
 end
 
 function transform!(mlfreg::AutoMLFlowRegression, X::DataFrame)
-  return autotransform!(mlfreg, X)
+  # start experiment run
+  Y = autotransform!(mlfreg, X)
+  # end run
+  MLF.end_run()
+  return Y
 end
 
 function mlfregdriver()

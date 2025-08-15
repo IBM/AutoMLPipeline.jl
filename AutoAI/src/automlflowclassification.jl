@@ -84,7 +84,11 @@ function fit(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
 end
 
 function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
-  return autotransform!(mlfcl, X)
+  # start experiment run
+  Y = autotransform!(mlfcl, X)
+  # end run
+  MLF.end_run()
+  return Y
 end
 
 function mlfcldriver()
