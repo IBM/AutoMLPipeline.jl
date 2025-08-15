@@ -44,7 +44,7 @@ mutable struct AutoRegression <: Workflow
   function AutoRegression(args=Dict())
     default_args = Dict(
       :name => "regsearchblock",
-      :complexity => "low",
+      :complexity => "high",
       :prediction_type => "regression",
       :nfolds => 3,
       :metric => "mean_squared_error",

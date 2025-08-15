@@ -1,4 +1,6 @@
 module AutoMLFlowAnomalyDetections
+using PDFmerger: append_pdf!
+using Plots
 using Statistics
 using Serialization
 import PythonCall
@@ -62,6 +64,7 @@ function (obj::AutoMLFlowAnomalyDetection)(; args...)
 end
 
 function fit!(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector)
+  # start experiment run
   setupautofit!(mlfad)
   # automate anomaly detection
   votepercent = mlfad.model[:votepercent]
@@ -72,7 +75,7 @@ function fit!(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector)
   # log info to mlflow
   MLF.log_param("ADOutput", adoutput)
   MLF.log_metric("votepercent", autoad.model[:votepercent])
-  # log artifacts, end experiment run
+  # log artifacts and end experiment run
   logmlartifact(mlfad)
 end
 
@@ -82,8 +85,47 @@ function fit(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector)
   return mlfcopy
 end
 
+function plottroutput(mlfad::AutoMLFlowAnomalyDetection, Y::Union{Vector,DataFrame})
+  data = Y
+  votepercent = mlfad.model[:votepercent]
+  tmpdir = tempdir()
+  println(tmpdir)
+  artifact_plot = joinpath(tmpdir, "plots.pdf")
+  artifact_allplots = joinpath(tmpdir, "allplots.pdf")
+  rm(artifact_allplots, force=true)
+  if votepercent == 0.0
+    for ndx in 0.1:0.1:1.0
+      strndx = string(ndx)
+      coldata = data[:, strndx]
+      ndx = findall(x -> x == true, coldata)
+      Plots.plot(data.x1, label="tsdata", title="Anomaly voting cutoff=$strndx")
+      xlabel!("X")
+      ylabel!("Y")
+      plp = scatter!(ndx, data.x1[ndx], label="anomalous")
+      savefig(plp, artifact_plot)
+      append_pdf!(artifact_allplots, artifact_plot, cleanup=true)
+    end
+  else
+    strndx = string(votepercent)
+    coldata = data[:, strndx]
+    ndx = findall(x -> x == true, coldata)
+    Plots.plot(data.x1, label="tsdata", title="Anomaly voting cutoff=$strndx")
+    xlabel!("X")
+    ylabel!("Y")
+    scatter!(ndx, data.x1[ndx], label="anomalous")
+    savefig(artifact_allplots)
+  end
+  MLF.log_artifact(artifact_allplots)
+end
+
 function transform!(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame)
-  return autotransform!(mlfad, X)
+  # start experiment run
+  Y = autotransform!(mlfad, X)
+  # create plots and save them as mlfow artifacts
+  plottroutput(mlfad, Y)
+  # end run
+  MLF.end_run()
+  return Y
 end
 
 function transform(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame)
@@ -93,24 +135,34 @@ end
 
 function mlfaddriver()
   url = "http://mlflow.home"
+  #url = "http://localhost:8080"
 
   X = vcat(5 * cos.(-10:10), sin.(-30:30), 3 * cos.(-10:10), 2 * tan.(-10:10), sin.(-30:30)) |> x -> DataFrame([x], :auto)
 
-  mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url))
+  # test all voting percent
+  mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url, :votepercent => 0.0))
   Yc = fit_transform!(mlfad, X)
   println(Yc |> x -> first(x, 5))
 
-  # test prediction using exisiting trained model from artifacts
-  run_id = mlfad.model[:run_id]
-  newmlad = AutoMLFlowAnomalyDetection(Dict(:run_id => run_id, :url => url))
-  newmlad = AutoMLFlowAnomalyDetection(Dict(:url => url))
-  newmlad(; run_id, url)
-  Yn = transform!(newmlad, X)
-  println(Yc |> x -> first(x, 5))
+  ## test specific votepercent
+  #mlvad = AutoMLFlowAnomalyDetection(Dict(:url => url, :votepercent => 0.3))
+  #Yc = fit_transform!(mlvad, X)
+  #println(Yc |> x -> first(x, 5))
 
-  mlvad = AutoMLFlowAnomalyDetection(Dict(:url => url, :votepercent => 0.5))
-  Yc = fit_transform!(mlvad, X)
-  println(Yc |> x -> first(x, 5))
+  ## test prediction using exisiting trained model from artifacts
+  #run_id = mlfad.model[:run_id]
+
+  ### alternative 1 to use trained model for transform
+  #newmlad = AutoMLFlowAnomalyDetection(Dict(:run_id => run_id, :url => url))
+  #Yn = transform!(newmlad, X)
+  #println(Yn |> x -> first(x, 5))
+
+  ### alternative 2 to use trained model for transform
+  #newmlad = AutoMLFlowAnomalyDetection(Dict(:url => url))
+  #newmlad(; run_id)
+  #Yn = transform!(newmlad, X)
+  #println(Yn |> x -> first(x, 5))
+
 
   return nothing
 end

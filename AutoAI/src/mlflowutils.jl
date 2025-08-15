@@ -50,6 +50,11 @@ function logmlartifact(mlf::Workflow)
   MLF.end_run()
 end
 
+function plottroutput(mlf::Workflow, Y::Union{Vector,DataFrame})
+  return nothing
+end
+
+
 function autotransform!(mlf::Workflow, X::DataFrame)
   MLF.end_run()
   # download model artifact
@@ -70,6 +75,5 @@ function autotransform!(mlf::Workflow, X::DataFrame)
   bestmodel = deserialize(string(pylocalpath))
   Y = transform!(bestmodel, X)
   MLF.log_param("output", Y)
-  MLF.end_run()
   return Y
 end
