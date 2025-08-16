@@ -38,7 +38,7 @@ mutable struct AutoMLFlowAnomalyDetection <: Workflow
       :url => "http://localhost:8080",
       :description => "Automated Anomaly Detection",
       :projecttype => "anomalydetection",
-      :artifact_name => "autoad.bin",
+      :artifact_name => "AutoAnomalyDetectionModel.bin",
       :votepercent => 0.0,
       :impl_args => Dict()
     )

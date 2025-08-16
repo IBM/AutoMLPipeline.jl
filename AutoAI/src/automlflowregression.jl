@@ -36,7 +36,7 @@ mutable struct AutoMLFlowRegression <: Workflow
       :url => "http://localhost:8080",
       :description => "Automated Regression",
       :projecttype => "regression",
-      :artifact_name => "autoreg.bin",
+      :artifact_name => "AutoRegressionModel.bin",
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
