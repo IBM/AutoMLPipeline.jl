@@ -36,7 +36,7 @@ mutable struct AutoMLFlowClassification <: Workflow
       :url => "http://localhost:8080",
       :description => "Automated Classification",
       :projecttype => "classification",
-      :artifact_name => "autoclass.bin",
+      :artifact_name => "AutoClassificationModel.bin",
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
