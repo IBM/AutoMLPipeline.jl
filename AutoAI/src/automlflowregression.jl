@@ -31,12 +31,12 @@ mutable struct AutoMLFlowRegression <: Workflow
 
   function AutoMLFlowRegression(args=Dict())
     default_args = Dict(
-      :name => "AutoMLRegression",
-      :projectname => "AutoMLRegression",
+      :name => "AutoMLRegressions",
+      :projectname => "AutoMLRegressions",
       :url => "http://localhost:8080",
       :description => "Automated Regression",
       :projecttype => "regression",
-      :artifact_name => "autoreg.bin",
+      :artifact_name => "AutoRegressionModel.bin",
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
@@ -83,7 +83,11 @@ function fit(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
 end
 
 function transform!(mlfreg::AutoMLFlowRegression, X::DataFrame)
-  return autotransform!(mlfreg, X)
+  # start experiment run
+  Y = autotransform!(mlfreg, X)
+  # end run
+  MLF.end_run()
+  return Y
 end
 
 function mlfregdriver()
