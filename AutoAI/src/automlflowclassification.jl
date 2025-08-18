@@ -31,8 +31,8 @@ mutable struct AutoMLFlowClassification <: Workflow
 
   function AutoMLFlowClassification(args=Dict())
     default_args = Dict(
-      :name => "AutoMLClassification",
-      :projectname => "AutoMLClassification",
+      :name => "AutoMLClassifications",
+      :projectname => "AutoMLClassifications",
       :url => "http://localhost:8080",
       :description => "Automated Classification",
       :projecttype => "classification",

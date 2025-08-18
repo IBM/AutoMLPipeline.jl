@@ -33,8 +33,8 @@ mutable struct AutoMLFlowAnomalyDetection <: Workflow
 
   function AutoMLFlowAnomalyDetection(args=Dict())
     default_args = Dict(
-      :name => "AutoAnomalyDetection",
-      :projectname => "AutoAnomalyDetection",
+      :name => "AutoAnomalyDetections",
+      :projectname => "AutoAnomalyDetections",
       :url => "http://localhost:8080",
       :description => "Automated Anomaly Detection",
       :projecttype => "anomalydetection",

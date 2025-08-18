@@ -31,8 +31,8 @@ mutable struct AutoMLFlowRegression <: Workflow
 
   function AutoMLFlowRegression(args=Dict())
     default_args = Dict(
-      :name => "AutoMLRegression",
-      :projectname => "AutoMLRegression",
+      :name => "AutoMLRegressions",
+      :projectname => "AutoMLRegressions",
       :url => "http://localhost:8080",
       :description => "Automated Regression",
       :projecttype => "regression",
