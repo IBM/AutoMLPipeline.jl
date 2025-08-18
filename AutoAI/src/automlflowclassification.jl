@@ -31,12 +31,12 @@ mutable struct AutoMLFlowClassification <: Workflow
 
   function AutoMLFlowClassification(args=Dict())
     default_args = Dict(
-      :name => "AutoMLClassification",
-      :projectname => "AutoMLClassification",
+      :name => "AutoMLClassifications",
+      :projectname => "AutoMLClassifications",
       :url => "http://localhost:8080",
       :description => "Automated Classification",
       :projecttype => "classification",
-      :artifact_name => "autoclass.bin",
+      :artifact_name => "AutoClassificationModel.bin",
       :impl_args => Dict()
     )
     cargs = nested_dict_merge(default_args, args)
@@ -84,7 +84,11 @@ function fit(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
 end
 
 function transform!(mlfcl::AutoMLFlowClassification, X::DataFrame)
-  return autotransform!(mlfcl, X)
+  # start experiment run
+  Y = autotransform!(mlfcl, X)
+  # end run
+  MLF.end_run()
+  return Y
 end
 
 function mlfcldriver()
