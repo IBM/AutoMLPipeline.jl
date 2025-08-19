@@ -37,10 +37,22 @@ mutable struct AutoMLFlowClassification <: Workflow
       :description => "Automated Classification",
       :projecttype => "classification",
       :artifact_name => "AutoClassificationModel.bin",
-      :impl_args => Dict()
+      :impl_args => Dict(
+        :name => "autoclass",
+        :complexity => "low",
+        :prediction_type => "classification",
+        :nfolds => 3,
+        :metric => "balanced_accuracy_score",
+        :nworkers => 5,
+        :learners => ["rfc", "rbfsvc", "gbc", "adac"],
+        :scalers => ["norm", "pt", "mx", "std", "rb", "pt", "noop"],
+        :extractors => ["pca", "ica", "fa", "noop"],
+        :sortrev => true
+      )
     )
     cargs = nested_dict_merge(default_args, args)
     initmlflowcargs!(cargs)
+    cargs[:automodel] = AutoClassification(cargs[:impl_args])
     new(cargs[:name], cargs)
   end
 end
@@ -64,7 +76,7 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   # start experiment run
   setupautofit!(mlfcl)
   # automate classification
-  autoclass = AutoClassification()
+  autoclass = mlfcl.model[:automodel]
   fit_transform!(autoclass, X, Y)
   # save model in memory
   mlfcl.model[:automodel] = autoclass
@@ -93,21 +105,31 @@ end
 
 function mlfcldriver()
   url = "http://mlflow.home"
+  url = "http://localhost:8080"
   df = getiris()
   X = df[:, 1:end-1]
   Y = df[:, end] |> collect
 
-  mlfclass = AutoMLFlowClassification(Dict(:url => url))
-  Yc = fit_transform!(mlfclass, X, Y)
+  #mlfclass = AutoMLFlowClassification(Dict(:url => url))
+  #Yc = fit_transform!(mlfclass, X, Y)
+  #println("accuracy = ", mean(Y .== Yc))
+
+  #  newmfclass = AutoMLFlowClassification(Dict(:url => url, :impl_args => Dict(:nfolds => 2)))
+  #  Yc = fit_transform!(newmfclass, X, Y)
+  #  println("accuracy = ", mean(Y .== Yc))
+
+  nclass = AutoMLFlowClassification(Dict(:url => url))
+  nclass.model[:automodel](; nfolds=2)
+  Yc = fit_transform!(nclass, X, Y)
   println("accuracy = ", mean(Y .== Yc))
 
-  # test prediction using exisiting trained model from artifacts
-  run_id = mlfclass.model[:run_id]
-  newmfclass = AutoMLFlowClassification(Dict(:run_id => run_id, :url => url))
-  newmfclass = AutoMLFlowClassification(Dict(:url => url))
-  newmfclass(; run_id=run_id)
-  Yn = transform!(newmfclass, X)
-  println("accuracy = ", mean(Yn .== Y))
+  ## test prediction using exisiting trained model from artifacts
+  #run_id = mlfclass.model[:run_id]
+  #newmfclass = AutoMLFlowClassification(Dict(:run_id => run_id, :url => url))
+  #newmfclass = AutoMLFlowClassification(Dict(:url => url))
+  #newmfclass(; run_id=run_id)
+  #Yn = transform!(newmfclass, X)
+  #println("accuracy = ", mean(Yn .== Y))
 
   return nothing
 end

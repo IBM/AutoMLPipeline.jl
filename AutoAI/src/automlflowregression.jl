@@ -37,10 +37,22 @@ mutable struct AutoMLFlowRegression <: Workflow
       :description => "Automated Regression",
       :projecttype => "regression",
       :artifact_name => "AutoRegressionModel.bin",
-      :impl_args => Dict()
+      :impl_args => Dict(
+        :name => "autoreg",
+        :complexity => "low",
+        :prediction_type => "regression",
+        :nfolds => 3,
+        :metric => "mean_squared_error",
+        :nworkers => 5,
+        :learners => ["rfr", "svr", "gbr", "adar"],
+        :scalers => ["norm", "pt", "mx", "std", "rb", "pt", "noop"],
+        :extractors => ["pca", "ica", "fa", "noop"],
+        :sortrev => false
+      )
     )
     cargs = nested_dict_merge(default_args, args)
     initmlflowcargs!(cargs)
+    cargs[:automodel] = AutoRegression(cargs[:impl_args])
     new(cargs[:name], cargs)
   end
 end
@@ -61,9 +73,10 @@ function (obj::AutoMLFlowRegression)(; args...)
 end
 
 function fit!(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
+  # start experiment run
   setupautofit!(mlfreg)
   # automate regression
-  autoreg = AutoRegression()
+  autoreg = mlfreg.model[:automodel]
   fit_transform!(autoreg, X, Y)
   # save model in memory
   mlfreg.model[:automodel] = autoreg
@@ -92,23 +105,33 @@ end
 
 function mlfregdriver()
   url = "http://mlflow.home"
+  url = "http://localhost:8080"
 
   df = getiris()
   X = df[:, [1, 2, 3, 5]]
   Y = df[:, 4] |> collect
 
-  mlfreg = AutoMLFlowRegression(Dict(:url => url))
-  Yc = fit_transform!(mlfreg, X, Y)
-  println("mse = ", mean((Y - Yc) .^ 2))
+  #mlfreg = AutoMLFlowRegression(Dict(:url => url))
+  #Yc = fit_transform!(mlfreg, X, Y)
+  #println("mse = ", mean((Y - Yc) .^ 2))
 
-  ## test prediction using exisiting trained model from artifacts
-  run_id = mlfreg.model[:run_id]
-  #run_id = "d7ea4d0582bb4519a96b36efbe1eda6a"
-  newmfreg = AutoMLFlowRegression(Dict(:run_id => run_id, :url => url))
+  #newmfreg = AutoMLFlowRegression(Dict(:url => url, :impl_args => Dict(:nfolds => 2)))
+  #Yn = fit_transform!(newmfreg, X,Y)
+  #println("mse = ", mean((Y - Yn) .^ 2))
+
   newmfreg = AutoMLFlowRegression(Dict(:url => url))
-  newmfreg(; run_id, url)
-  Yn = transform!(newmfreg, X)
+  newmfreg.model[:automodel](;nfolds=5)
+  Yn = fit_transform!(newmfreg, X,Y)
   println("mse = ", mean((Y - Yn) .^ 2))
+
+  ### test prediction using exisiting trained model from artifacts
+  #run_id = mlfreg.model[:run_id]
+  ##run_id = "d7ea4d0582bb4519a96b36efbe1eda6a"
+  #newmfreg = AutoMLFlowRegression(Dict(:run_id => run_id, :url => url))
+  #newmfreg = AutoMLFlowRegression(Dict(:url => url))
+  #newmfreg(; run_id, url)
+  #Yn = transform!(newmfreg, X)
+  #println("mse = ", mean((Y - Yn) .^ 2))
 
   return nothing
 end

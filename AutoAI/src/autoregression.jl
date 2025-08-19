@@ -43,7 +43,7 @@ mutable struct AutoRegression <: Workflow
 
   function AutoRegression(args=Dict())
     default_args = Dict(
-      :name => "regsearchblock",
+      :name => "autoreg",
       :complexity => "high",
       :prediction_type => "regression",
       :nfolds => 3,
@@ -78,6 +78,12 @@ function AutoRegression(learners::Vector{String}; args...)
   AutoRegression(Dict(:learners => learners, :impl_args => Dict(pairs(args))))
 end
 
+function (obj::AutoRegression)(; args...)
+  model = obj.model
+  cargs = nested_dict_merge(model, Dict(pairs(args)))
+  obj.model = cargs
+  return obj
+end
 
 function listreglearners()
   println("Use available learners:")
