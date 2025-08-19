@@ -30,8 +30,8 @@ jobs:
           version: ${{ matrix.jlversion }}
           arch: ${{ matrix.arch }}
 
-      - name: Use julia-actions cache
-        uses: julia-actions/cache@v2
+      #      - name: Use julia-actions cache
+      #        uses: julia-actions/cache@v2
 
       - name: Build package
         uses: julia-actions/julia-buildpkg@v1
