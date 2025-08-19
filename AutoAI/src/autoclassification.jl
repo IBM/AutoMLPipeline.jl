@@ -78,6 +78,13 @@ function AutoClassification(learners::Vector{String}; args...)
   AutoClassification(Dict(:learners => learners, :impl_args => Dict(pairs(args))))
 end
 
+function (obj::AutoClassification)(; args...)
+  model = obj.model
+  cargs = nested_dict_merge(model, Dict(pairs(args)))
+  obj.model = cargs
+  return obj
+end
+
 function listclasslearners()
   println("Use available learners:")
   [print(learner, " ") for learner in keys(_glearnerdict)]

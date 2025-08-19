@@ -39,11 +39,14 @@ mutable struct AutoMLFlowAnomalyDetection <: Workflow
       :description => "Automated Anomaly Detection",
       :projecttype => "anomalydetection",
       :artifact_name => "AutoAnomalyDetectionModel.bin",
-      :votepercent => 0.0,
-      :impl_args => Dict()
+      :impl_args => Dict(
+        :name => "autoad",
+        :votepercent => 0.0, # output all votepercent if 0.0, otherwise get specific votepercent
+      )
     )
     cargs = nested_dict_merge(default_args, args)
     initmlflowcargs!(cargs)
+    cargs[:automodel] = AutoAnomalyDetection(cargs[:impl_args])
     new(cargs[:name], cargs)
   end
 end
@@ -67,8 +70,7 @@ function fit!(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector)
   # start experiment run
   setupautofit!(mlfad)
   # automate anomaly detection
-  votepercent = mlfad.model[:votepercent]
-  autoad = AutoAnomalyDetection(Dict(:votepercent => votepercent))
+  autoad = mlfad.model[:automodel]
   adoutput = fit_transform!(autoad, X, Y)
   # save model in memory
   mlfad.model[:automodel] = autoad
@@ -87,7 +89,7 @@ end
 
 function plottroutput(mlfad::AutoMLFlowAnomalyDetection, Y::Union{Vector,DataFrame})
   data = Y
-  votepercent = mlfad.model[:votepercent]
+  votepercent = mlfad.model[:automodel].model[:votepercent]
   tmpdir = tempdir()
   println(tmpdir)
   artifact_plot = joinpath(tmpdir, "plots.pdf")
@@ -125,7 +127,13 @@ function transform!(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame)
   plottroutput(mlfad, Y)
   # end run
   MLF.end_run()
-  return Y
+  votepercent = mlfad.model[:automodel].model[:votepercent]
+  if votepercent == 0.0
+    return Y
+  else
+    strndx = string(votepercent)
+    return Y[:, [strndx]]
+  end
 end
 
 function transform(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame)
@@ -135,34 +143,52 @@ end
 
 function mlfaddriver()
   url = "http://mlflow.home"
-  #url = "http://localhost:8080"
+  url = "http://localhost:8080"
 
   X = vcat(5 * cos.(-10:10), sin.(-30:30), 3 * cos.(-10:10), 2 * tan.(-10:10), sin.(-30:30)) |> x -> DataFrame([x], :auto)
 
   # test all voting percent
-  mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url, :votepercent => 0.0))
+  mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url))
   Yc = fit_transform!(mlfad, X)
   println(Yc |> x -> first(x, 5))
 
-  ## test specific votepercent
-  #mlvad = AutoMLFlowAnomalyDetection(Dict(:url => url, :votepercent => 0.3))
-  #Yc = fit_transform!(mlvad, X)
+  # test specific votepercent
+  mlvad = AutoMLFlowAnomalyDetection(Dict(:url => url, :impl_args => Dict(:votepercent => 0.3)))
+  Yc = fit_transform!(mlvad, X)
+  println(Yc |> x -> first(x, 5))
+
+  # override default votepercent
+  mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url))
+  mlfad.model[:automodel](; votepercent=0.5)
+  Yc = fit_transform!(mlfad, X)
+  println(Yc |> x -> first(x, 5))
+
+
+  #mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url))
+  #mlfad.model[:automodel](; votepercent=0.0)
+  #Yc = fit_transform!(mlfad, X)
   #println(Yc |> x -> first(x, 5))
 
-  ## test prediction using exisiting trained model from artifacts
-  #run_id = mlfad.model[:run_id]
-
-  ### alternative 1 to use trained model for transform
-  #newmlad = AutoMLFlowAnomalyDetection(Dict(:run_id => run_id, :url => url))
+  ### test prediction using exisiting trained model from artifacts
+  ##### alternative 1 to use trained model for transform
+  #mlvad = AutoMLFlowAnomalyDetection(Dict(:url => url))
+  #Yc = fit_transform!(mlvad, X)
+  #run_id = mlvad.model[:run_id]
+  #newmlad = AutoMLFlowAnomalyDetection(Dict(:run_id => run_id, :url => url, :impl_args => Dict(:votepercent => 0.5)))
+  #newmlad.model[:automodel](; votepercent=0.2)
   #Yn = transform!(newmlad, X)
   #println(Yn |> x -> first(x, 5))
 
   ### alternative 2 to use trained model for transform
+  #mlvad = AutoMLFlowAnomalyDetection(Dict(:url => url))
+  #Yc = fit_transform!(mlvad, X)
+  #run_id = mlvad.model[:run_id]
+  #votepercent = 0.3
   #newmlad = AutoMLFlowAnomalyDetection(Dict(:url => url))
   #newmlad(; run_id)
+  #newmlad.model[:automodel](; votepercent)
   #Yn = transform!(newmlad, X)
   #println(Yn |> x -> first(x, 5))
-
 
   return nothing
 end
