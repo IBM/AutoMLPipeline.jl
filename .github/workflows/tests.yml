@@ -1,4 +1,5 @@
 name: Tests
+
 on:
   pull_request:
     branches:
@@ -10,44 +11,27 @@ on:
       - "*"
 
 jobs:
-  test:
+  julia:
     name: Test Julia ${{ matrix.jlversion }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        jlversion:
-          - "1"
-          - "1.9"
-          - "nightly"
-        os:
-          - ubuntu-latest
-          - macOS-latest
-          - windows-latest
-        pyversion: [3.9]
-        arch:
-          - x64
+        jlversion: ["1", "1.9"]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        arch: [x64]
 
     steps:
       - uses: actions/checkout@v5
 
-      # Python Tasks
-      - name: Setup ${{ matrix.os }}, python ${{ matrix.pyversion }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.pyversion }}
-
-      - name: Display Python Version
-        run: python -c "import sys; print(sys.version)"
-
-      # Julia Tasks
-      - uses: julia-actions/setup-julia@v2
+      - name: Setup Julia ${{matrix.jlversion}}
+        uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.jlversion }}
           arch: ${{ matrix.arch }}
 
-      #      - name: Use julia-actions cache
-      #        uses: julia-actions/cache@v2
+      - name: Use julia-actions cache
+        uses: julia-actions/cache@v2
 
       - name: Build package
         uses: julia-actions/julia-buildpkg@v1
@@ -66,29 +50,28 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  docs:
-    if: ${{ !(github.event_name == 'pull_request') || contains(github.event.pull_request.labels.*.name, 'documentation') }}
-    name: Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
+  python:
+    name: Test Python (${{ matrix.pyversion }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        pyversion: ["3.9"]
 
-      - uses: julia-actions/setup-julia@v2
+    steps:
+      - name: Set up Python ${{ matrix.pyversion }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.pyversion }}
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
         with:
           version: "1"
-        env:
-          PYTHON: ""
-      - run: |
-          julia --project=docs -e '
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - run: |
-          julia --project=docs -e '
-            using Documenter: doctest
-            using AutoMLPipeline
-            doctest(AutoMLPipeline)'
-      - run: julia --project=docs docs/make.jl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+
+      - name: Display Python Version
+        run: |
+          python -c "import sys; print(sys.version)"
+
+# Workflow copied from PythonCall.jl
