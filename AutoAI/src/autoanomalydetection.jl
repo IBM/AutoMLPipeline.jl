@@ -32,6 +32,21 @@ mutable struct AutoAnomalyDetection <: Workflow
   end
 end
 
+function AutoAnomalyDetection(name::String, args::Dict)
+  AutoAnomalyDetection(Dict(:name => name, args...))
+end
+
+function AutoAnomalyDetection(name::String; args...)
+  AutoAnomalyDetection(Dict(:name => name, :impl_args => Dict(pairs(args))))
+end
+
+function (obj::AutoAnomalyDetection)(; args...)
+  model = obj.model
+  cargs = nested_dict_merge(model, Dict(pairs(args)))
+  obj.model = cargs
+  return obj
+end
+
 function fit!(autodt::AutoAnomalyDetection, X::DataFrame, Y::Vector)
   return nothing
 end
