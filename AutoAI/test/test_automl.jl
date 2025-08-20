@@ -7,7 +7,7 @@ using Serialization
 using Distributed
 using Statistics
 
-df = getiris()
+const df = get_iris()
 
 # classification
 function classify(df)
