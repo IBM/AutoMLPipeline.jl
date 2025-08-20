@@ -1,12 +1,21 @@
 module AutoAI
 
-using Reexport
-@reexport using AMLPipelineBase
+using CSV
+using DataFrames
+using AMLPipelineBase
 using AMLPipelineBase.AbsTypes
 export fit, fit!, transform, transform!, fit_transform, fit_transform!
 import AMLPipelineBase.AbsTypes: fit!, transform!, fit, transform
 using AMLPipelineBase: AbsTypes, Utils
-@reexport using AutoMLPipeline
+using AutoMLPipeline
+
+export get_iris
+
+
+function get_iris()
+  iris = CSV.read(joinpath(Base.@__DIR__, "../../data", "iris.csv"), DataFrame)
+  return iris
+end
 
 # -------------
 include("autoclassification.jl")

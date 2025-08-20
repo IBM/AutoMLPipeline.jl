@@ -6,7 +6,7 @@ using DataFrames: DataFrame
 
 # anomaly detection
 function detect()
-  df = getiris()
+  df = get_iris()
   X = df[:, 1:end-1]
   iforest = SKAnomalyDetector("IsolationForest")
   ellenv = SKAnomalyDetector("EllipticEnvelope")
