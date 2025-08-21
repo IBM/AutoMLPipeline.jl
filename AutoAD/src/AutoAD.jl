@@ -1,4 +1,6 @@
-module AutoAI
+module AutoAD
+
+greet() = print("Hello World!")
 
 using Reexport
 @reexport using AutoMLPipeline
@@ -28,6 +30,26 @@ include("autoregression.jl")
 using .AutoRegressions
 export AutoRegression
 
+include("skanomalydetector.jl")
+using .SKAnomalyDetectors
+export SKAnomalyDetector, skanomalydetectors
+export skaddriver
+
+include("caretanomalydetector.jl")
+using .CaretAnomalyDetectors
+export CaretAnomalyDetectors, CaretAnomalyDetector
+export caretdriver
+
+
+include("carettspredictor.jl")
+using .CaretTSPredictors
+export CaretTSPredictor, carettsdriver
+
+include("autoanomalydetection.jl")
+using .AutoAnomalyDetections
+export AutoAnomalyDetection
+export autoaddriver
+
 include("automlflowclassification.jl")
 using .AutoMLFlowClassifications
 export AutoMLFlowClassification
@@ -38,4 +60,9 @@ using .AutoMLFlowRegressions
 export AutoMLFlowRegression
 export mlfregdriver
 
-end # module AutoAI
+include("automlflowanomalydetection.jl")
+using .AutoMLFlowAnomalyDetections
+export AutoMLFlowAnomalyDetection
+export mlfaddriver
+
+end # module AutoAD

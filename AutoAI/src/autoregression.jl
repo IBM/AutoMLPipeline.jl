@@ -1,12 +1,9 @@
 module AutoRegressions
 # classification search blocks
-
-
 using Distributed
-using AutoMLPipeline
 using DataFrames: DataFrame
-using AutoMLPipeline: score
 using Random
+using ..AutoMLPipeline
 using ..AbsTypes
 using ..Utils
 
@@ -44,7 +41,7 @@ mutable struct AutoRegression <: Workflow
   function AutoRegression(args=Dict())
     default_args = Dict(
       :name => "autoreg",
-      :complexity => "high",
+      :complexity => "low",
       :prediction_type => "regression",
       :nfolds => 3,
       :metric => "mean_squared_error",
