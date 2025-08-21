@@ -1,8 +1,7 @@
 module AutoAnomalyDetections
 using Distributed
-using AutoMLPipeline
+using ..AutoMLPipeline
 using DataFrames: DataFrame, nrow, rename!
-using AutoMLPipeline: score
 using Random
 using Statistics
 using ..AbsTypes

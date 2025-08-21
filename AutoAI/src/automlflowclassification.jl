@@ -110,26 +110,26 @@ function mlfcldriver()
   X = df[:, 1:end-1]
   Y = df[:, end] |> collect
 
-  #mlfclass = AutoMLFlowClassification(Dict(:url => url))
-  #Yc = fit_transform!(mlfclass, X, Y)
-  #println("accuracy = ", mean(Y .== Yc))
+  mlfclass = AutoMLFlowClassification(Dict(:url => url))
+  Yc = fit_transform!(mlfclass, X, Y)
+  println("accuracy = ", mean(Y .== Yc))
 
-  #  newmfclass = AutoMLFlowClassification(Dict(:url => url, :impl_args => Dict(:nfolds => 2)))
-  #  Yc = fit_transform!(newmfclass, X, Y)
-  #  println("accuracy = ", mean(Y .== Yc))
+  newmfclass = AutoMLFlowClassification(Dict(:url => url, :impl_args => Dict(:nfolds => 2)))
+  Yc = fit_transform!(newmfclass, X, Y)
+  println("accuracy = ", mean(Y .== Yc))
 
   nclass = AutoMLFlowClassification(Dict(:url => url))
   nclass.model[:automodel](; nfolds=2)
   Yc = fit_transform!(nclass, X, Y)
   println("accuracy = ", mean(Y .== Yc))
 
-  ## test prediction using exisiting trained model from artifacts
-  #run_id = mlfclass.model[:run_id]
-  #newmfclass = AutoMLFlowClassification(Dict(:run_id => run_id, :url => url))
-  #newmfclass = AutoMLFlowClassification(Dict(:url => url))
-  #newmfclass(; run_id=run_id)
-  #Yn = transform!(newmfclass, X)
-  #println("accuracy = ", mean(Yn .== Y))
+  # test prediction using exisiting trained model from artifacts
+  run_id = mlfclass.model[:run_id]
+  newmfclass = AutoMLFlowClassification(Dict(:run_id => run_id, :url => url))
+  newmfclass = AutoMLFlowClassification(Dict(:url => url))
+  newmfclass(; run_id=run_id)
+  Yn = transform!(newmfclass, X)
+  println("accuracy = ", mean(Yn .== Y))
 
   return nothing
 end
