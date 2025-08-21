@@ -3,10 +3,9 @@ module AutoClassifications
 
 
 using Distributed
-using AutoMLPipeline
 using DataFrames: DataFrame
-using AutoMLPipeline: score
 using Random
+using ..AutoMLPipeline
 using ..AbsTypes
 using ..Utils
 
@@ -44,7 +43,7 @@ mutable struct AutoClassification <: Workflow
   function AutoClassification(args=Dict())
     default_args = Dict(
       :name => "autoclass",
-      :complexity => "high",
+      :complexity => "low",
       :prediction_type => "classification",
       :nfolds => 3,
       :metric => "balanced_accuracy_score",
