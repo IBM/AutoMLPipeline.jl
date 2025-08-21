@@ -1,7 +1,8 @@
 module AutoAI
 
-using AutoMLPipeline
-using AMLPipelineBase
+using Reexport
+@reexport using AutoMLPipeline
+@reexport using AMLPipelineBase
 
 using CSV
 using DataFrames
