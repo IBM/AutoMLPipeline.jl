@@ -1,10 +1,6 @@
 module TestAutoML
 using Test
-using CSV
 using AutoAI
-using DataFrames: DataFrame
-using Serialization
-using Distributed
 using Statistics
 
 const df = get_iris()

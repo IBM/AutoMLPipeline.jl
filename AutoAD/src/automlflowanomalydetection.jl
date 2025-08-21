@@ -11,7 +11,6 @@ using Random
 using ..AbsTypes
 using ..Utils
 using ..AutoAnomalyDetections
-using ..AutoMLPipeline: getiris
 
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
