@@ -7,7 +7,7 @@ WORKDIR /amlp
 COPY Project.toml /amlp/
 COPY *.csv /amlp/
 ADD https://github.com/IBM/AutoMLPipeline.jl.git /amlp/AutoMLPipeline/
-RUN julia --project -e 'using Pkg;\
+RUN julia --project -e 'using Pkg;using CondaPkg;\
   Pkg.develop(path="./AutoMLPipeline/AutoAI/");\
   Pkg.instantiate();\
   Pkg.update()'

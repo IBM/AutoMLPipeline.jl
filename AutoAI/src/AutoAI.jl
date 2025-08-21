@@ -7,7 +7,6 @@ using AMLPipelineBase.AbsTypes
 export fit, fit!, transform, transform!, fit_transform, fit_transform!
 import AMLPipelineBase.AbsTypes: fit!, transform!, fit, transform
 using AMLPipelineBase: AbsTypes, Utils
-using AutoMLPipeline
 
 export get_iris
 

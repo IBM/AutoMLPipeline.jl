@@ -9,7 +9,6 @@ using Random
 using ..AbsTypes
 using ..Utils
 using ..AutoRegressions
-using ..AutoMLPipeline: getiris
 
 import ..AbsTypes: fit, fit!, transform, transform!
 export fit, fit!, transform, transform!
@@ -120,8 +119,8 @@ function mlfregdriver()
   #println("mse = ", mean((Y - Yn) .^ 2))
 
   newmfreg = AutoMLFlowRegression(Dict(:url => url))
-  newmfreg.model[:automodel](;nfolds=5)
-  Yn = fit_transform!(newmfreg, X,Y)
+  newmfreg.model[:automodel](; nfolds=5)
+  Yn = fit_transform!(newmfreg, X, Y)
   println("mse = ", mean((Y - Yn) .^ 2))
 
   ### test prediction using exisiting trained model from artifacts
