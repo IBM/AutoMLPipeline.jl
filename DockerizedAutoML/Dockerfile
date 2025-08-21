@@ -19,7 +19,9 @@ ADD https://github.com/IBM/AutoMLPipeline.jl.git /amlp/AutoMLPipeline/
 RUN julia --project -e 'using Pkg;\
   Pkg.develop(path="./AutoMLPipeline/AutoAI/");\
   Pkg.instantiate();\
-  Pkg.update()'
+  Pkg.update();\
+  Pkg.precompile();\
+  using AutoAI;'
 COPY main.jl /amlp/
 ENTRYPOINT ["julia", "--project", "--", "main.jl"]
 #ENTRYPOINT [ "/bin/bash" ]
