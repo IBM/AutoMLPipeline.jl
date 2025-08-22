@@ -1,7 +1,7 @@
 module TestCaretTSPredictor
 using Distributed
 using Test
-using AutoAI
+using AutoAD
 using DataFrames: DataFrame
 using Serialization
 

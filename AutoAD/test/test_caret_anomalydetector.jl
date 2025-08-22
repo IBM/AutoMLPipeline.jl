@@ -1,11 +1,11 @@
 module TestCaretAD
 using Test
 using Distributed
-using AutoAI
+using AutoAD
 using DataFrames: DataFrame
 using Serialization
 
-clearners = keys(AutoAI.CaretAnomalyDetectors.caretadlearner_dict) |> collect
+clearners = keys(AutoAD.CaretAnomalyDetectors.caretadlearner_dict) |> collect
 
 function testcaretad()
   df = rand(100, 3) |> x -> DataFrame(x, :auto)
