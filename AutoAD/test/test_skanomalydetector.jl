@@ -1,7 +1,7 @@
 module TestSKAnomalyDetection
 using Test
 using CSV
-using AutoAI
+using AutoAD
 using DataFrames: DataFrame
 
 # anomaly detection
