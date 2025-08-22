@@ -17,8 +17,6 @@ function parse_commandline()
     help = "classification, regression, anomalydetection"
     arg_type = String
     default = "classification"
-    #default = "anomalydetection"
-    #default = "regression"
     "--complexity", "-c"
     help = "pipeline complexity"
     arg_type = String
@@ -35,10 +33,6 @@ function parse_commandline()
     help = "number of workers"
     arg_type = Int64
     default = 5
-    "--votepercent", "-v"
-    help = "votepercent for anomalydetection ensembles"
-    arg_type = Float64
-    default = 0.0
     "--no_save"
     help = "save model"
     action = :store_true
@@ -52,16 +46,12 @@ function parse_commandline()
     "csvfile"
     help = "input csv file"
     required = true
-    #default = "iris.csv"
-    #default = "iris_reg.csv"
   end
   return parse_args(s; as_symbols=true)
 end
 
-#const _cliargs = (; parse_commandline()...)
-_cliargs = parse_commandline()
-#const _workers = _cliargs[:workers]
-_workers = _cliargs[:nworkers]
+const _cliargs = (; parse_commandline()...)
+const _workers = _cliargs[:workers]
 
 nprocs() == 1 && addprocs(_workers; exeflags=["--project=$(Base.active_project())"])
 
@@ -99,23 +89,11 @@ function autoregmode(args::Dict)
   println("mse = ", mean((Y - Yc) .^ 2))
 end
 
-function autoadmode(args::Dict)
-  url = args[:url]
-  votepercent = args[:votepercent]
-  X = vcat(5 * cos.(-10:10), sin.(-30:30), 3 * cos.(-10:10), 2 * tan.(-10:10), sin.(-30:30)) |> x -> DataFrame([x], :auto)
-  mlfad = AutoMLFlowAnomalyDetection(Dict(:url => url, :impl_args => Dict(:votepercent => votepercent)))
-  Yc = fit_transform!(mlfad, X)
-  println(Yc |> x -> first(x, 5))
-end
-
 function main()
   predtype = _cliargs[:prediction_type]
   if predtype == "classification"
     autoclassmode(_cliargs)
   elseif predtype == "regression"
     autoregmode(_cliargs)
-  elseif predtype == "anomalydetection"
-    autoadmode(_cliargs)
-  end
 end
 main()
