@@ -116,10 +116,10 @@ function printsummary(io::IO, automl::Workflow)
   trainedmodel = automl.model[:automodel]
   bestmodel = trainedmodel.model[:bestpipeline].model[:description]
   println(io, "pipelines: $(trainedmodel.model[:dfpipelines].Description)")
-  println(io, "best_model: $bestmodel")
+  println(io, "best_pipeline: $bestmodel")
   bestmean = trainedmodel.model[:performance].mean[1]
   bestsd = trainedmodel.model[:performance].sd[1]
-  println(io, "best_performance: $(r(bestmean)) ± $(r(bestsd))")
+  println(io, "best_pipeline_performance: $(r(bestmean)) ± $(r(bestsd))")
 end
 
 function dotrainandpredict(args::Dict)
