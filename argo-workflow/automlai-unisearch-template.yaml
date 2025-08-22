@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: automlai-unisearch-
+spec:
+  entrypoint: run-amlp
+  arguments:
+    parameters:
+      - name: url
+        value: http://sunrise-mlflow-tracking.mlflow:5080
+      - name: input
+        value: iris_reg.csv
+      - name: predictiontype
+        value: regression
+      - name: complexity
+        value: low
+      - name: outputloc
+        value: NONE
+      - name: folds
+        value: 3
+      - name: workers
+        value: 5
+      - name: predict_only
+        value: false
+      - name: runid
+        value: NONE
+  templates:
+    - name: run-amlp
+      inputs:
+        parameters:
+          - name: url
+          - name: input
+          - name: predictiontype
+          - name: complexity
+          - name: outputloc
+          - name: folds
+          - name: workers
+          - name: predict_only
+          - name: runid
+        artifacts:
+          - name: file
+            path: /inputfile
+            s3:
+              key: csv/
+      container:
+        image: ppalmes/automlai:v1.0
+        command:
+        args:
+          - "-u{{inputs.parameters.url}}"
+          - "-t{{inputs.parameters.predictiontype}}"
+          - "-c{{inputs.parameters.complexity}}"
+          - "-f{{inputs.parameters.folds}}"
+          - "-w{{inputs.parameters.workers}}"
+          - "-o/outputfile"
+          - "/inputfile/{{inputs.parameters.input}}"
+      outputs:
+        artifacts:
+          - name: ofile
+            path: /outputfile
+            s3:
+              key: "output/{{inputs.parameters.complexity}}_{{inputs.parameters.predictiontype}}_{{inputs.parameters.input}}.tgz"
