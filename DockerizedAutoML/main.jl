@@ -1,7 +1,7 @@
 using Distributed
 using ArgParse
 using CSV
-using DataFrames
+using DataFrames: DataFrame
 using AutoAI
 using Statistics
 
@@ -50,12 +50,13 @@ function parse_commandline()
   return parse_args(s; as_symbols=true)
 end
 
-const _cliargs = (; parse_commandline()...)
-const _workers = _cliargs[:workers]
+const _cliargs = parse_commandline()
+const _workers = _cliargs[:nworkers]
 
-nprocs() == 1 && addprocs(_workers; exeflags=["--project=$(Base.active_project())"])
-
-@everywhere using AutoAI
+if _cliargs[:predict_only] == false
+  nprocs() == 1 && addprocs(_workers; exeflags=["--project=$(Base.active_project())"])
+  @everywhere using AutoAI
+end
 
 function autoclassmode(args::Dict)
   url = args[:url]
@@ -71,6 +72,7 @@ function autoclassmode(args::Dict)
   autoclass = AutoMLFlowClassification(Dict(:url => url, :impl_args => impl_args))
   Yc = fit_transform!(autoclass, X, Y)
   println("accuracy = ", mean(Y .== Yc))
+  return autoclass
 end
 
 function autoregmode(args::Dict)
@@ -87,13 +89,65 @@ function autoregmode(args::Dict)
   autoreg = AutoMLFlowRegression(Dict(:url => url, :impl_args => impl_args))
   Yc = fit_transform!(autoreg, X, Y)
   println("mse = ", mean((Y - Yc) .^ 2))
+  return autoreg
 end
 
-function main()
-  predtype = _cliargs[:prediction_type]
-  if predtype == "classification"
-    autoclassmode(_cliargs)
-  elseif predtype == "regression"
-    autoregmode(_cliargs)
+function doprediction_only(args::Dict)
+  fname = args[:csvfile]
+  X = CSV.read(fname, DataFrame)
+  run_id = args[:runid]
+  url = args[:url]
+  mlf = AutoMLFlowClassification(Dict(:run_id => run_id, :url => url))
+  Yn = transform!(mlf, X)
+  ofile = args[:output_file]
+  if ofile != "NONE"
+    open(ofile, "w") do stfile
+      println(stfile, "prediction: $Yn")
+      println(stdout, "prediction: $Yn")
+    end
+  else
+    println(stdout, "prediction: $Yn")
+  end
+  return Yn
 end
-main()
+
+function printsummary(io::IO, automl::Workflow)
+  r(x) = round(x, digits=2)
+  trainedmodel = automl.model[:automodel]
+  bestmodel = trainedmodel.model[:bestpipeline].model[:description]
+  println(io, "pipelines: $(trainedmodel.model[:dfpipelines].Description)")
+  println(io, "best_model: $bestmodel")
+  bestmean = trainedmodel.model[:performance].mean[1]
+  bestsd = trainedmodel.model[:performance].sd[1]
+  println(io, "best_performance: $(r(bestmean)) ± $(r(bestsd))")
+end
+
+function dotrainandpredict(args::Dict)
+  # train model
+  predtype = args[:prediction_type]
+  automl = if predtype == "classification"
+    autoclassmode(args)
+  elseif predtype == "regression"
+    autoregmode(args)
+  end
+  ofile = args[:output_file]
+  if ofile != "NONE"
+    open(ofile, "w") do stfile
+      printsummary(stfile, automl)
+      printsummary(stdout, automl)
+    end
+  else
+    printsummary(stdout, automl)
+  end
+end
+
+function main(args::Dict)
+  if args[:predict_only] == true
+    # predict only using run_id of model in the artifact
+    doprediction_only(args)
+  else
+    # train and predict
+    dotrainandpredict(args)
+  end
+end
+main(_cliargs)
