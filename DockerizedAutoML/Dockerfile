@@ -13,15 +13,18 @@ ENV LC_ALL en_US.UTF-8
 RUN mkdir /amlp
 RUN cd /amlp
 WORKDIR /amlp
-COPY Project.toml /amlp/
 COPY *.csv /amlp/
+COPY Project.toml /amlp/
+COPY automl_sysimage.jl /amlp/
+COPY automl_precompile.jl /amlp/
 ADD https://github.com/IBM/AutoMLPipeline.jl.git /amlp/AutoMLPipeline/
 RUN julia --project -e 'using Pkg;\
   Pkg.develop(path="./AutoMLPipeline/AutoAI/");\
   Pkg.instantiate();\
   Pkg.update();\
   Pkg.precompile();\
-  using AutoAI;'
+  include("automl_sysimage.jl")'
 COPY main.jl /amlp/
-ENTRYPOINT ["julia", "--project", "--", "main.jl"]
+ENTRYPOINT ["julia", "--project", "-Jautoml.so", "--", "main.jl"]
+#ENTRYPOINT ["julia", "--project", "--", "main.jl"]
 #ENTRYPOINT [ "/bin/bash" ]
