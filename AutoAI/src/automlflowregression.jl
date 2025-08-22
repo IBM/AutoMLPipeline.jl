@@ -73,6 +73,7 @@ function (obj::AutoMLFlowRegression)(; args...)
 end
 
 function fit!(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
+  r(x) = round(x, digits=2)
   # start experiment run
   setupautofit!(mlfreg)
   # automate regression
@@ -82,9 +83,12 @@ function fit!(mlfreg::AutoMLFlowRegression, X::DataFrame, Y::Vector)
   mlfreg.model[:automodel] = autoreg
   # log info to mlflow
   bestmodel = autoreg.model[:bestpipeline].model[:description]
-  MLF.log_param("bestmodel", bestmodel)
-  MLF.log_param("pipelines", autoreg.model[:dfpipelines].Description)
-  MLF.log_metric("bestperformance", autoreg.model[:performance].mean[1])
+  MLF.log_param("best_pipeline", bestmodel)
+  MLF.log_param("searched_pipelines", autoreg.model[:dfpipelines].Description)
+  bestmean = autoreg.model[:performance].mean[1]
+  bestsd = autoreg.model[:performance].sd[1]
+  MLF.log_metric("best_pipeline_mean", r(bestmean))
+  MLF.log_metric("best_pipeline_sd", r(bestsd))
   # log artifacts, end experiment run
   logmlartifact(mlfreg)
 end
@@ -120,8 +124,8 @@ function mlfregdriver()
   #println("mse = ", mean((Y - Yn) .^ 2))
 
   newmfreg = AutoMLFlowRegression(Dict(:url => url))
-  newmfreg.model[:automodel](;nfolds=5)
-  Yn = fit_transform!(newmfreg, X,Y)
+  newmfreg.model[:automodel](; nfolds=5)
+  Yn = fit_transform!(newmfreg, X, Y)
   println("mse = ", mean((Y - Yn) .^ 2))
 
   ### test prediction using exisiting trained model from artifacts

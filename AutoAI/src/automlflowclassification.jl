@@ -73,6 +73,7 @@ function (obj::AutoMLFlowClassification)(; args...)
 end
 
 function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
+  r(x) = round(x, digits=2)
   # start experiment run
   setupautofit!(mlfcl)
   # automate classification
@@ -82,9 +83,12 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   mlfcl.model[:automodel] = autoclass
   # log info to mlflow
   bestmodel = autoclass.model[:bestpipeline].model[:description]
-  MLF.log_param("bestmodel", bestmodel)
-  MLF.log_param("pipelines", autoclass.model[:dfpipelines].Description)
-  MLF.log_metric("bestperformance", autoclass.model[:performance].mean[1])
+  MLF.log_param("best_pipeline", bestmodel)
+  MLF.log_param("searched_pipelines", autoclass.model[:dfpipelines].Description)
+  bestmean = autoclass.model[:performance].mean[1]
+  bestsd = autoclass.model[:performance].sd[1]
+  MLF.log_metric("best_pipeline_mean", r(bestmean))
+  MLF.log_metric("best_pipeline_sd", r(bestsd))
   # log artifacts, end experiment run
   logmlartifact(mlfcl)
   @info "saved model runid: $(mlfcl.model[:run_id])"
