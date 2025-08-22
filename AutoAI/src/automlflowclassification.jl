@@ -87,6 +87,8 @@ function fit!(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
   MLF.log_metric("bestperformance", autoclass.model[:performance].mean[1])
   # log artifacts, end experiment run
   logmlartifact(mlfcl)
+  @info "saved model runid: $(mlfcl.model[:run_id])"
+  @info "saved model uri: $(mlfcl.model[:bestmodel_uri])"
 end
 
 function fit(mlfcl::AutoMLFlowClassification, X::DataFrame, Y::Vector)
@@ -106,6 +108,7 @@ end
 function mlfcldriver()
   url = "http://mlflow.home"
   url = "http://localhost:8080"
+
   df = getiris()
   X = df[:, 1:end-1]
   Y = df[:, end] |> collect
