@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Workflow
+kind: ClusterWorkflowTemplate
 metadata:
-  generateName: automlai-unisearch-
+  name: automlai-unisearch
 spec:
   entrypoint: run-amlp
   arguments:
