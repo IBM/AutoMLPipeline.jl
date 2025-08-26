@@ -3,8 +3,8 @@ LABEL MAINTAINER='Paulito Palmes "paulpalmes@ie.ibm.com"'
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales build-essential git 
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-    dpkg-reconfigure --frontend=noninteractive locales && \
-    update-locale LANG=en_US.UTF-8
+  dpkg-reconfigure --frontend=noninteractive locales && \
+  update-locale LANG=en_US.UTF-8
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
@@ -19,7 +19,7 @@ COPY automl_sysimage.jl /amlp/
 COPY automl_precompile.jl /amlp/
 ADD https://github.com/IBM/AutoMLPipeline.jl.git /amlp/AutoMLPipeline/
 RUN julia --project -e 'using Pkg;\
-  Pkg.develop(path="./AutoMLPipeline/AutoAI/");\
+  Pkg.develop(path="./AutoMLPipeline/AutoAD/");\
   Pkg.instantiate();\
   Pkg.update();\
   Pkg.precompile();\
