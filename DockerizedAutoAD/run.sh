@@ -1,5 +1,5 @@
-docker build -t automlai --platform=linux/amd64 .
-docker run -it --rm --platform=linux/amd64 automlai
+docker build -t automlad --platform=linux/amd64 .
+docker run -it --rm --platform=linux/amd64 automlad
 
 # julia --project -- ./main.jl -c high -t regression -f 3 -w 7 iris_reg.csv
 # julia --project -- ./main.jl -c low -t classification -f 3 -w 3 iris.csv

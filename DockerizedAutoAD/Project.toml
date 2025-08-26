@@ -1,7 +1,7 @@
 [deps]
 AMLPipelineBase = "e3c3008a-8869-4d53-9f34-c96f99c8a2b6"
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
-AutoAI = "78f36755-6713-4987-acdd-2a78ef0fc2e4"
+AutoAD = "a90a1e1f-13cb-41ec-be1f-24b06fd2b474"
 AutoMLPipeline = "08437348-eef5-4817-bc1b-d4e9459680d6"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
