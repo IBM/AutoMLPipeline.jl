@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Palmes
+    given-names: Paulito
+    orcid: https://orcid.org/0000-0002-3145-6356
+title: "AutoMLPipeline.jl"
+version: v0.4.6
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.3980593
+date-released: 2020-08-12
