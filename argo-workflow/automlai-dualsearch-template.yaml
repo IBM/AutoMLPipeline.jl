@@ -83,7 +83,7 @@ spec:
             s3:
               key: csv/
       container:
-        image: ppalmes/automlai:v1.0
+        image: ppalmes/automlai:v2.0
         command:
         args:
           - "-t{{inputs.parameters.predictiontype}}"

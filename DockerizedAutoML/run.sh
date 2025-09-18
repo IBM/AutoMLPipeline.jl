@@ -11,6 +11,6 @@ docker run -it --rm --platform=linux/amd64 automlai:v2.0
 julia --project -- ./main.jl  -t regression --predict_only -u http://mlflow.isiath.duckdns.org:8082 --runid 064fb7a188d34a3da87f2271b8d8d9c2 -o /tmp/reg.txt ./iris_reg.csv
 julia --project -- ./main.jl -u http://mlflow.isiath.duckdns.org:8082 -t classification --predict_only --runid e33bbd5c12a54756b1333df1f23a8366 -o /tmp/class.txt ./iris.csv
 
-docker run -it --rm -v `pwd`:/data/  localhost/automlai -u http://mlflow.isiath.duckdns.org:8082 -t classification --predict_only --runid e33bbd5c12a54756b1333df1f23a8366 /data/iris.csv
+docker run -it --rm -v `pwd`:/data/  localhost/automlai:v2.0 -u http://mlflow.isiath.duckdns.org:8082 -t classification --predict_only --runid e33bbd5c12a54756b1333df1f23a8366 /data/iris.csv
 
-docker run -it --rm -v `pwd`:/data/  localhost/automlai -u http://mlflow.isiath.duckdns.org:8082 -t regression --predict_only --runid 064fb7a188d34a3da87f2271b8d8d9c2 /data/iris_reg.csv
+docker run -it --rm -v `pwd`:/data/  localhost/automlai:v2.0 -u http://mlflow.isiath.duckdns.org:8082 -t regression --predict_only --runid 064fb7a188d34a3da87f2271b8d8d9c2 /data/iris_reg.csv
