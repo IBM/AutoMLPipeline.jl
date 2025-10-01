@@ -36,10 +36,10 @@ function parse_commandline()
         "--no_save"
         help = "save model"
         action = :store_true
-        "--predict_only"
+        "--predict_only", "-p"
         help = "no training, predict only"
         action = :store_true
-        "--runid"
+        "--runid", "-r"
         help = "runid of experiment for trained model"
         arg_type = String
         default = "NONE"
