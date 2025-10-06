@@ -11,5 +11,9 @@ docker run -it --rm --platform=linux/amd64 automlai:v3.0
 julia --project -- ./main.jl -t regression -u http://mlflow.isiath.duckdns.org:8082 -p -r 064fb7a188d34a3da87f2271b8d8d9c2 -o /tmp/reg.txt ./iris_reg.csv
 julia --project -- ./main.jl -t classification -u http://mlflow.isiath.duckdns.org:8082 -p -r 8dbea59123ec469db3ee7b807b3ab6d9 -o /tmp/class.txt ./iris.csv
 
+
+docker run -it --rm -v $(pwd):/data/ localhost/automlai:v3.0 -u http://mlflow.isiath.duckdns.org:8082 -t regression  /data/iris_reg.csv
+docker run -it --rm -v $(pwd):/data/ localhost/automlai:v3.0 -u http://mlflow.isiath.duckdns.org:8082 -t classification /data/iris.csv
+
 docker run -it --rm -v $(pwd):/data/ localhost/automlai:v3.0 -u http://mlflow.isiath.duckdns.org:8082 -t regression -p -r 064fb7a188d34a3da87f2271b8d8d9c2 /data/iris_reg.csv
 docker run -it --rm -v $(pwd):/data/ localhost/automlai:v3.0 -u http://mlflow.isiath.duckdns.org:8082 -t classification -p -r 8dbea59123ec469db3ee7b807b3ab6d9 /data/iris.csv
