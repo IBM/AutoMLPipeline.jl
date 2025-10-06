@@ -12,18 +12,10 @@ spec:
         value: iris_reg.csv
       - name: predictiontype
         value: regression
-      - name: complexity
-        value: low
-      - name: outputloc
-        value: NONE
       - name: folds
         value: 3
       - name: workers
         value: 5
-      - name: predict_only
-        value: false
-      - name: runid
-        value: NONE
   templates:
     - name: run-main
       inputs:
@@ -83,7 +75,7 @@ spec:
             s3:
               key: csv/
       container:
-        image: ppalmes/automlai:v2.0
+        image: ppalmes/automlai:v3.0
         command:
         args:
           - "-t{{inputs.parameters.predictiontype}}"
