@@ -1,9 +1,9 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: automlai-prediction
+  name: automlai-prediction-regression
 spec:
-  entrypoint: run-prediction
+  entrypoint: run-prediction-regression
   arguments:
     parameters:
       - name: url
@@ -15,7 +15,7 @@ spec:
       - name: runid
         value: 064fb7a188d34a3da87f2271b8d8d9c2
   templates:
-    - name: run-prediction
+    - name: run-prediction-regression
       inputs:
         parameters:
           - name: url

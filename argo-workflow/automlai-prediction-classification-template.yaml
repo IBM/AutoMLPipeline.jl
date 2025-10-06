@@ -1,21 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: automlai-prediction
+  name: automlai-prediction-classification
 spec:
-  entrypoint: run-prediction
+  entrypoint: run-prediction-classification
   arguments:
     parameters:
       - name: url
         value: http://sunrise-mlflow-tracking.mlflow:5080
       - name: input
-        value: iris_reg.csv
+        value: iris.csv
       - name: predictiontype
-        value: regression
+        value: classification
       - name: runid
-        value: 064fb7a188d34a3da87f2271b8d8d9c2
+        value: 8dbea59123ec469db3ee7b807b3ab6d9
   templates:
-    - name: run-prediction
+    - name: run-prediction-classification
       inputs:
         parameters:
           - name: url
