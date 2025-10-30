@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: automl-classification
+spec:
+  entrypoint: run-amlp
+  arguments:
+    parameters:
+      - name: url
+        value: http://sunrise-mlflow-tracking.mlflow:5080
+      - name: input
+        value: iris.csv
+      - name: predictiontype
+        value: classification
+      - name: complexity
+        value: low
+      - name: folds
+        value: 3
+      - name: workers
+        value: 5
+  templates:
+    - name: run-amlp
+      inputs:
+        parameters:
+          - name: url
+          - name: input
+          - name: predictiontype
+          - name: complexity
+          - name: folds
+          - name: workers
+        artifacts:
+          - name: file
+            path: /inputfile
+            s3:
+              key: csv/
+      container:
+        image: ppalmes/automlai:v3.0
+        command:
+        args:
+          - "-u{{inputs.parameters.url}}"
+          - "-t{{inputs.parameters.predictiontype}}"
+          - "-c{{inputs.parameters.complexity}}"
+          - "-f{{inputs.parameters.folds}}"
+          - "-w{{inputs.parameters.workers}}"
+          - "-o/outputfile"
+          - "/inputfile/{{inputs.parameters.input}}"
+      outputs:
+        artifacts:
+          - name: ofile
+            path: /outputfile
+            s3:
+              key: "output/{{inputs.parameters.complexity}}_{{inputs.parameters.predictiontype}}_{{inputs.parameters.input}}.tgz"

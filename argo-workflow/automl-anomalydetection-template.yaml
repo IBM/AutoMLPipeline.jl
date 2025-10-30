@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: automl-anomalydetection
+spec:
+  entrypoint: run-automlad
+  arguments:
+    parameters:
+      - name: url
+        value: http://sunrise-mlflow-tracking.mlflow:5080
+      - name: predictiontype
+        value: anomalydetection
+      - name: input
+        value: node_cpu_ratio.csv
+      - name: outputloc
+        value: NONE
+      - name: votepercent
+        value: 0.0
+      - name: runid
+        value: NONE
+  templates:
+    - name: run-automlad
+      inputs:
+        parameters:
+          - name: url
+          - name: predictiontype
+          - name: input
+          - name: outputloc
+          - name: votepercent
+          - name: runid
+        artifacts:
+          - name: file
+            path: /inputfile
+            s3:
+              key: csv/
+      container:
+        image: ppalmes/automlad:v2.0
+        command:
+        args:
+          - "-u{{inputs.parameters.url}}"
+          - "-t{{inputs.parameters.predictiontype}}"
+          - "-v{{inputs.parameters.votepercent}}"
+          - "-o/outputfile"
+          - "/inputfile/{{inputs.parameters.input}}"
