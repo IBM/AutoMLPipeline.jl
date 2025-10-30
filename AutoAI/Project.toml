@@ -1,10 +1,11 @@
 name = "AutoAI"
 uuid = "78f36755-6713-4987-acdd-2a78ef0fc2e4"
-authors = ["Paulito Palmes, PhD <ppalmes@gmail.com>"]
 version = "0.1.0"
+authors = ["Paulito Palmes, PhD <ppalmes@gmail.com>"]
 
 [deps]
 AMLPipelineBase = "e3c3008a-8869-4d53-9f34-c96f99c8a2b6"
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 AutoMLPipeline = "08437348-eef5-4817-bc1b-d4e9459680d6"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
@@ -23,6 +24,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 AMLPipelineBase = "0.1.18"
+ArgParse = "1.2.0"
 AutoMLPipeline = "0.4.6"
 CSV = "0.10.15"
 CondaPkg = "0.2.29"
@@ -38,6 +40,8 @@ Serialization = "1.11.0"
 Statistics = "1.11.1"
 StatsBase = "0.34.5"
 Test = "1.11.0"
+
+[apps.autoai]
 
 [extras]
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
