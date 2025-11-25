@@ -1,0 +1,5 @@
+[deps]
+mlflow = ""
+pycaret = "3.3.*"
+python = "3.11.*"
+requests = ""
