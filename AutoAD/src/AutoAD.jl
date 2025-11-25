@@ -46,4 +46,9 @@ include("carettspredictor.jl")
 using .CaretTSPredictors
 export CaretTSPredictor, carettsdriver
 
+include("automlflowtsprediction.jl")
+using .AutoMLFlowTSPredictions
+export AutoMLFlowTSPrediction
+export mlftsdriver
+
 end # module AutoAD
