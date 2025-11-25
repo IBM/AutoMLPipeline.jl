@@ -17,5 +17,6 @@ docker run -it --rm -v $(pwd):/data/ localhost/automlai:v3.0 -u http://mlflow.is
 docker run -it --rm -v $(pwd):/data/ localhost/automlai:v3.0 -u http://mlflow.isiath.duckdns.org:8082 -t regression -p -r 064fb7a188d34a3da87f2271b8d8d9c2 /data/iris_reg.csv
 docker run -it --rm -v $(pwd):/data/ localhost/automlai:v3.0 -u http://mlflow.isiath.duckdns.org:8082 -t classification -p -r 8dbea59123ec469db3ee7b807b3ab6d9 /data/iris.csv
 
-julia -m AutoAI -u http://mlflow.isiath.duckdns.org:8082 -t regression ../DockerizedAutoML/iris_reg.csv
 # notes to use CondaPkg to update/install python modules during docker build
+julia -m AutoAI -u http://mlflow.isiath.duckdns.org:8082 -t regression ../DockerizedAutoML/iris_reg.csv
+julia -m AutoAI -u http://mlflow.isiath.duckdns.org:8082 -t classification ~/tmp/occupancy-detection/occupancy_training.csv
