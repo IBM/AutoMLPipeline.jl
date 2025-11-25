@@ -105,7 +105,7 @@ function fit!(adl::CaretTSPredictor, xx::DataFrame, ::Vector=[])::Nothing
   end
 
   # save experiment
-  adl.model[:py_experiment] = py_experiment
+  #adl.model[:py_experiment] = py_experiment
   return nothing
 end
 
@@ -114,7 +114,8 @@ function transform!(adl::CaretTSPredictor, xx::DataFrame)
   py_dataframe = getproperty(PD, "DataFrame")
   x = py_dataframe(xh)
   learner = adl.model[:learner]
-  py_experiment = adl.model[:py_experiment]
+  expt = adl.model[:experiment]
+  py_experiment = getproperty(carettsexp_dict[expt], expt)()
   _verbose = adl.model[:verbose]
   py_experiment.setup(x, session_id=123, verbose=_verbose)
   forecast_horizon = adl.model[:forecast_horizon]
@@ -125,21 +126,28 @@ function transform!(adl::CaretTSPredictor, xx::DataFrame)
 end
 
 function carettsdriver()
-  #DT = PYC.pyimport("pycaret.datasets")
-  #PD = PYC.pyimport("pandas")
-  #get_data = getproperty(DT, "get_data")
-  #df = get_data("airline")
-  df = rand(100, 1) |> x -> DataFrame(x, :auto)
-  bmodel = CaretTSPredictor("auto", Dict(:verbose => true))
+  DT = PYC.pyimport("pycaret.datasets")
+  PD = PYC.pyimport("pandas")
+  get_data = getproperty(DT, "get_data")
+  dftmp = get_data("airline") |> collect
+  dt=PYC.pyconvert.(Float64,dftmp)
+  df = DataFrame(x1=dt)
+  #df = rand(100, 1) |> x -> DataFrame(x, :auto)
+  #bmodel = CaretTSPredictor("auto_arima", Dict(:verbose => true,:forecast_horizon=>30))
+  bmodel = CaretTSPredictor("auto", Dict(:verbose => true,:forecast_horizon=>30))
   bestres = fit_transform!(bmodel, df)
-  tabres = @sync @distributed (hcat) for learner in ["ridge_cds_dt", "auto_arima", "ets", "rf_cds_dt"]
-    model = CaretTSPredictor(learner, Dict(:verbose => false))
-    res = fit_transform!(model, df)
-    DataFrame(learner => res)
-  end
-  @show hcat(tabres, DataFrame(:best => bestres))
-  print(bmodel.model[:finalmodel])
-  return nothing
+  #tabres = @sync @distributed (hcat) for learner in ["ridge_cds_dt", "auto_arima", "ets", "rf_cds_dt"]
+  #  model = CaretTSPredictor(learner, Dict(:verbose => false))
+  #  res = fit_transform!(model, df)
+  #  DataFrame(learner => res)
+  #end
+  #@show hcat(tabres, DataFrame(:best => bestres))
+  #print(bmodel.model[:finalmodel])
+  #return nothing
+  #hcat(tabres, DataFrame(:best => bestres))
+  ndx1=1:length(df.x1)
+  ndx2=(length(ndx1)+1):length(ndx1)+length(bestres)
+  (ndx1,df.x1,ndx2,bestres)
 end
 
 end
