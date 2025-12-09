@@ -15,6 +15,7 @@ using AMLPipelineBase: AbsTypes, Utils
 
 export get_iris
 
+include("main.jl")
 
 function get_iris()
   iris = CSV.read(joinpath(Base.@__DIR__, "../../data", "iris.csv"), DataFrame)

@@ -38,10 +38,6 @@ function parse_commandline()
   return parse_args(s; as_symbols=true)
 end
 
-const _cliargs = parse_commandline()
-_cliargs[:csvfile]="./../AutoAD/data/node_cpu_ratio_rate_5m_1d_1m.csv"
-
-
 function doprediction_only(args::Dict)
   fname = args[:csvfile]
   X = CSV.read(fname, DataFrame)
@@ -73,14 +69,13 @@ function dotrainandpredict(args::Dict)
   return Yc
 end
 
-function main(args)
-  if args[:predict_only] == true
+function @main(MyARGS)
+  ARGS = parse_commandline()
+  if ARGS[:predict_only] == true
     # predict only using run_id of model in the artifact
-    doprediction_only(args)
+    doprediction_only(ARGS)
   else
     # train and predict
-    dotrainandpredict(args)
+    dotrainandpredict(ARGS)
   end
 end
-
-main(_cliargs)

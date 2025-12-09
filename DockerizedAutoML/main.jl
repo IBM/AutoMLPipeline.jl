@@ -97,8 +97,7 @@ function doprediction_only(args::Dict)
     X = CSV.read(fname, DataFrame)
     run_id = args[:runid]
     url = args[:url]
-    mlf =
-        predtype = args[:prediction_type]
+    predtype = args[:prediction_type]
     mlf = if predtype == "classification"
         AutoMLFlowClassification(Dict(:run_id => run_id, :url => url))
     elseif predtype == "regression"
