@@ -1,4 +1,5 @@
 module AutoMLFlowTSPredictions
+
 using PDFmerger: append_pdf!
 using Plots
 using Statistics
@@ -146,50 +147,9 @@ function mlftsdriver()
 
   #X = vcat(5 * cos.(-10:10), sin.(-30:30), 3 * cos.(-10:10), 2 * tan.(-10:10), sin.(-30:30)) |> x -> DataFrame([x], :auto)
 
-  # test all voting percent
   mlfas = AutoMLFlowTSPrediction(Dict(:url => url))
-  fit!(mlfas, X)
-  #println(Yc |> x -> first(x, 5))
-
-  #  # test specific votepercent
-  #  mlvad = AutoMLFlowTSPrediction(Dict(:url => url, :impl_args => Dict(:votepercent => 0.3)))
-  #  Yc = fit_transform!(mlvad, X)
-  #  println(Yc |> x -> first(x, 5))
-  #
-  #  # override default votepercent
-  #  mlfas = AutoMLFlowTSPrediction(Dict(:url => url))
-  #  mlfas.model[:automodel](; votepercent=0.5)
-  #  Yc = fit_transform!(mlfas, X)
-  #  println(Yc |> x -> first(x, 5))
-  #
-  #
-  #  mlfas = AutoMLFlowTSPrediction(Dict(:url => url))
-  #  mlfas.model[:automodel](; votepercent=0.0)
-  #  Yc = fit_transform!(mlfas, X)
-  #  println(Yc |> x -> first(x, 5))
-  #
-  #  ## test prediction using exisiting trained model from artifacts
-  #  #### alternative 1 to use trained model for transform
-  #  mlvad = AutoMLFlowTSPrediction(Dict(:url => url))
-  #  Yc = fit_transform!(mlvad, X)
-  #  run_id = mlvad.model[:run_id]
-  #  newmlad = AutoMLFlowTSPrediction(Dict(:run_id => run_id, :url => url, :impl_args => Dict(:votepercent => 0.5)))
-  #  newmlad.model[:automodel](; votepercent=0.2)
-  #  Yn = transform!(newmlad, X)
-  #  println(Yn |> x -> first(x, 5))
-  #
-  #  ## alternative 2 to use trained model for transform
-  #  mlvad = AutoMLFlowTSPrediction(Dict(:url => url))
-  #  Yc = fit_transform!(mlvad, X)
-  #  run_id = mlvad.model[:run_id]
-  #  votepercent = 0.3
-  #  newmlad = AutoMLFlowTSPrediction(Dict(:url => url))
-  #  newmlad(; run_id)
-  #  newmlad.model[:automodel](; votepercent)
-  #  Yn = transform!(newmlad, X)
-  #  println(Yn |> x -> first(x, 5))
-
-  return nothing
+  pred=fit_transform!(mlfas, X)
+  return pred
 end
 
 end
