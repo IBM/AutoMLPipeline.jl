@@ -76,5 +76,3 @@ jobs:
       - name: Display Python Version
         run: |
           python -c "import sys; print(sys.version)"
-
-# Workflow copied from PythonCall.jl
