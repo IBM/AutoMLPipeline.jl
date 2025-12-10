@@ -15,7 +15,7 @@ jobs:
     name: Test Julia ${{ matrix.jlversion }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         arch: [x64]
         os: [ubuntu-latest, macos-latest, windows-latest]
