@@ -15,7 +15,6 @@ using AMLPipelineBase: AbsTypes, Utils
 
 export get_iris
 
-
 function get_iris()
   iris = CSV.read(joinpath(Base.@__DIR__, "../../data", "iris.csv"), DataFrame)
   return iris
@@ -41,14 +40,5 @@ include("automlflowanomalydetection.jl")
 using .AutoMLFlowAnomalyDetections
 export AutoMLFlowAnomalyDetection
 export mlfaddriver
-
-include("carettspredictor.jl")
-using .CaretTSPredictors
-export CaretTSPredictor, carettsdriver
-
-include("automlflowtsprediction.jl")
-using .AutoMLFlowTSPredictions
-export AutoMLFlowTSPrediction
-export mlftsdriver
 
 end # module AutoAD

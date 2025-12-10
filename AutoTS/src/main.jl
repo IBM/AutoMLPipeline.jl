@@ -1,4 +1,4 @@
-using AutoAD
+using AutoTS
 using ArgParse
 using CSV
 using DataFrames
@@ -38,17 +38,13 @@ function parse_commandline()
   return parse_args(s; as_symbols=true)
 end
 
-const _cliargs = parse_commandline()
-_cliargs[:csvfile]="./../AutoAD/data/node_cpu_ratio_rate_5m_1d_1m.csv"
-
-
 function doprediction_only(args::Dict)
   fname = args[:csvfile]
   X = CSV.read(fname, DataFrame)
   run_id = args[:runid]
   url = args[:url]
   predtype = args[:prediction_type]
-  mlf=AutoMLFlowTSPrediction((Dict(:rund_id=>run_id,:url=>url)))
+  mlf = AutoMLFlowTSPrediction((Dict(:rund_id => run_id, :url => url)))
   Yn = transform!(mlf, X)
   ofile = args[:output_file]
   if ofile != "NONE"
@@ -62,25 +58,24 @@ end
 
 function dotrainandpredict(args::Dict)
   url = args[:url]
-  learner=args[:learner]
+  learner = args[:learner]
   forecast_horizon = args[:forecast_horizon]
   fname = args[:csvfile]
   df = CSV.read(fname, DataFrame)
   X = df[:, 1:1]
-  autots = AutoMLFlowTSPrediction(Dict(:url => url, :impl_args=>Dict(:forecast_horizon=>forecast_horizon,:learner=>learner)))
+  autots = AutoMLFlowTSPrediction(Dict(:url => url, :impl_args => Dict(:forecast_horizon => forecast_horizon, :learner => learner)))
   Yc = fit_transform!(autots, X)
   println("output:", Yc |> x -> first(x, 5))
   return Yc
 end
 
-function main(args)
-  if args[:predict_only] == true
+function @main(MyARGS)
+  ARGS = parse_commandline()
+  if ARGS[:predict_only] == true
     # predict only using run_id of model in the artifact
-    doprediction_only(args)
+    doprediction_only(ARGS)
   else
     # train and predict
-    dotrainandpredict(args)
+    dotrainandpredict(ARGS)
   end
 end
-
-main(_cliargs)
