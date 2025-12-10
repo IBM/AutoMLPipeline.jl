@@ -6,8 +6,6 @@
 
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7093/badge)](https://bestpractices.coreinfrastructure.org/projects/7093)
 
-![Overall Stats](https://github-readme-stats.vercel.app/api?username=ppalmes&count_private=true&show_icons=true&hide=contribs)
-
 ---
 
 |                             **Documentation**                             |                                 **Build Status**                                  |                         **Help**                          |
