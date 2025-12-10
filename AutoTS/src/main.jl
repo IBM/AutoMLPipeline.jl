@@ -1,4 +1,4 @@
-using AutoAD
+using AutoTS
 using ArgParse
 using CSV
 using DataFrames
@@ -44,7 +44,7 @@ function doprediction_only(args::Dict)
   run_id = args[:runid]
   url = args[:url]
   predtype = args[:prediction_type]
-  mlf=AutoMLFlowTSPrediction((Dict(:rund_id=>run_id,:url=>url)))
+  mlf = AutoMLFlowTSPrediction((Dict(:rund_id => run_id, :url => url)))
   Yn = transform!(mlf, X)
   ofile = args[:output_file]
   if ofile != "NONE"
@@ -58,12 +58,12 @@ end
 
 function dotrainandpredict(args::Dict)
   url = args[:url]
-  learner=args[:learner]
+  learner = args[:learner]
   forecast_horizon = args[:forecast_horizon]
   fname = args[:csvfile]
   df = CSV.read(fname, DataFrame)
   X = df[:, 1:1]
-  autots = AutoMLFlowTSPrediction(Dict(:url => url, :impl_args=>Dict(:forecast_horizon=>forecast_horizon,:learner=>learner)))
+  autots = AutoMLFlowTSPrediction(Dict(:url => url, :impl_args => Dict(:forecast_horizon => forecast_horizon, :learner => learner)))
   Yc = fit_transform!(autots, X)
   println("output:", Yc |> x -> first(x, 5))
   return Yc
