@@ -1,17 +1,18 @@
 ## AutoMLPipeline
 
-<div align="center"> 
+<div align="center">
 
- ![Visitor](https://visitor-badge.laobi.icu/badge?page_id=ppalmes.AutoMLPipeline.jl)
+![Visitor](https://visitor-badge.laobi.icu/badge?page_id=ppalmes.AutoMLPipeline.jl)
 
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7093/badge)](https://bestpractices.coreinfrastructure.org/projects/7093)
 
 ![Overall Stats](https://github-readme-stats.vercel.app/api?username=ppalmes&count_private=true&show_icons=true&hide=contribs)
 
-------------------
-| **Documentation** | **Build Status** | **Help** |
-|:---:|:---:|:---:|
-| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][gha-img]][gha-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
+---
+
+|                             **Documentation**                             |                                 **Build Status**                                  |                         **Help**                          |
+| :-----------------------------------------------------------------------: | :-------------------------------------------------------------------------------: | :-------------------------------------------------------: |
+| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][test-img]][test-url] [![][gha-img]][gha-url] [![][codecov-img]][codecov-url] | [![][slack-img]][slack-url] [![][gitter-img]][gitter-url] |
 
 </div>
 
@@ -19,24 +20,25 @@
 
 [![Star History Chart](https://api.star-history.com/svg?repos=IBM/AutoMLPipeline.jl&type=Date)](https://star-history.com/#IBM/AutoMLPipeline.jl&Date)
 
-------------------
-**AutoMLPipeline** (AMLP) is a package 
-that makes it trivial to create 
-complex ML pipeline structures 
-using simple expressions. It leverages on 
-the built-in macro programming features of 
-Julia to symbolically process, manipulate 
-pipeline expressions, and makes it easy to 
-discover optimal structures for machine 
+---
+
+**AutoMLPipeline** (AMLP) is a package
+that makes it trivial to create
+complex ML pipeline structures
+using simple expressions. It leverages on
+the built-in macro programming features of
+Julia to symbolically process, manipulate
+pipeline expressions, and makes it easy to
+discover optimal structures for machine
 learning regression and classification.
 
-To illustrate, here is a pipeline expression 
-and evaluation of a typical machine learning 
-workflow that extracts numerical features (`numf`) 
-for `ica` (Independent Component Analysis) 
-and `pca` (Principal Component Analysis) 
-transformations, respectively, concatenated with 
-the hot-bit encoding (`ohe`) of categorical 
+To illustrate, here is a pipeline expression
+and evaluation of a typical machine learning
+workflow that extracts numerical features (`numf`)
+for `ica` (Independent Component Analysis)
+and `pca` (Principal Component Analysis)
+transformations, respectively, concatenated with
+the hot-bit encoding (`ohe`) of categorical
 features (`catf`) of a given data for `rf` (Random Forest) modeling:
 
 ```julia
@@ -46,8 +48,10 @@ prediction = transform!(model,Xtest)
 score(:accuracy,prediction,Ytest)
 crossvalidate(model,X,Y,"balanced_accuracy_score")
 ```
+
 Just take note that `+` has higher priority than `|>` so if you
 are not sure, enclose the operations inside parentheses.
+
 ```julia
 ### these two expressions are the same
 a |> b + c; a |> (b + c)
@@ -57,9 +61,11 @@ a + b |> c; (a + b) |> c
 ```
 
 #### Please read this [AutoMLPipeline Paper](https://doi.org/10.21105/jcon.00129) for benchmark comparisons.
+
 - [JuliaCon Proceedings](https://doi.org/10.21105/jcon.00129): [![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00129/status.svg)](https://doi.org/10.21105/jcon.00129)
 
 ### Recorded Video/Conference Presentations:
+
 - [2024 JuliaCon (**End-to-End AI with Julia, K0s, and Argo Workflow**)](https://www.youtube.com/live/ZKt0tiG5ajw?t=24008s)
 - [2023 JuliaCon (**Wrapping Up Offline RL as Part of AutoMLPipeline Workflow**)](https://www.youtube.com/watch?v=7a2MqqvyoEc)
 - [2022 JuliaCon (**Distributed AutoML Pipeline Search in PC/RasPi K8s Cluster**)](https://www.youtube.com/watch?v=gpmmHt6d0pw)
@@ -67,22 +73,23 @@ a + b |> c; (a + b) |> c
 - [2021 PyData Ireland Meetup (**Symbolic ML Pipeline Expression and Benchmarking**)](https://www.youtube.com/watch?v=EQm5fj-4Hrw)
 - [2020 JuliaCon (**AutoMLPipeline: A ToolBox for Building ML Pipelines**)](https://www.youtube.com/watch?v=6-hJnMO0oDs)
 
-
 ### Related Video/Conference Presentations:
+
 - [2021 JuliaCon (**Lale in Julia: A package for semi-automated data science**)](https://www.youtube.com/watch?v=4ayA_EWWlqk)
 - [2019 JuliaCon (**TSML: Time Series Machine Learning Pipeline**)](https://www.youtube.com/watch?v=RRY0OXc52Ns)
 - [2021 OpenSource Guild in IBM (**Overview of HPC and Data Science in Julia Programming with AutoML**)](https://www.youtube.com/watch?v=zkks1_SrUx0)
 
-
-More examples can be found in the 
-[examples](https://github.com/IBM/AutoMLPipeline.jl/tree/master/examples) 
+More examples can be found in the
+[examples](https://github.com/IBM/AutoMLPipeline.jl/tree/master/examples)
 folder including optimizing pipelines by multi-threading or distributed computing.
 
 ### Motivations
+
 The typical workflow in machine learning
 classification or prediction requires
 some or combination of the following
 preprocessing steps together with modeling:
+
 - feature extraction (e.g. ica, pca, svd)
 - feature transformation (e.g. normalization, scaling, ohe)
 - feature selection (anova, correlation)
@@ -104,7 +111,7 @@ POP requires simultaneous optimization of pipeline
 structure and parameter adaptation of its elements.
 As a consequence, having an elegant way to
 express pipeline structure can help lessen
-the complexity in the management and analysis 
+the complexity in the management and analysis
 of the wide-array of choices of optimization routines.
 
 The target of future work will be the
@@ -115,6 +122,7 @@ programming (discrete choices of POP elements),
 tree/graph search, and hyper-parameter search.
 
 ### Package Features
+
 - Symbolic pipeline API for easy expression and high-level description of complex pipeline structures and processing workflow
 - Common API wrappers for ML libs including Scikitlearn, DecisionTree, etc
 - Easily extensible architecture by overloading just two main interfaces: fit! and transform!
@@ -127,6 +135,7 @@ AutoMLPipeline is in the Julia Official package registry.
 The latest release can be installed at the Julia
 prompt using Julia's package management which is triggered
 by pressing `]` at the julia prompt:
+
 ```julia
 julia> ]
 pkg> update
@@ -134,14 +143,16 @@ pkg> add AutoMLPipeline
 ```
 
 ### Sample Usage
+
 Below outlines some typical way to preprocess and model any dataset.
 
-##### 1. Load Data, Extract Input (X) and Target (Y) 
+##### 1. Load Data, Extract Input (X) and Target (Y)
+
 ```julia
 # Make sure that the input feature is a dataframe and the target output is a 1-D vector.
 using AutoMLPipeline
 profbdata = getprofb()
-X = profbdata[:,2:end] 
+X = profbdata[:,2:end]
 Y = profbdata[:,1] |> Vector;
 head(x)=first(x,5)
 head(profbdata)
@@ -159,7 +170,8 @@ head(profbdata)
 │ 5   │ at_home   │ 38              │ 7               │ 5.5         │ MIN           │ HOU           │
 ```
 
-#### 2. Load Filters, Transformers, and Learners 
+#### 2. Load Filters, Transformers, and Learners
+
 ```julia
 using AutoMLPipeline
 
@@ -168,7 +180,7 @@ pca = skoperator("PCA")
 fa  = skoperator("FactorAnalysis")
 ica = skoperator("FastICA")
 
-#### Scaler 
+#### Scaler
 rb   = skoperator("RobustScaler")
 pt   = skoperator("PowerTransformer")
 norm = skoperator("Normalizer")
@@ -200,10 +212,12 @@ stack    = StackEnsemble()
 best     = BestLearner()
 ```
 
-Note: You can get a listing of available `Preprocessors` and `Learners` by invoking the function: 
+Note: You can get a listing of available `Preprocessors` and `Learners` by invoking the function:
+
 - `skoperator()`
 
 #### 3. Filter categories and hot-encode them
+
 ```julia
 pohe = catf |> ohe
 tr = fit_transform!(pohe,X,Y)
@@ -222,9 +236,10 @@ head(tr)
 │ 5   │ 0.0     │ 0.0     │ 0.0     │ 0.0     │ 1.0     │ 0.0     │ 0.0     │ 0.0     │ 0.0     │
 ```
 
-#### 4. Numerical Feature Extraction Example 
+#### 4. Numerical Feature Extraction Example
 
 ##### 4.1 Filter numeric features, compute ica and pca features, and combine both features
+
 ```julia
 pdec = (numf |> pca) + (numf |> ica)
 tr = fit_transform!(pdec,X,Y)
@@ -244,6 +259,7 @@ head(tr)
 ```
 
 ##### 4.2 Filter numeric features, transform to robust and power transform scaling, perform ica and pca, respectively, and combine both
+
 ```julia
 ppt = (numf |> rb |> ica) + (numf |> pt |> pca)
 tr = fit_transform!(ppt,X,Y)
@@ -263,8 +279,9 @@ head(tr)
 ```
 
 #### 5. A Pipeline for the Voting Ensemble Classification
+
 ```julia
-# take all categorical columns and hot-bit encode each, 
+# take all categorical columns and hot-bit encode each,
 # concatenate them to the numerical features,
 # and feed them to the voting ensemble
 using AutoMLPipeline.Utils
@@ -289,19 +306,25 @@ fold: 10, 0.5671641791044776
 errors: 0
 (mean = 0.6057287093942055, std = 0.06724940684190235, folds = 10, errors = 0)
 ```
+
 Note: `crossvalidate()` supports the following sklearn's performance metric
+
 #### classification:
+
 - `accuracy_score`, `balanced_accuracy_score`, `cohen_kappa_score`
 - `jaccard_score`, `matthews_corrcoef`, `hamming_loss`, `zero_one_loss`
-- `f1_score`, `precision_score`, `recall_score`, 
+- `f1_score`, `precision_score`, `recall_score`,
+
 #### regression:
+
 - `mean_squared_error`, `mean_squared_log_error`
 - `mean_absolute_error`, `median_absolute_error`
-- `r2_score`, `max_error`, `mean_poisson_deviance` 
-- `mean_gamma_deviance`, `mean_tweedie_deviance`, 
+- `r2_score`, `max_error`, `mean_poisson_deviance`
+- `mean_gamma_deviance`, `mean_tweedie_deviance`,
 - `explained_variance_score`
 
 #### 6. Use `@pipelinex` instead of `@pipeline` to print the corresponding function calls in 6
+
 ```julia
 julia> @pipelinex (catf |> ohe) + (numf) |> vote
 :(Pipeline(ComboPipeline(Pipeline(catf, ohe), numf), vote))
@@ -312,6 +335,7 @@ julia> @macroexpand @pipeline (catf |> ohe) + (numf) |> vote
 ```
 
 #### 7. A Pipeline for the Random Forest (RF) Classification
+
 ```julia
 # compute the pca, ica, fa of the numerical columns,
 # combine them with the hot-bit encoded categorical features
@@ -336,7 +360,9 @@ fold: 10, 0.6865671641791045
 errors: 0
 (mean = 0.6710711150131694, std = 0.04231869797446545, folds = 10, errors = 0)
 ```
+
 #### 8. A Pipeline for the Linear Support Vector for Classification (LSVC)
+
 ```julia
 plsvc = ((numf |> rb |> pca)+(numf |> rb |> fa)+(numf |> rb |> ica)+(catf |> ohe )) |> lsvc
 pred = fit_transform!(plsvc,X,Y)
@@ -360,6 +386,7 @@ errors: 0
 ```
 
 #### 9. A Pipeline for Random Forest Regression
+
 ```julia
 iris = getiris()
 Xreg = iris[:,1:3]
@@ -383,13 +410,15 @@ errors: 0
 (mean = 0.1459423015873016, std = 0.030924217263958102, folds = 10, errors = 0)
 ```
 
-Note: More examples can be found in the *test* directory of the package. Since
+Note: More examples can be found in the _test_ directory of the package. Since
 the code is written in Julia, you are highly encouraged to read the source
 code and feel free to extend or adapt the package to your problem. Please
-feel free to submit PRs to improve the package features. 
+feel free to submit PRs to improve the package features.
 
 #### 10. Performance Comparison of Several Learners
+
 ##### 10.1 Sequential Processing
+
 ```julia
 using Random
 using DataFrames
@@ -426,6 +455,7 @@ learners = 5×3 DataFrame
 ```
 
 ##### 10.2 Parallel Processing
+
 ```julia
 using Random
 using DataFrames
@@ -436,7 +466,7 @@ nprocs() == 1 && addprocs()
 @everywhere using AutoMLPipeline
 
 @everywhere profbdata = getprofb()
-@everywhere X = profbdata[:,2:end] 
+@everywhere X = profbdata[:,2:end]
 @everywhere Y = profbdata[:,1] |> Vector;
 
 @everywhere jrf  = RandomForest()
@@ -488,9 +518,11 @@ learners = 5×3 DataFrame
 ```
 
 #### 11. Automatic Selection of Best Learner
+
 You can use `*` operation as a selector function which outputs the result of the best learner.
 If we use the same pre-processing pipeline in 10, we expect that the average performance of
 best learner which is `lsvc` will be around 73.0.
+
 ```julia
 Random.seed!(1)
 pcmc = disc |> ((catf |> ohe) + (numf |> std)) |> (jrf * ada * sgd * tree * lsvc)
@@ -513,14 +545,16 @@ errors: 0
 ```
 
 #### 12. Learners as Transformers
+
 It is also possible to use learners in the middle of expression to serve
 as transformers and their outputs become inputs to the final learner as illustrated
 below.
+
 ```julia
-expr = ( 
-             ((numf |> rb)+(catf |> ohe) |> gb) + 
-             ((numf |> rb)+(catf |> ohe) |> rf) 
-       ) |> ohe |> ada;                
+expr = (
+             ((numf |> rb)+(catf |> ohe) |> gb) +
+             ((numf |> rb)+(catf |> ohe) |> rf)
+       ) |> ohe |> ada;
 crossvalidate(expr,X,Y,"accuracy_score")
 ```
 
@@ -538,9 +572,11 @@ fold: 10, 0.6119402985074627
 errors: 0
 (mean = 0.6472124670763829, std = 0.053739947087648336, folds = 10, errors = 0)
 ```
+
 One can even include selector function as part of transformer preprocessing routine:
+
 ```julia
-pjrf = disc |> ((catf |> ohe) + (numf |> std)) |> 
+pjrf = disc |> ((catf |> ohe) + (numf |> std)) |>
          ((jrf * ada ) + (sgd * tree * lsvc)) |> ohe |> ada
 crossvalidate(pjrf,X,Y,"accuracy_score")
 ```
@@ -559,17 +595,20 @@ fold: 10, 0.6865671641791045
 errors: 0
 (mean = 0.7260755048287972, std = 0.0532393731318768, folds = 10, errors = 0)
 ```
+
 Note: The `ohe` is necessary in both examples
-because the outputs of the learners and selector function are categorical 
+because the outputs of the learners and selector function are categorical
 values that need to be hot-bit encoded before feeding to the final `ada` learner.
 
 #### 13. Tree Visualization of the Pipeline Structure
-You can visualize the pipeline by using AbstractTrees Julia package. 
+
+You can visualize the pipeline by using AbstractTrees Julia package.
+
 ```julia
-# package installation 
+# package installation
 using Pkg
 Pkg.update()
-Pkg.add("AbstractTrees") 
+Pkg.add("AbstractTrees")
 
 # load the packages
 using AbstractTrees
@@ -602,15 +641,16 @@ print_tree(stdout, expr)
 ```
 
 ### Extending AutoMLPipeline
-If you want to add your own filter or transformer or learner, 
+
+If you want to add your own filter or transformer or learner,
 take note that filters and transformers process the  
 input features but ignores the output argument. On the other hand,
-learners process both their input and output arguments during `fit!` 
-while `transform!` expects one input argument in all cases. 
-First step is to import the abstract types and define your own mutable structure 
+learners process both their input and output arguments during `fit!`
+while `transform!` expects one input argument in all cases.
+First step is to import the abstract types and define your own mutable structure
 as subtype of either Learner or Transformer. Next is to import the `fit!` and
-`transform!` functions so that you can overload them. Also, you must 
-load the DataFrames package because it is the main format for data processing. 
+`transform!` functions so that you can overload them. Also, you must
+load the DataFrames package because it is the main format for data processing.
 Finally, implement your own `fit` and `transform` and export them.
 
 ```julia
@@ -618,7 +658,7 @@ using DataFrames
 using AutoMLPipeline.AbsTypes
 
 # import functions for overloading
-import AutoMLPipeline.AbsTypes: fit!, transform!   
+import AutoMLPipeline.AbsTypes: fit!, transform!
 
 # export the new definitions for dynamic dispatch
 export fit!, transform!, MyFilter
@@ -633,7 +673,7 @@ mutable struct MyFilter <: Transformer
   end
 end
 
-# define your fit! function. 
+# define your fit! function.
 function fit!(fl::MyFilter, inputfeatures::DataFrame, target::Vector=Vector())
      ....
 end
@@ -646,10 +686,10 @@ end
 
 Note that the main format to exchange data is dataframe which requires `transform!`
 output to return a dataframe. The features as input for fit! and transform! shall
-be in dataframe format too. This is necessary so that 
+be in dataframe format too. This is necessary so that
 the pipeline passes the dataframe format consistently to
-its corresponding filters/transformers/learners. Once you have 
-this transformer, you can use it as part of the pipeline 
+its corresponding filters/transformers/learners. Once you have
+this transformer, you can use it as part of the pipeline
 together with the other learners and transformers.
 
 ### Feature Requests and Contributions
@@ -659,30 +699,25 @@ We welcome contributions, feature requests, and suggestions. Here is the link to
 ### Help usage
 
 Usage questions can be posted in:
-- [Julia Community](https://julialang.org/community/) 
+
+- [Julia Community](https://julialang.org/community/)
 - [Gitter AutoMLPipeline Community][gitter-url]
 - [Julia Discourse forum][discourse-tag-url]
 
-
 [contrib-url]: https://github.com/IBM/AutoMLPipeline.jl/blob/master/CONTRIBUTORS.md
 [issues-url]: https://github.com/IBM/AutoMLPipeline.jl/issues
-
 [discourse-tag-url]: https://discourse.julialang.org/
-
 [gitter-url]: https://gitter.im/AutoMLPipelineLearning/community
 [gitter-img]: https://badges.gitter.im/ppalmes/TSML.jl.svg
-
 [slack-img]: https://img.shields.io/badge/chat-on%20slack-yellow.svg
 [slack-url]: https://julialang.slack.com/
-
-
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://ibm.github.io/AutoMLPipeline.jl/stable/
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://ibm.github.io/AutoMLPipeline.jl/dev/
-
 [gha-img]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml/badge.svg
 [gha-url]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/ci.yml
-
+[test-img]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/tests.yml/badge.svg
+[test-url]: https://github.com/IBM/AutoMLPipeline.jl/actions/workflows/tests.yml
 [codecov-img]: https://codecov.io/gh/IBM/AutoMLPipeline.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/IBM/AutoMLPipeline.jl
