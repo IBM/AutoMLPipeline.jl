@@ -2,3 +2,45 @@ name = "AutoTS"
 uuid = "9f9003ca-5fd1-4e14-9a26-1226c8bf687b"
 version = "0.1.0"
 authors = ["Paulito Palmes, PhD <ppalmes@gmail.com>"]
+
+[deps]
+AMLPipelineBase = "e3c3008a-8869-4d53-9f34-c96f99c8a2b6"
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+AutoMLPipeline = "08437348-eef5-4817-bc1b-d4e9459680d6"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+PDFmerger = "3beb2ed1-af7d-458f-b727-6e9beb3586c0"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+AMLPipelineBase = "0.1.18"
+ArgParse = "1.2.0"
+AutoMLPipeline = "0.4.7"
+CSV = "0.10.15"
+DataFrames = "1.8.1"
+Distributed = "1.11.0"
+PDFmerger = "0.3.3"
+Plots = "1.41.2"
+PythonCall = "0.9.30"
+Random = "1.11.0"
+Reexport = "1.2.2"
+Serialization = "1.11.0"
+Statistics = "1.11.1"
+Test = "1.11.0"
+julia = "1.6"
+
+[extras]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[test]
+test = ["DataFrames", "Distributed", "Serialization", "Test"]
