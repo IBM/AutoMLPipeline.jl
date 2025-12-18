@@ -24,7 +24,7 @@ jobs:
         include:
           - os: windows-latest
             jlversion: "1"
-            arch: x86
+            arch: x64
           - os: macos-latest
             jlversion: "1"
             arch: aarch64
