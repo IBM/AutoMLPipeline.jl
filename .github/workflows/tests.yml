@@ -11,16 +11,27 @@ on:
       - "*"
 
 jobs:
-  julia:
+  test:
     name: Test Julia ${{ matrix.jlversion }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         arch: [x64]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         jlversion: ["1", "1.10"]
-        pythonexe: ['@CondaPkg']
+        pythonexe: ["@CondaPkg"]
+        include:
+          - os: windows-latest
+            jlversion: "1"
+            arch: x86
+          - os: macos-latest
+            jlversion: "1"
+            arch: aarch64
+          - os: ubuntu-latest
+            jlversion: "nightly"
+            arch: x64
+            allow_failure: true
 
     steps:
       - uses: actions/checkout@v6
