@@ -52,7 +52,7 @@ jobs:
         uses: julia-actions/julia-runtest@v1
         env:
           #JULIA_DEBUG: PythonCall
-          JULIA_NUM_THREADS: "2"
+          JULIA_NUM_THREADS: 4,1
           PYTHON: python
           JULIA_PYTHONCALL_EXE: ${{ matrix.pythonexe }}
 
@@ -61,8 +61,9 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   python:
     name: Test Python (${{ matrix.pyversion }}, ${{ matrix.os }})
