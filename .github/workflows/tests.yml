@@ -28,10 +28,6 @@ jobs:
           - os: macos-latest
             jlversion: "1"
             arch: aarch64
-          - os: ubuntu-latest
-            jlversion: "nightly"
-            arch: x64
-            allow_failure: true
 
     steps:
       - uses: actions/checkout@v6
