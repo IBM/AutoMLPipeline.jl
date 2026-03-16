@@ -43,11 +43,19 @@ include("sklearners.jl")
 using .SKLearners
 export SKLearner, sklearners
 
+include("xgboostlearners.jl")
+using .XGBoostLearners
+export XGBoostLearner, xgboostlearners
+
+include("evotreeslearners.jl")
+using .EvoTreesLearners
+export EvoTreesLearner, evotreeslearners
+
 include("skcrossvalidator.jl")
 using .SKCrossValidators
 export crossvalidate
 
-export skoperator
+export skoperator, xgboostoperator, evotreesoperator
 
 function skoperator(name::String; args...)::Machine
   sklr = keys(SKLearners.learner_dict)
@@ -68,6 +76,41 @@ function skoperator()
   skpr = keys(SKPreprocessors.preprocessor_dict)
   println("Please choose among these pipeline elements:")
   println([sklr..., skpr...])
+end
+
+function xgboostoperator(name::String; args...)::Machine
+  xgblr = keys(XGBoostLearners.learner_dict)
+  if name ∈ xgblr
+    obj = XGBoostLearner(name; args...)
+  else
+    xgboostoperator()
+    throw(ArgumentError("$name does not exist"))
+  end
+  return obj
+end
+
+function xgboostoperator()
+  xgblr = keys(XGBoostLearners.learner_dict)
+  println("Please choose among these XGBoost learners:")
+  println([xgblr...])
+end
+
+
+function evotreesoperator(name::String; args...)::Machine
+  evolr = keys(EvoTreesLearners.learner_dict)
+  if name ∈ evolr
+    obj = EvoTreesLearner(name; args...)
+  else
+    evotreesoperator()
+    throw(ArgumentError("$name does not exist"))
+  end
+  return obj
+end
+
+function evotreesoperator()
+  evolr = keys(EvoTreesLearners.learner_dict)
+  println("Please choose among these EvoTrees learners:")
+  println([evolr...])
 end
 
 end # module
