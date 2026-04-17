@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup Julia ${{matrix.jlversion}}
-        uses: julia-actions/setup-julia@v2
+        uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.jlversion }}
           arch: ${{ matrix.arch }}
@@ -77,7 +77,7 @@ jobs:
           python-version: ${{ matrix.pyversion }}
 
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2
+        uses: julia-actions/setup-julia@v3
         with:
           version: "1"
 
