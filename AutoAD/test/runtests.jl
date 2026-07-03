@@ -6,4 +6,5 @@ nprocs() == 1 && addprocs()
 
 @everywhere include("./test_caret_anomalydetector.jl")
 include("./test_skanomalydetector.jl")
+include("./test_outlierdetector.jl")
 end

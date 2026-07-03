@@ -81,6 +81,24 @@ More examples can be found in the
 [examples](https://github.com/IBM/AutoMLPipeline.jl/tree/master/examples)
 folder including optimizing pipelines by multi-threading or distributed computing.
 
+### Native OutlierDetection.jl wrapper
+
+`AutoAD` can wrap native `OutlierDetection.jl` detectors without using MLJ `machine` wrappers:
+
+```julia
+using AutoAD
+using DataFrames
+using OutlierDetectionNeighbors: KNNDetector
+
+X = DataFrame(x1=[0.0, 0.1, 0.2, 9.0], x2=[0.0, 0.0, 0.1, 9.0])
+od = OutlierDetector(KNNDetector(k=2))
+fit!(od, X)
+scores = transform!(od, X) # raw outlier scores, higher means more outlying
+```
+
+Add detector packages such as `OutlierDetectionNeighbors.jl` to your environment next to `AutoAD`.
+Use `OutlierDetector(KNNDetector(k=2), output=:label, threshold=0.95)` when quantile-based `"normal"` / `"outlier"` labels are preferred over raw scores.
+
 ### Motivations
 
 The typical workflow in machine learning
