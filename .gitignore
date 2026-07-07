@@ -309,3 +309,7 @@ TSWLatexianTemp*
 /argo-workflow/.pi
 /argo-workflow/.pi-subagents/artifacts
 /argo-workflow/webui/package-lock.json
+/.pi
+/.pi-subagents/artifacts
+/webui/node_modules
+/webui/package-lock.json
