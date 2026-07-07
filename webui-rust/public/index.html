@@ -52,13 +52,13 @@
       </article>
 
       <article class="panel metrics">
-        <div class="panel-head"><h2>Prometheus plot</h2><span id="metricStatus" class="badge muted">idle</span></div>
+        <div class="panel-head"><div><h2>Prometheus plot</h2><p class="subtitle">Multi-detector</p></div><span id="metricStatus" class="badge muted">idle</span></div>
         <canvas id="metricChart" width="900" height="280" aria-label="Prometheus metric plot"></canvas>
         <pre id="metricSummary" class="console small metric-summary">Choose network, CPU, memory, or latency.</pre>
       </article>
 
       <article class="panel cpu-stream">
-        <div class="panel-head"><h2>Metric anomaly stream</h2><span id="cpuStreamStatus" class="badge muted">idle</span></div>
+        <div class="panel-head"><div><h2>Metric anomaly stream</h2><p class="subtitle">Uni-detector</p></div><span id="cpuStreamStatus" class="badge muted">idle</span></div>
         <canvas id="cpuStreamChart" width="900" height="280" aria-label="Metric anomaly stream"></canvas>
         <pre id="cpuStreamSummary" class="console small metric-summary">24h metric stream, 5m step, quick detector choices.</pre>
       </article>

@@ -12,7 +12,7 @@ async function json(url, options = {}) {
 
 function endpointLinks(config) {
   const links = [
-    ['Argo', config.argoServer], ['Grafana', config.grafanaUrl], ['Prometheus metrics', config.prometheusMetricsUrl], ['MCP', config.mcpUrl]
+    ['Argo', config.argoServer], ['Grafana', config.grafanaUrl], ['Mlflow', config.mlflowUrl], ['Prometheus metrics', config.prometheusMetricsUrl], ['MCP', config.mcpUrl]
   ];
   $('endpointLinks').innerHTML = `${links.map(([name, href]) => `<a href="${href}" target="_blank" rel="noreferrer">${name}</a>`).join('')}<a href="#llmSettings">LLM credentials</a>`;
 }
@@ -26,9 +26,21 @@ function renderLlm(config) {
 
 function renderTemplates() {
   const select = $('templateSelect');
+  const currentName = state.current?.name;
   select.innerHTML = state.templates.map((t, i) => `<option value="${i}">${t.name || 'unnamed'} · ${t.source || 'unknown'}</option>`).join('');
-  state.current = state.templates[0] || null;
+  const index = Math.max(0, state.templates.findIndex((t) => t.name === currentName));
+  select.value = String(index);
+  state.current = state.templates[index] || null;
   renderParams();
+}
+
+async function loadTemplates() {
+  $('templateStatus').textContent = 'loading';
+  $('templateStatus').className = 'badge';
+  const data = await json('/api/templates');
+  state.templates = data.templates || [];
+  $('templateStatus').textContent = state.templates.length ? `${state.templates.length} found` : data.status;
+  renderTemplates();
 }
 
 function renderMetricOptions() {
@@ -49,10 +61,7 @@ async function boot() {
   endpointLinks(state.config);
   renderLlm(state.config);
   try {
-    const data = await json('/api/templates');
-    state.templates = data.templates || [];
-    $('templateStatus').textContent = state.templates.length ? `${state.templates.length} found` : data.status;
-    renderTemplates();
+    await loadTemplates();
   } catch (err) {
     $('templateStatus').textContent = 'error';
     $('templateStatus').className = 'badge bad';
@@ -182,6 +191,7 @@ $('saveLlm').addEventListener('click', async () => {
     const data = await json('/api/llm', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ apiKey: $('llmApiKey').value, baseUrl: $('llmBaseUrl').value, model: $('llmModel').value }) });
     state.config.llm = data.llm;
     renderLlm(state.config);
+    await loadTemplates();
     $('llmSaveStatus').textContent = 'saved';
     $('llmSaveStatus').className = 'badge';
   } catch (err) {

@@ -430,9 +430,14 @@ async fn update_llm(
 async fn templates(State(state): State<Arc<AppState>>) -> Json<serde_json::Value> {
     let c = state.config.read().await.clone();
     let names = argo_names(&c, &["cluster-template", "list", "-o", "name"]);
-    Json(
-        serde_json::json!({ "status": "ok", "templates": names.into_iter().map(|name| serde_json::json!({ "name": name, "source": "argo" })).collect::<Vec<_>>() }),
-    )
+    Json(serde_json::json!({
+        "status": "ok",
+        "templates": names.into_iter().map(|name| serde_json::json!({
+            "name": name,
+            "source": "argo",
+            "parameters": template_parameters(&c, &name),
+        })).collect::<Vec<_>>()
+    }))
 }
 
 async fn workflows(State(state): State<Arc<AppState>>) -> Json<serde_json::Value> {
@@ -592,6 +597,32 @@ fn argo_names(c: &Config, args: &[&str]) -> Vec<String> {
         .collect()
 }
 
+fn template_parameters(c: &Config, name: &str) -> Vec<serde_json::Value> {
+    if !safe_name(name) {
+        return vec![];
+    }
+    let template = run_argo_json(c, &["cluster-template", "get", name, "-o", "json"]);
+    template_parameters_from_data(template.get("data").unwrap_or(&template))
+}
+
+fn template_parameters_from_data(template: &serde_json::Value) -> Vec<serde_json::Value> {
+    template
+        .pointer("/spec/arguments/parameters")
+        .and_then(|v| v.as_array())
+        .into_iter()
+        .flatten()
+        .filter_map(|p| {
+            let name = p.get("name")?.as_str()?;
+            Some(serde_json::json!({
+                "name": name,
+                "value": p.get("value").and_then(|v| v.as_str()).unwrap_or(""),
+                "default": p.get("default").and_then(|v| v.as_str()).unwrap_or(""),
+                "required": p.get("value").is_none() && p.get("default").is_none(),
+            }))
+        })
+        .collect()
+}
+
 fn run_argo_json(c: &Config, args: &[&str]) -> serde_json::Value {
     let out = run_argo(c, args);
     if out["status"] == "ok" {
@@ -627,7 +658,7 @@ async fn call_llm(
     let body = serde_json::json!({
         "model": llm.model,
         "messages": [
-            { "role": "system", "content": "You are an Argo AutoML assistant. By default use only Prometheus plots and metric anomaly stream. Use Argo context only when user mentions Argo. Use MLflow context only when user mentions MLflow. Convert Unix timestamps in answers to YYYY-MM-DD HH:MM:SS UTC. Be concise. State hypotheses as hypotheses. Never claim mutations." },
+            { "role": "system", "content": "You are an Argo AutoML assistant. By default use only Prometheus plots and metric anomaly stream. Use Argo context only when user mentions Argo. Use MLflow context only when user mentions MLflow. Convert Unix timestamps in answers to YYYY-MM-DD HH:MM:SS UTC. Be concise. State hypotheses as hypotheses. Never claim mutations. Do not use Markdown tables. Use bullet points for metrics; align related metric fields in the same bullet." },
             { "role": "user", "content": serde_json::json!({ "prompt": prompt, "context": ctx }).to_string() }
         ]
     });
@@ -1114,5 +1145,21 @@ mod tests {
         let ctx = serde_json::json!({ "logs": "keep", "argo": {}, "mlflow": {} });
         assert_eq!(agent_context("show argo", ctx.clone()), ctx);
         assert_eq!(agent_context("show mlflow", ctx.clone()), ctx);
+    }
+
+    #[test]
+    fn extracts_template_parameters() {
+        let template = serde_json::json!({
+            "spec": { "arguments": { "parameters": [
+                { "name": "dataset", "value": "iris" },
+                { "name": "epochs", "default": "10" },
+                { "name": "model" }
+            ] } }
+        });
+        let params = template_parameters_from_data(&template);
+        assert_eq!(params.len(), 3);
+        assert_eq!(params[0]["name"], "dataset");
+        assert_eq!(params[1]["default"], "10");
+        assert_eq!(params[2]["required"], true);
     }
 }

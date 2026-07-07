@@ -7,13 +7,30 @@ function inlineMarkdown(text) {
     .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
 }
 
+const splitTableRow = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
+const isTableRow = (line) => line.includes('|') && splitTableRow(line).length > 1;
+const isSeparatorRow = (line) => isTableRow(line) && splitTableRow(line).every((cell) => /^:?-{3,}:?$/.test(cell));
+
+function tableToMetricList(lines, start) {
+  const headers = splitTableRow(lines[start]);
+  const rows = [];
+  let i = start + 2;
+  while (i < lines.length && isTableRow(lines[i])) {
+    rows.push(splitTableRow(lines[i]));
+    i += 1;
+  }
+  const items = rows.map((row) => `<li>${headers.map((header, j) => `<span><strong>${inlineMarkdown(header)}:</strong> ${inlineMarkdown(row[j] ?? '')}</span>`).join('')}</li>`).join('');
+  return { html: `<ul class="metric-list">${items}</ul>`, next: i };
+}
+
 export function markdownToHtml(markdown = '') {
   const lines = String(markdown || '').split(/\r?\n/);
   const out = [];
   let inCode = false;
   let inList = false;
   let code = [];
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
     if (line.startsWith('```')) {
       if (inCode) {
         out.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
@@ -23,6 +40,13 @@ export function markdownToHtml(markdown = '') {
       continue;
     }
     if (inCode) { code.push(line); continue; }
+    if (isTableRow(line) && isSeparatorRow(lines[i + 1] || '')) {
+      if (inList) { out.push('</ul>'); inList = false; }
+      const list = tableToMetricList(lines, i);
+      out.push(list.html);
+      i = list.next - 1;
+      continue;
+    }
     const item = line.match(/^[-*]\s+(.+)/);
     if (item) {
       if (!inList) { out.push('<ul>'); inList = true; }
