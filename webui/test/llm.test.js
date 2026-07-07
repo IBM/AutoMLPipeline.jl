@@ -8,6 +8,12 @@ test('redacts LLM context', () => {
   assert.doesNotMatch(ctx.logs, /abc123|secret/);
 });
 
+test('prompt context includes compact plot anomalies with ISO times', () => {
+  const ctx = buildPromptContext({ plot: { metric: 'cpu', label: 'CPU usage', unit: '%', hours: 1, stepMinutes: 10, query: 'q', warnings: [], points: [{ ts: 10, value: 1 }, { ts: 20, value: 9, anomaly: true }] } });
+  assert.equal(ctx.plot.anomalyCount, 1);
+  assert.deepEqual(ctx.plot.anomalies, [{ time: '1970-01-01T00:00:20.000Z', value: 9 }]);
+});
+
 test('deploy prompt returns confirmation payload', () => {
   const result = maybeConfirmation({ namespace: 'argo' }, 'deploy this', { template: { name: 'automl-classification' }, parameters: { input: 'iris.csv' } });
   assert.equal(result.type, 'confirmation_required');

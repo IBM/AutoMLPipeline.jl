@@ -11,7 +11,7 @@
     <section class="hero panel">
       <p class="eyebrow">Argo AutoML</p>
       <h1>Command Deck</h1>
-      <p>Deploy ClusterWorkflowTemplates, inspect logs, query MLflow, and hand scoped MCP tools to an LLM agent.</p>
+      <p>Deploy ClusterWorkflowTemplates, inspect logs, plot Prometheus metrics, and hand scoped MCP tools to an LLM agent.</p>
       <div class="links" id="endpointLinks"></div>
       <p class="session-note">Local session armed automatically after page load.</p>
     </section>
@@ -24,29 +24,26 @@
         <button id="deployBtn" disabled>Deploy template</button>
       </article>
 
-      <article class="panel">
-        <div class="panel-head"><h2>YAML upload</h2><span class="badge muted">safe preview</span></div>
-        <input id="yamlFile" type="file" accept=".yaml,.yml" />
-        <pre id="yamlPreview" class="console">Upload a Workflow YAML to validate before submit.</pre>
-      </article>
-
       <article class="panel logs">
         <div class="panel-head"><h2>Workflow logs</h2><span id="workflowStatus" class="badge muted">idle</span></div>
         <pre id="logs" class="console">Deployment output will appear here.</pre>
       </article>
 
-      <article class="panel">
-        <div class="panel-head"><h2>MLflow results</h2><span id="mlflowStatus" class="badge muted">idle</span></div>
-        <button id="refreshMlflow">Query MLflow</button>
-        <pre id="mlflow" class="console">Metrics and runs will appear here.</pre>
-      </article>
-
       <article class="panel metrics">
         <div class="panel-head"><h2>Prometheus plot</h2><span id="metricStatus" class="badge muted">idle</span></div>
-        <select id="metricSelect"></select>
-        <button id="plotMetric">Plot 24h at 10m</button>
-        <canvas id="metricChart" width="900" height="280" aria-label="Prometheus metric plot"></canvas>
-        <pre id="metricSummary" class="console small">Choose network, CPU, memory, or latency.</pre>
+        <div class="metric-layout">
+          <div class="metric-controls">
+            <select id="metricSelect"></select>
+            <div class="inline-fields">
+              <label class="field"><span>Window hours</span><input id="metricHours" type="number" min="1" step="1" value="24" /></label>
+              <label class="field"><span>Step minutes</span><input id="metricStepMinutes" type="number" min="1" step="1" value="10" /></label>
+              <label class="field"><span>Vote percent</span><input id="metricVotepercent" type="number" min="0.1" max="1" step="0.1" value="0.5" /></label>
+            </div>
+            <button id="plotMetric">Plot</button>
+          </div>
+          <canvas id="metricChart" width="900" height="280" aria-label="Prometheus metric plot"></canvas>
+        </div>
+        <pre id="metricSummary" class="console small metric-summary">Choose network, CPU, memory, or latency.</pre>
       </article>
 
       <article class="panel prompt">

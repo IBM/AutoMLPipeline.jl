@@ -64,8 +64,13 @@ export async function compareRuns(config, { experimentIds, filter, metricKeys = 
   };
 }
 
+function mlflowString(value = '') {
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 export async function queryMlflowResults(config, query = {}) {
   if (query.runId) return { run: await getRun(config, query.runId) };
+  if (query.workflowName) return { runs: await searchRuns(config, { filter: `tags.workflow = '${mlflowString(query.workflowName)}'`, max_results: 20, order_by: ['attributes.start_time DESC'] }) };
   if (query.experimentId) return { runs: await searchRuns(config, { experiment_ids: [query.experimentId] }) };
   return { experiments: await listExperiments(config) };
 }

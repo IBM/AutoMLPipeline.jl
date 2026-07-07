@@ -43,7 +43,7 @@ export function buildConfig(env = process.env) {
     port: Number(env.PORT || 8090),
     namespace: env.ARGO_NAMESPACE || 'argo',
     argoServer: env.ARGO_SERVER || 'http://argo.home:8080',
-    templateUrl: env.ARGO_TEMPLATE_URL || 'http://argo.isiath.duckdns.org:8080/cluster-workflow-templates',
+    templateUrl: env.ARGO_TEMPLATE_URL || 'http://argo.home:8080/cluster-workflow-templates',
     grafanaUrl: env.GRAFANA_URL || 'http://grafana.home:8080',
     mlflowUrl: env.MLFLOW_URL || 'http://mlflow.home:8080',
     prometheusMetricsUrl: env.PROMETHEUS_METRICS_URL || 'http://prom1.prometheus.home:8080/metrics',

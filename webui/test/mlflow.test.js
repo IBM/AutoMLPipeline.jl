@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { redact } from '../lib/redact.js';
-import { summarizeRun, compareRuns } from '../lib/mlflow.js';
+import { summarizeRun, compareRuns, queryMlflowResults } from '../lib/mlflow.js';
 
 test('redacts common secrets', () => {
   const out = redact('token=abc password=hunter2 https://user:pass@example.test');
@@ -27,6 +27,22 @@ test('compares runs with selected metric keys', async () => {
   try {
     const out = await compareRuns({ mlflowUrl: 'http://mlflow.test' }, { metricKeys: ['accuracy'] });
     assert.deepEqual(out.runs[0].metrics, { accuracy: 0.9 });
+  } finally {
+    globalThis.fetch = oldFetch;
+  }
+});
+
+test('queries MLflow runs for one deployed workflow tag', async () => {
+  const oldFetch = globalThis.fetch;
+  let body;
+  globalThis.fetch = async (_url, options) => {
+    body = JSON.parse(options.body);
+    return new Response(JSON.stringify({ runs: [] }));
+  };
+  try {
+    await queryMlflowResults({ mlflowUrl: 'http://mlflow.test' }, { workflowName: "wf'1" });
+    assert.equal(body.filter, "tags.workflow = 'wf\\'1'");
+    assert.deepEqual(body.order_by, ['attributes.start_time DESC']);
   } finally {
     globalThis.fetch = oldFetch;
   }

@@ -13,16 +13,20 @@ function withHints(t) {
 }
 
 async function localTemplates(root = ROOT) {
-  const files = (await fs.readdir(root)).filter((f) => f.endsWith('-template.yaml'));
   const out = [];
-  for (const file of files) {
-    try {
-      const text = await fs.readFile(path.join(root, file), 'utf8');
-      for (const doc of parseYamlDocuments(text)) {
-        if (doc?.kind?.includes('WorkflowTemplate')) out.push(withHints({ ...normalizeTemplate(doc, 'local', 'local'), file: `argo-workflow/${file}` }));
+  for (const dir of [root, path.join(root, 'argo-workflow')]) {
+    const files = await fs.readdir(dir).catch(() => []);
+    for (const file of files.filter((f) => f.endsWith('-template.yaml'))) {
+      const fullPath = path.join(dir, file);
+      const label = path.relative(root, fullPath) || file;
+      try {
+        const text = await fs.readFile(fullPath, 'utf8');
+        for (const doc of parseYamlDocuments(text)) {
+          if (doc?.kind?.includes('WorkflowTemplate')) out.push(withHints({ ...normalizeTemplate(doc, 'local', 'local'), file: label }));
+        }
+      } catch (error) {
+        out.push({ name: file, source: 'local', metadataSource: 'error', parameters: [], warnings: [error.message] });
       }
-    } catch (error) {
-      out.push({ name: file, source: 'local', metadataSource: 'error', parameters: [], warnings: [error.message] });
     }
   }
   return out;
@@ -43,20 +47,45 @@ function localForRemote(localMap, name) {
   return localMap.get(name) || localMap.get(NAME_ALIASES.get(name)) || localMap.get([...NAME_ALIASES.entries()].find(([, v]) => v === name)?.[0]);
 }
 
+function argoApiUrl(url) {
+  try {
+    const u = new URL(url);
+    if (u.pathname.replace(/\/$/, '') === '/cluster-workflow-templates') {
+      u.pathname = '/api/v1/cluster-workflow-templates';
+      u.search = '';
+      return u.toString();
+    }
+  } catch {}
+  return '';
+}
+
+async function fetchTemplates(url, signal) {
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error(`Remote templates returned HTTP ${res.status}`);
+  const text = await res.text();
+  const type = res.headers.get('content-type') || '';
+  if (type.includes('json') || /^[\s\[]*[{\[]/.test(text)) return remoteFromJson(JSON.parse(text));
+  try {
+    const yamlTemplates = parseYamlDocuments(text).map((d) => withHints(normalizeTemplate(d, 'remote', 'remote'))).filter((t) => t.name);
+    if (yamlTemplates.length) return yamlTemplates;
+  } catch {}
+  return remoteFromHtml(text);
+}
+
 async function remoteTemplates(url, timeoutMs = 5000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) throw new Error(`Remote templates returned HTTP ${res.status}`);
-    const text = await res.text();
-    const type = res.headers.get('content-type') || '';
-    if (type.includes('json') || /^[\s\[]*[{\[]/.test(text)) return remoteFromJson(JSON.parse(text));
-    try {
-      const yamlTemplates = parseYamlDocuments(text).map((d) => withHints(normalizeTemplate(d, 'remote', 'remote'))).filter((t) => t.name);
-      if (yamlTemplates.length) return yamlTemplates;
-    } catch {}
-    return remoteFromHtml(text);
+    let lastError;
+    for (const candidate of [...new Set([argoApiUrl(url), url].filter(Boolean))]) {
+      try {
+        const templates = await fetchTemplates(candidate, controller.signal);
+        if (templates.length || candidate === url) return templates;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError || new Error('Remote templates unavailable');
   } finally {
     clearTimeout(timer);
   }

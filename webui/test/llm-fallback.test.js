@@ -21,3 +21,12 @@ test('prompt falls back locally when LLM endpoint fails', async () => {
 test('non-json MLflow context does not crash prompt context', () => {
   assert.equal(buildPromptContext({ mlflow: 'Metrics and runs will appear here.' }).mlflow, 'Metrics and runs will appear here.');
 });
+
+test('local fallback explains plot anomalies', async () => {
+  const out = await answerPrompt({ llm: { disabled: true }, namespace: 'argo' }, {
+    prompt: 'explain plot anomalies',
+    context: { plot: { metric: 'cpu', label: 'CPU usage', unit: '%', hours: 1, stepMinutes: 10, query: 'q', points: [{ ts: 20, value: 9, anomaly: true }] } }
+  });
+  assert.equal(out.type, 'local_answer');
+  assert.match(out.message, /1970-01-01T00:00:20.000Z/);
+});
