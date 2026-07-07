@@ -305,3 +305,7 @@ TSWLatexianTemp*
 #*Notes.bib
 /graphify-out
 /.graphifyignore
+/argo-workflow/webui/node_modules
+/argo-workflow/.pi
+/argo-workflow/.pi-subagents/artifacts
+/argo-workflow/webui/package-lock.json
