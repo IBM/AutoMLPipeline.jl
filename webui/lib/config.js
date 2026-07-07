@@ -21,6 +21,20 @@ function loadPiExternal(modelsFile, env) {
   }
 }
 
+function maskSecret(value) {
+  return value ? '*'.repeat(Math.min(String(value).length, 24)) : '';
+}
+
+export function llmFromRequest(current, body = {}) {
+  return {
+    ...current,
+    apiKey: body.apiKey ? String(body.apiKey) : current.apiKey,
+    baseUrl: body.baseUrl ? String(body.baseUrl) : current.baseUrl,
+    model: body.model ? String(body.model) : current.model,
+    source: 'ui'
+  };
+}
+
 export function buildConfig(env = process.env) {
   const pi = loadPiExternal(env.PI_MODELS_FILE, env);
   const sessionToken = env.ARGO_WEBUI_TOKEN || crypto.randomBytes(24).toString('hex');
@@ -67,6 +81,6 @@ export function publicConfig(config) {
     prometheusMetricsUrl: config.prometheusMetricsUrl,
     prometheusApiUrl: config.prometheusApiUrl,
     mcpUrl: '/mcp',
-    llm: { baseUrl: config.llm.baseUrl, model: config.llm.model, source: config.llm.source, hasKey: Boolean(config.llm.apiKey) }
+    llm: { baseUrl: config.llm.baseUrl, model: config.llm.model, source: config.llm.source, hasKey: Boolean(config.llm.apiKey), apiKeyMasked: maskSecret(config.llm.apiKey) }
   };
 }

@@ -1,7 +1,7 @@
 import { markdownToHtml, promptResultMarkdown } from './markdown.js';
 
 const $ = (id) => document.getElementById(id);
-const state = { config: null, templates: [], current: null, metrics: [], quickDetectors: [], workflowName: '', plot: null, cpuStream: null, llmKeyMask: '' };
+const state = { config: null, templates: [], current: null, metrics: [], quickDetectors: [], workflowName: '', plot: null, cpuStream: null };
 
 async function json(url, options = {}) {
   const res = await fetch(url, options);
@@ -14,15 +14,14 @@ function endpointLinks(config) {
   const links = [
     ['Argo', config.argoServer], ['Grafana', config.grafanaUrl], ['Prometheus metrics', config.prometheusMetricsUrl], ['MCP', config.mcpUrl]
   ];
-  $('endpointLinks').innerHTML = links.map(([name, href]) => `<a href="${href}" target="_blank" rel="noreferrer">${name}</a>`).join('');
+  $('endpointLinks').innerHTML = `${links.map(([name, href]) => `<a href="${href}" target="_blank" rel="noreferrer">${name}</a>`).join('')}<a href="#llmSettings">LLM credentials</a>`;
 }
 
-function renderLlmConfig(llm) {
-  state.llmKeyMask = llm.apiKeyMasked || '';
-  $('llmApiKey').value = state.llmKeyMask;
-  $('llmBaseUrl').value = llm.baseUrl || '';
-  $('llmModel').value = llm.model || '';
-
+function renderLlm(config) {
+  $('llmApiKey').value = config.llm.apiKey || '';
+  $('llmBaseUrl').value = config.llm.baseUrl || '';
+  $('llmModel').value = config.llm.model || '';
+  $('llmStatus').textContent = config.llm.hasKey ? config.llm.model : 'parser fallback';
 }
 
 function renderTemplates() {
@@ -35,7 +34,6 @@ function renderTemplates() {
 function renderMetricOptions() {
   const metricOptions = state.metrics.map((m) => `<option value="${m.id}">${m.label} (${m.unit})</option>`).join('');
   $('metricSelect').innerHTML = metricOptions;
-  $('cpuStreamMetric').innerHTML = metricOptions;
   $('cpuStreamDetector').innerHTML = state.quickDetectors.map((d) => `<option value="${d.id}">${d.label}</option>`).join('');
   $('cpuStreamDetector').value = 'caret:pca';
 }
@@ -49,7 +47,7 @@ function renderParams() {
 async function boot() {
   state.config = await json('/api/config');
   endpointLinks(state.config);
-  renderLlmConfig(state.config.llm);
+  renderLlm(state.config);
   try {
     const data = await json('/api/templates');
     state.templates = data.templates || [];
@@ -73,24 +71,6 @@ async function boot() {
 }
 
 $('templateSelect').addEventListener('change', (event) => { state.current = state.templates[Number(event.target.value)]; renderParams(); });
-$('llmApiKey').addEventListener('focus', () => {
-  if ($('llmApiKey').value === state.llmKeyMask) $('llmApiKey').value = '';
-});
-$('llmCredentials').addEventListener('submit', async (event) => {
-  event.preventDefault();
-  $('llmCredentialStatus').textContent = 'saving';
-  const apiKey = $('llmApiKey').value;
-  const body = { baseUrl: $('llmBaseUrl').value, model: $('llmModel').value };
-  if (apiKey && apiKey !== state.llmKeyMask) body.apiKey = apiKey;
-  try {
-    const data = await json('/api/llm', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-    state.config.llm = data.llm;
-    renderLlmConfig(data.llm);
-  } catch (err) {
-    $('llmCredentialStatus').textContent = 'error';
-    $('llmCredentialStatus').className = 'badge bad';
-  }
-});
 $('deployBtn').addEventListener('click', async () => {
   $('deployBtn').disabled = true;
   const parameters = Object.fromEntries([...document.querySelectorAll('[data-param]')].map((el) => [el.dataset.param, el.value]));
@@ -164,36 +144,52 @@ function plotSummary(data) {
   return `${data.label}: ${data.points.length} points, ${data.hours}h window, ${data.stepMinutes}m step, ${data.anomalyMode || 'quick'} mode${detector}, votepercent ${data.votepercent}, ${data.anomalyCount || 0} anomalies.\nx-range: ${xr}\ny-range: ${yr}\n${(data.warnings || []).join('\n')}\nQuery: ${data.query}`.trim();
 }
 
-$('plotMetric').addEventListener('click', async () => {
+async function plotMetricChart() {
   $('metricStatus').textContent = 'querying';
+  const params = new URLSearchParams({ metric: $('metricSelect').value, hours: $('metricHours').value || '24', stepMinutes: $('metricStepMinutes').value || '10', votepercent: $('metricVotepercent').value || '0.5', anomalyMode: 'full' });
+  const data = await json(`/api/prometheus/range?${params}`);
+  state.plot = data;
+  drawMetric(data);
+  $('metricSummary').textContent = plotSummary(data);
+  $('metricStatus').textContent = 'ok';
+}
+
+async function plotCpuStreamChart() {
+  $('cpuStreamStatus').textContent = 'querying';
+  const params = new URLSearchParams({ metric: $('metricSelect').value || 'cpu', hours: $('metricHours').value || '24', stepMinutes: $('metricStepMinutes').value || '10', anomalyMode: 'quick', detector: $('cpuStreamDetector').value });
+  const data = await json(`/api/prometheus/range?${params}`);
+  state.cpuStream = data;
+  drawMetric(data, 'cpuStreamChart');
+  $('cpuStreamSummary').textContent = plotSummary(data);
+  $('cpuStreamStatus').textContent = 'ok';
+}
+
+$('plotMetric').addEventListener('click', async () => {
   try {
-    const params = new URLSearchParams({ metric: $('metricSelect').value, hours: $('metricHours').value || '24', stepMinutes: $('metricStepMinutes').value || '10', votepercent: $('metricVotepercent').value || '0.5', anomalyMode: $('metricAnomalyMode').value || 'quick' });
-    const data = await json(`/api/prometheus/range?${params}`);
-    state.plot = data;
-    drawMetric(data);
-    $('metricSummary').textContent = plotSummary(data);
-    $('metricStatus').textContent = 'ok';
+    await Promise.all([plotMetricChart(), plotCpuStreamChart()]);
   } catch (err) {
     $('metricStatus').textContent = 'error';
     $('metricStatus').className = 'badge bad';
     $('metricSummary').textContent = err.message;
-  }
-});
-$('plotCpuStream').addEventListener('click', async () => {
-  $('cpuStreamStatus').textContent = 'querying';
-  try {
-    const params = new URLSearchParams({ metric: $('cpuStreamMetric').value || 'cpu', hours: '24', stepMinutes: '5', anomalyMode: 'quick', detector: $('cpuStreamDetector').value });
-    const data = await json(`/api/prometheus/range?${params}`);
-    state.cpuStream = data;
-    drawMetric(data, 'cpuStreamChart');
-    $('cpuStreamSummary').textContent = plotSummary(data);
-    $('cpuStreamStatus').textContent = 'ok';
-  } catch (err) {
     $('cpuStreamStatus').textContent = 'error';
     $('cpuStreamStatus').className = 'badge bad';
     $('cpuStreamSummary').textContent = err.message;
   }
 });
+$('saveLlm').addEventListener('click', async () => {
+  $('llmSaveStatus').textContent = 'saving';
+  try {
+    const data = await json('/api/llm', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ apiKey: $('llmApiKey').value, baseUrl: $('llmBaseUrl').value, model: $('llmModel').value }) });
+    state.config.llm = data.llm;
+    renderLlm(state.config);
+    $('llmSaveStatus').textContent = 'saved';
+    $('llmSaveStatus').className = 'badge';
+  } catch (err) {
+    $('llmSaveStatus').textContent = 'error';
+    $('llmSaveStatus').className = 'badge bad';
+  }
+});
+
 $('askBtn').addEventListener('click', async () => {
   $('answer').classList.add('markdown');
   $('answer').textContent = 'Thinking...';

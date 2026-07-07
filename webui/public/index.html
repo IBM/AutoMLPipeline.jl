@@ -12,6 +12,15 @@
       <p class="eyebrow">Argo AutoML</p>
       <h1>Command Deck</h1>
       <p>Deploy ClusterWorkflowTemplates, inspect logs, plot Prometheus metrics, and hand scoped MCP tools to an LLM agent.</p>
+      <form class="credentials" id="llmCredentials">
+        <div class="panel-head"><h2>LLM credentials</h2></div>
+        <div class="credential-fields">
+          <label class="field"><span>API key</span><input id="llmApiKey" type="password" autocomplete="off" placeholder="optional override" /></label>
+          <label class="field"><span>URL endpoint</span><input id="llmBaseUrl" type="url" autocomplete="off" /></label>
+          <label class="field"><span>Model</span><input id="llmModel" autocomplete="off" /></label>
+          <button type="submit">Use credentials</button>
+        </div>
+      </form>
       <div class="links" id="endpointLinks"></div>
       <p class="session-note">Local session armed automatically after page load.</p>
     </section>
@@ -59,7 +68,7 @@
       </article>
 
       <article class="panel prompt">
-        <div class="panel-head"><h2>Agent prompt</h2><span id="llmStatus" class="badge muted">checking</span></div>
+        <div class="panel-head"><h2>Agent prompt</h2></div>
         <textarea id="prompt" placeholder="Ask the agent to inspect templates, logs, plots, or anomalies..."></textarea>
         <button id="askBtn">Ask agent</button>
         <div id="answer" class="console markdown">Agent answers and confirmation requests appear here.</div>

@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildConfig, publicConfig } from './lib/config.js';
+import { buildConfig, llmFromRequest, publicConfig } from './lib/config.js';
 import { redact } from './lib/redact.js';
 import { listTemplates } from './lib/templates.js';
 import { submitTemplateWorkflow, submitYamlWorkflow, listWorkflows, getWorkflow, getWorkflowLogs } from './lib/argo.js';
@@ -50,6 +50,10 @@ app.get('/api/config', (_req, res) => {
   res.json(publicConfig(config));
 });
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+app.post('/api/llm', requireMutationAuth, (req, res) => {
+  config.llm = llmFromRequest(config.llm, req.body);
+  res.json({ status: 'ok', llm: publicConfig(config).llm });
+});
 
 app.get('/api/templates', async (_req, res, next) => {
   try { res.json({ status: 'ok', ...(await listTemplates(config)) }); } catch (err) { next(err); }

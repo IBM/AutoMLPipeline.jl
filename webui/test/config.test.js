@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildConfig, publicConfig } from '../lib/config.js';
+import { buildConfig, llmFromRequest, publicConfig } from '../lib/config.js';
 
 function modelsFile(apiKey = 'ete-key') {
   const file = path.join(os.tmpdir(), `models-${Date.now()}-${Math.random()}.json`);
@@ -31,7 +31,19 @@ test('public config reports source without key', () => {
   const pub = publicConfig(buildConfig({ PI_MODELS_FILE: modelsFile(), OPENAI_API_KEY: 'sk-stale' }));
   assert.equal(pub.llm.source, 'pi-external');
   assert.equal(pub.llm.hasKey, true);
+  assert.equal(pub.llm.apiKeyMasked, '*******');
   assert.equal(JSON.stringify(pub).includes('ete-key'), false);
+});
+
+// ponytail: UI override stays in memory; persistence can wait until users need shared saved profiles.
+test('updates LLM credentials from UI without replacing masked key', () => {
+  const current = { apiKey: 'ete-key', baseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5', source: 'pi-external' };
+  assert.deepEqual(llmFromRequest(current, { baseUrl: 'https://other.example/v1', model: 'x' }), {
+    apiKey: 'ete-key',
+    baseUrl: 'https://other.example/v1',
+    model: 'x',
+    source: 'ui'
+  });
 });
 
 test('expands Pi external env var API key references', () => {

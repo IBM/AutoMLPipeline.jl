@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rust Argo AutoML Command Deck</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="hero panel">
+      <p class="eyebrow">Argo AutoML</p>
+      <h1>Command Deck</h1>
+      <p>Rust-native Prometheus plotting, anomaly detection, and Argo workflow submission.</p>
+      <nav class="links" id="endpointLinks"></nav>
+      <p class="session-note">Local session armed automatically after page load. LLM API key stays masked unless you replace it.</p>
+    </section>
+
+    <section class="grid">
+      <article id="llmSettings" class="panel llm-settings">
+        <div class="panel-head"><h2>LLM credentials</h2><span id="llmSaveStatus" class="badge muted">defaults</span></div>
+        <div class="inline-fields">
+          <label class="field"><span>API key</span><input id="llmApiKey" type="password" autocomplete="off" placeholder="masked default" /></label>
+          <label class="field"><span>Endpoint URL</span><input id="llmBaseUrl" type="url" /></label>
+          <label class="field"><span>Model</span><input id="llmModel" /></label>
+          <button id="saveLlm">Save LLM credentials</button>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h2>Templates</h2><span id="templateStatus" class="badge">loading</span></div>
+        <select id="templateSelect"></select>
+        <div id="params" class="params"></div>
+        <button id="deployBtn" disabled>Deploy workflow</button>
+      </article>
+
+      <article class="panel logs">
+        <div class="panel-head"><h2>Workflow logs</h2><span id="workflowStatus" class="badge muted">idle</span></div>
+        <pre id="logs" class="console">Deployment output will appear here.</pre>
+      </article>
+
+      <article class="panel plot-controls">
+        <div class="panel-head"><h2>Plot controls</h2></div>
+        <div class="plot-control-grid">
+          <label class="field"><span>Metric</span><select id="metricSelect"></select></label>
+          <label class="field"><span>Quick detector</span><select id="cpuStreamDetector"></select></label>
+          <label class="field"><span>Window hours</span><input id="metricHours" type="number" min="1" step="1" value="24" /></label>
+          <label class="field"><span>Step minutes</span><input id="metricStepMinutes" type="number" min="1" step="1" value="10" /></label>
+          <label class="field"><span>Vote percent</span><input id="metricVotepercent" type="number" min="0.1" max="1" step="0.1" value="0.5" /></label>
+          <button id="plotMetric">Plot</button>
+        </div>
+      </article>
+
+      <article class="panel metrics">
+        <div class="panel-head"><h2>Prometheus plot</h2><span id="metricStatus" class="badge muted">idle</span></div>
+        <canvas id="metricChart" width="900" height="280" aria-label="Prometheus metric plot"></canvas>
+        <pre id="metricSummary" class="console small metric-summary">Choose network, CPU, memory, or latency.</pre>
+      </article>
+
+      <article class="panel cpu-stream">
+        <div class="panel-head"><h2>Metric anomaly stream</h2><span id="cpuStreamStatus" class="badge muted">idle</span></div>
+        <canvas id="cpuStreamChart" width="900" height="280" aria-label="Metric anomaly stream"></canvas>
+        <pre id="cpuStreamSummary" class="console small metric-summary">24h metric stream, 5m step, quick detector choices.</pre>
+      </article>
+
+      <article class="panel prompt">
+        <div class="panel-head"><h2>Agent prompt</h2><span id="llmStatus" class="badge muted">checking</span></div>
+        <textarea id="prompt" placeholder="Ask the agent to inspect templates, logs, plots, or anomalies..."></textarea>
+        <button id="askBtn">Ask agent</button>
+        <div id="answer" class="console markdown">Agent answers and confirmation requests appear here.</div>
+      </article>
+    </section>
+  </main>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

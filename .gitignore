@@ -314,3 +314,7 @@ TSWLatexianTemp*
 /webui/node_modules
 /webui/package-lock.json
 /webui/.pi
+/webui/.agents/skills/mlflow-agent
+/webui/.pi-subagents/artifacts
+/webui-rust/.pi
+/webui-rust/Cargo.lock
