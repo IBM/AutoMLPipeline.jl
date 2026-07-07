@@ -117,12 +117,8 @@ function drawMetric(data) {
     const x = xOf(points.indexOf(p)), y = yOf(p.value);
     ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
   });
-  const start = new Date((data.xRange?.start ?? points[0].ts) * 1000).toLocaleString();
-  const end = new Date((data.xRange?.end ?? points.at(-1).ts) * 1000).toLocaleString();
   ctx.fillStyle = '#b9d7ff';
-  ctx.fillText(`${data.label} (${data.unit})`, left + 8, 20);
-  ctx.fillText(`x ${start} → ${end}`, left + 8, h - 22);
-  ctx.fillText(`y ${min.toFixed(2)} → ${max.toFixed(2)}  anomalies ${data.anomalyCount || 0}`, left + 8, h - 8);
+  ctx.fillText(`${data.label} (${data.unit}) · anomalies ${data.anomalyCount || 0}`, left + 8, 20);
 }
 
 $('plotMetric').addEventListener('click', async () => {
