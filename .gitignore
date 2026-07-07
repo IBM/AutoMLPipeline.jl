@@ -313,3 +313,4 @@ TSWLatexianTemp*
 /.pi-subagents/artifacts
 /webui/node_modules
 /webui/package-lock.json
+/webui/.pi
