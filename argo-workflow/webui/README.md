@@ -30,6 +30,8 @@ The server binds to `127.0.0.1:8090` by default. Browser UI calls receive a same
 
 LLM defaults are loaded from Pi's external provider in `~/.pi/agent/models.json`, preferring `azure/gpt-5.5`. A stale global `OPENAI_API_KEY` does not override that by itself. To intentionally use another OpenAI-compatible endpoint, set `OPENAI_BASE_URL` and optionally `OPENAI_API_KEY`/`OPENAI_MODEL`, or set `ARGO_WEBUI_USE_OPENAI_ENV=1`.
 
+The prompt panel gives the LLM read-only tool access to Argo workflows/templates/logs and MLflow experiments/runs/metrics/artifacts by default. These read-only tool calls do not ask for confirmation. Deploy, submit, retry, delete, suspend, resume, and other mutating Argo actions remain confirmation/permission gated.
+
 ## Prometheus plots
 
 The dashboard exposes `/api/prometheus/metrics` and `/api/prometheus/range?metric=cpu|memory|network|latency`. Range queries cover the last 24 hours with a 10 minute step. `PROMETHEUS_API_URL` must point at the Prometheus HTTP API root, not a scrape-only `/metrics` ingress.
@@ -82,7 +84,7 @@ Additional Argo v3.4.11-inspired tools:
 
 ## MLflow MCP query tools
 
-MLflow tools are read-only and follow MLflow v2.21.3 Tracking REST API endpoints:
+MLflow tools are read-only, available to both MCP clients and the prompt-panel LLM, and follow MLflow v2.21.3 Tracking REST API endpoints:
 
 - experiments: `/mlflow/experiments/search`, `/mlflow/experiments/get`, `/mlflow/experiments/get-by-name`
 - runs: `/mlflow/runs/search`, `/mlflow/runs/get`
