@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { metricOptions, prometheusBase, queryMetricRange } from '../lib/prometheus.js';
+import { metricOptions, prometheusBase, queryMetricRange, quickDetectorOptions } from '../lib/prometheus.js';
 
-test('publishes four metric choices', () => {
+test('publishes four metric choices and quick detectors', () => {
   const options = metricOptions();
   assert.deepEqual(options.map((m) => m.id), ['cpu', 'memory', 'network', 'latency']);
   assert.equal(options.find((m) => m.id === 'latency').label, 'Network probe p95 latency');
+  assert.equal(quickDetectorOptions().length, 4);
+  assert.equal(quickDetectorOptions().some((d) => d.id === 'sk:OneClassSVM'), false);
 });
 
 test('uses explicit Prometheus API URL before scrape metrics URL', () => {
@@ -48,13 +50,14 @@ test('accepts custom Prometheus window, step, anomaly votepercent, and mode', as
     return { ok: true, json: async () => ({ status: 'success', data: { result: [] } }) };
   };
   try {
-    const out = await queryMetricRange({ prometheusApiUrl: 'http://prom.test' }, { metric: 'cpu', hours: 6, stepMinutes: 2, votepercent: 0.7, anomalyMode: 'full' });
+    const out = await queryMetricRange({ prometheusApiUrl: 'http://prom.test' }, { metric: 'cpu', hours: 6, stepMinutes: 2, votepercent: 0.7, anomalyMode: 'full', detector: 'sk:LocalOutlierFactor' });
     assert.equal(seen.searchParams.get('step'), '120');
     assert.equal(Number(seen.searchParams.get('end')) - Number(seen.searchParams.get('start')), 21600);
     assert.equal(out.hours, 6);
     assert.equal(out.stepMinutes, 2);
     assert.equal(out.votepercent, 0.7);
     assert.equal(out.anomalyMode, 'full');
+    assert.equal(out.detector, 'sk:LocalOutlierFactor');
   } finally {
     global.fetch = oldFetch;
   }

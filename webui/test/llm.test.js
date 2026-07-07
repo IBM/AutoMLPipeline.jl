@@ -8,9 +8,11 @@ test('redacts LLM context', () => {
   assert.doesNotMatch(ctx.logs, /abc123|secret/);
 });
 
-test('prompt context includes compact plot anomalies with ISO times', () => {
-  const ctx = buildPromptContext({ plot: { metric: 'cpu', label: 'CPU usage', unit: '%', hours: 1, stepMinutes: 10, query: 'q', warnings: [], points: [{ ts: 10, value: 1 }, { ts: 20, value: 9, anomaly: true }] } });
+test('prompt context includes compact plot and stream anomalies with ISO times', () => {
+  const plot = { metric: 'cpu', label: 'CPU usage', unit: '%', hours: 1, stepMinutes: 10, query: 'q', warnings: [], points: [{ ts: 10, value: 1 }, { ts: 20, value: 9, anomaly: true }] };
+  const ctx = buildPromptContext({ plot, streamPlot: { ...plot, metric: 'memory', label: 'Memory usage' } });
   assert.equal(ctx.plot.anomalyCount, 1);
+  assert.equal(ctx.streamPlot.anomalyCount, 1);
   assert.deepEqual(ctx.plot.anomalies, [{ time: '1970-01-01T00:00:20.000Z', value: 9 }]);
 });
 

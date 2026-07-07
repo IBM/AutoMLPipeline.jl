@@ -6,7 +6,7 @@ import { redact } from './lib/redact.js';
 import { listTemplates } from './lib/templates.js';
 import { submitTemplateWorkflow, submitYamlWorkflow, listWorkflows, getWorkflow, getWorkflowLogs } from './lib/argo.js';
 import { queryMlflowResults } from './lib/mlflow.js';
-import { metricOptions, queryMetricRange } from './lib/prometheus.js';
+import { metricOptions, quickDetectorOptions, queryMetricRange } from './lib/prometheus.js';
 import { answerPrompt } from './lib/llm.js';
 import { handleMcpRequest } from './lib/mcp.js';
 
@@ -78,7 +78,7 @@ app.get('/api/mlflow', async (req, res, next) => {
   try { res.json(await queryMlflowResults(config, req.query)); } catch (err) { next(err); }
 });
 
-app.get('/api/prometheus/metrics', (_req, res) => res.json({ status: 'ok', metrics: metricOptions() }));
+app.get('/api/prometheus/metrics', (_req, res) => res.json({ status: 'ok', metrics: metricOptions(), quickDetectors: quickDetectorOptions() }));
 
 app.get('/api/prometheus/range', async (req, res, next) => {
   try { res.json({ status: 'ok', ...(await queryMetricRange(config, req.query)) }); } catch (err) { next(err); }

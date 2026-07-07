@@ -13,9 +13,22 @@ if length(vals) < 25
 end
 votepercent = parse(Float64, ARGS[1])
 mode = ARGS[2]
+detector = ARGS[3]
 X = DataFrame(auto = vals)
 
-if mode == "full"
+function detector_result(name)
+  if startswith(name, "sk:")
+    return fit_transform!(SKAnomalyDetector(name[4:end]), X)
+  end
+  if startswith(name, "caret:")
+    return fit_transform!(CaretAnomalyDetector(name[7:end]), X)
+  end
+  error("Unsupported detector: " * name)
+end
+
+if detector != ""
+  flags = Bool.(detector_result(detector))
+elseif mode == "full"
   out = fit_transform!(AutoAnomalyDetection(Dict(:votepercent => votepercent)), X)
   flags = Bool.(out[!, names(out)[end]])
 else
@@ -40,9 +53,20 @@ function detectorMode(value) {
   return value === 'full' ? 'full' : 'quick';
 }
 
-function runJulia(values, { timeoutMs = 120000, votepercent = 0.5, mode = 'quick' } = {}) {
+export const QUICK_DETECTORS = [
+  { id: 'sk:LocalOutlierFactor', label: 'LocalOutlierFactor' },
+  { id: 'sk:EllipticEnvelope', label: 'EllipticEnvelope' },
+  { id: 'caret:pca', label: 'PCA' },
+  { id: 'caret:mcd', label: 'MCD' }
+];
+
+function detectorId(value) {
+  return QUICK_DETECTORS.some((d) => d.id === value) ? value : '';
+}
+
+function runJulia(values, { timeoutMs = 120000, votepercent = 0.5, mode = 'quick', detector = '' } = {}) {
   return new Promise((resolve) => {
-    const child = spawn('julia', [`--project=${path.join(ROOT, 'AutoAD')}`, '-e', JULIA_SCRIPT, String(boundedVotepercent(votepercent)), detectorMode(mode)], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn('julia', [`--project=${path.join(ROOT, 'AutoAD')}`, '-e', JULIA_SCRIPT, String(boundedVotepercent(votepercent)), detectorMode(mode), detectorId(detector)], { stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '', stderr = '';
     const timer = setTimeout(() => child.kill('SIGTERM'), timeoutMs);
     child.stdout.on('data', (d) => { stdout += d; });
@@ -59,11 +83,12 @@ function runJulia(values, { timeoutMs = 120000, votepercent = 0.5, mode = 'quick
   });
 }
 
-export async function detectAnomalies(points, { runner = runJulia, votepercent = 0.5, mode = 'quick' } = {}) {
+export async function detectAnomalies(points, { runner = runJulia, votepercent = 0.5, mode = 'quick', detector = '' } = {}) {
   const selectedMode = detectorMode(mode);
-  if (points.length < 25) return { indexes: [], mode: selectedMode, warnings: ['Need at least 25 points for AutoAD anomaly detection.'] };
-  const result = await runner(points.map((p) => p.value), { votepercent: boundedVotepercent(votepercent), mode: selectedMode });
-  if (result.code !== 0) return { indexes: [], mode: selectedMode, warnings: [`AutoAD unavailable: ${result.stderr || 'julia failed'}`] };
+  const selectedDetector = detectorId(detector);
+  if (points.length < 25) return { indexes: [], mode: selectedMode, detector: selectedDetector, warnings: ['Need at least 25 points for AutoAD anomaly detection.'] };
+  const result = await runner(points.map((p) => p.value), { votepercent: boundedVotepercent(votepercent), mode: selectedMode, detector: selectedDetector });
+  if (result.code !== 0) return { indexes: [], mode: selectedMode, detector: selectedDetector, warnings: [`AutoAD unavailable: ${result.stderr || 'julia failed'}`] };
   const indexes = String(result.stdout || '').split(',').map((n) => Number(n) - 1).filter((n) => Number.isInteger(n) && n >= 0 && n < points.length);
-  return { indexes, mode: selectedMode, warnings: [] };
+  return { indexes, mode: selectedMode, detector: selectedDetector, warnings: [] };
 }

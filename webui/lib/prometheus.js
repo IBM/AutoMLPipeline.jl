@@ -1,5 +1,5 @@
 import { redact } from './redact.js';
-import { detectAnomalies } from './anomaly.js';
+import { detectAnomalies, QUICK_DETECTORS } from './anomaly.js';
 
 export const METRICS = {
   cpu: {
@@ -35,13 +35,17 @@ export function metricOptions() {
   return Object.entries(METRICS).map(([id, m]) => ({ id, label: m.label, unit: m.unit }));
 }
 
+export function quickDetectorOptions() {
+  return QUICK_DETECTORS;
+}
+
 function boundedNumber(value, fallback, min, max) {
   const n = Number(value ?? fallback);
   if (!Number.isFinite(n)) return fallback;
   return Math.min(max, Math.max(min, n));
 }
 
-export async function queryMetricRange(config, { metric = 'cpu', hours = 24, stepMinutes = 10, votepercent = 0.5, anomalyMode = 'quick' } = {}) {
+export async function queryMetricRange(config, { metric = 'cpu', hours = 24, stepMinutes = 10, votepercent = 0.5, anomalyMode = 'quick', detector = '' } = {}) {
   const selected = METRICS[metric];
   if (!selected) throw new Error(`Unknown metric: ${metric}`);
 
@@ -64,7 +68,7 @@ export async function queryMetricRange(config, { metric = 'cpu', hours = 24, ste
   const series = json.data?.result?.[0]?.values || [];
   const points = series.map(([ts, value]) => ({ ts: Number(ts), value: Number(value) })).filter((p) => Number.isFinite(p.value));
   const values = points.map((p) => p.value);
-  const anomalies = await detectAnomalies(points, { votepercent: anomalyVotepercent, mode: detectorMode });
+  const anomalies = await detectAnomalies(points, { votepercent: anomalyVotepercent, mode: detectorMode, detector });
   for (const index of anomalies.indexes) points[index].anomaly = true;
   return {
     metric,
@@ -81,6 +85,7 @@ export async function queryMetricRange(config, { metric = 'cpu', hours = 24, ste
     anomalyCount: anomalies.indexes.length,
     votepercent: anomalyVotepercent,
     anomalyMode: anomalies.mode,
+    detector: anomalies.detector,
     warnings: anomalies.warnings,
     points
   };

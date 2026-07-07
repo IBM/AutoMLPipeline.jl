@@ -1,7 +1,7 @@
 import { markdownToHtml, promptResultMarkdown } from './markdown.js';
 
 const $ = (id) => document.getElementById(id);
-const state = { config: null, templates: [], current: null, metrics: [], workflowName: '', plot: null };
+const state = { config: null, templates: [], current: null, metrics: [], quickDetectors: [], workflowName: '', plot: null, cpuStream: null };
 
 async function json(url, options = {}) {
   const res = await fetch(url, options);
@@ -25,7 +25,11 @@ function renderTemplates() {
 }
 
 function renderMetricOptions() {
-  $('metricSelect').innerHTML = state.metrics.map((m) => `<option value="${m.id}">${m.label} (${m.unit})</option>`).join('');
+  const metricOptions = state.metrics.map((m) => `<option value="${m.id}">${m.label} (${m.unit})</option>`).join('');
+  $('metricSelect').innerHTML = metricOptions;
+  $('cpuStreamMetric').innerHTML = metricOptions;
+  $('cpuStreamDetector').innerHTML = state.quickDetectors.map((d) => `<option value="${d.id}">${d.label}</option>`).join('');
+  $('cpuStreamDetector').value = 'caret:pca';
 }
 
 function renderParams() {
@@ -51,6 +55,7 @@ async function boot() {
   try {
     const data = await json('/api/prometheus/metrics');
     state.metrics = data.metrics || [];
+    state.quickDetectors = data.quickDetectors || [];
     renderMetricOptions();
   } catch (err) {
     $('metricStatus').textContent = 'error';
@@ -75,8 +80,13 @@ $('deployBtn').addEventListener('click', async () => {
     $('logs').textContent = err.message;
   } finally { $('deployBtn').disabled = false; }
 });
-function drawMetric(data) {
-  const canvas = $('metricChart');
+function compactNumber(value) {
+  const text = value.toFixed(2);
+  return text.length > 8 ? value.toExponential(2) : text;
+}
+
+function drawMetric(data, canvasId = 'metricChart') {
+  const canvas = $(canvasId);
   const ctx = canvas.getContext('2d');
   const w = canvas.width, h = canvas.height;
   const left = 56, top = 30, right = 12, bottom = 58;
@@ -104,7 +114,7 @@ function drawMetric(data) {
     ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, top + plotH); ctx.moveTo(left, y); ctx.lineTo(left + plotW, y); ctx.stroke();
     ctx.fillStyle = '#93a9c7';
     ctx.fillText(new Date(points[idx].ts * 1000).toLocaleTimeString(), Math.min(x, w - 80), top + plotH + 18);
-    ctx.fillText(yv.toFixed(2), 6, y + 4);
+    ctx.fillText(compactNumber(yv), 6, y + 4);
   }
   ctx.strokeStyle = '#7cf7d4'; ctx.lineWidth = 2; ctx.beginPath();
   points.forEach((p, i) => {
@@ -121,6 +131,13 @@ function drawMetric(data) {
   ctx.fillText(`${data.label} (${data.unit}) · anomalies ${data.anomalyCount || 0}`, left + 8, 20);
 }
 
+function plotSummary(data) {
+  const xr = data.xRange ? `${new Date(data.xRange.start * 1000).toLocaleString()} → ${new Date(data.xRange.end * 1000).toLocaleString()}` : 'none';
+  const yr = data.yRange ? `${data.yRange.min.toFixed(2)} → ${data.yRange.max.toFixed(2)} ${data.unit}` : 'none';
+  const detector = data.detector ? `, detector ${data.detector}` : '';
+  return `${data.label}: ${data.points.length} points, ${data.hours}h window, ${data.stepMinutes}m step, ${data.anomalyMode || 'quick'} mode${detector}, votepercent ${data.votepercent}, ${data.anomalyCount || 0} anomalies.\nx-range: ${xr}\ny-range: ${yr}\n${(data.warnings || []).join('\n')}\nQuery: ${data.query}`.trim();
+}
+
 $('plotMetric').addEventListener('click', async () => {
   $('metricStatus').textContent = 'querying';
   try {
@@ -128,9 +145,7 @@ $('plotMetric').addEventListener('click', async () => {
     const data = await json(`/api/prometheus/range?${params}`);
     state.plot = data;
     drawMetric(data);
-    const xr = data.xRange ? `${new Date(data.xRange.start * 1000).toLocaleString()} → ${new Date(data.xRange.end * 1000).toLocaleString()}` : 'none';
-    const yr = data.yRange ? `${data.yRange.min.toFixed(2)} → ${data.yRange.max.toFixed(2)} ${data.unit}` : 'none';
-    $('metricSummary').textContent = `${data.label}: ${data.points.length} points, ${data.hours}h window, ${data.stepMinutes}m step, ${data.anomalyMode || 'quick'} mode, votepercent ${data.votepercent}, ${data.anomalyCount || 0} anomalies.\nx-range: ${xr}\ny-range: ${yr}\n${(data.warnings || []).join('\n')}\nQuery: ${data.query}`.trim();
+    $('metricSummary').textContent = plotSummary(data);
     $('metricStatus').textContent = 'ok';
   } catch (err) {
     $('metricStatus').textContent = 'error';
@@ -138,12 +153,27 @@ $('plotMetric').addEventListener('click', async () => {
     $('metricSummary').textContent = err.message;
   }
 });
+$('plotCpuStream').addEventListener('click', async () => {
+  $('cpuStreamStatus').textContent = 'querying';
+  try {
+    const params = new URLSearchParams({ metric: $('cpuStreamMetric').value || 'cpu', hours: '24', stepMinutes: '5', anomalyMode: 'quick', detector: $('cpuStreamDetector').value });
+    const data = await json(`/api/prometheus/range?${params}`);
+    state.cpuStream = data;
+    drawMetric(data, 'cpuStreamChart');
+    $('cpuStreamSummary').textContent = plotSummary(data);
+    $('cpuStreamStatus').textContent = 'ok';
+  } catch (err) {
+    $('cpuStreamStatus').textContent = 'error';
+    $('cpuStreamStatus').className = 'badge bad';
+    $('cpuStreamSummary').textContent = err.message;
+  }
+});
 $('askBtn').addEventListener('click', async () => {
   $('answer').classList.add('markdown');
   $('answer').textContent = 'Thinking...';
   const parameters = Object.fromEntries([...document.querySelectorAll('[data-param]')].map((el) => [el.dataset.param, el.value]));
   try {
-    const data = await json('/api/prompt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: $('prompt').value, context: { template: state.current, parameters, logs: $('logs').textContent, plot: state.plot } }) });
+    const data = await json('/api/prompt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: $('prompt').value, context: { template: state.current, parameters, logs: $('logs').textContent, plot: state.plot, streamPlot: state.cpuStream } }) });
     $('answer').innerHTML = markdownToHtml(promptResultMarkdown(data));
   } catch (err) { $('answer').innerHTML = markdownToHtml(`**Error:** ${err.message}`); }
 });
