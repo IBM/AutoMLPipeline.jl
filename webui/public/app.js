@@ -124,13 +124,13 @@ function drawMetric(data) {
 $('plotMetric').addEventListener('click', async () => {
   $('metricStatus').textContent = 'querying';
   try {
-    const params = new URLSearchParams({ metric: $('metricSelect').value, hours: $('metricHours').value || '24', stepMinutes: $('metricStepMinutes').value || '10', votepercent: $('metricVotepercent').value || '0.5' });
+    const params = new URLSearchParams({ metric: $('metricSelect').value, hours: $('metricHours').value || '24', stepMinutes: $('metricStepMinutes').value || '10', votepercent: $('metricVotepercent').value || '0.5', anomalyMode: $('metricAnomalyMode').value || 'quick' });
     const data = await json(`/api/prometheus/range?${params}`);
     state.plot = data;
     drawMetric(data);
     const xr = data.xRange ? `${new Date(data.xRange.start * 1000).toLocaleString()} → ${new Date(data.xRange.end * 1000).toLocaleString()}` : 'none';
     const yr = data.yRange ? `${data.yRange.min.toFixed(2)} → ${data.yRange.max.toFixed(2)} ${data.unit}` : 'none';
-    $('metricSummary').textContent = `${data.label}: ${data.points.length} points, ${data.hours}h window, ${data.stepMinutes}m step, votepercent ${data.votepercent}, ${data.anomalyCount || 0} anomalies.\nx-range: ${xr}\ny-range: ${yr}\n${(data.warnings || []).join('\n')}\nQuery: ${data.query}`.trim();
+    $('metricSummary').textContent = `${data.label}: ${data.points.length} points, ${data.hours}h window, ${data.stepMinutes}m step, ${data.anomalyMode || 'quick'} mode, votepercent ${data.votepercent}, ${data.anomalyCount || 0} anomalies.\nx-range: ${xr}\ny-range: ${yr}\n${(data.warnings || []).join('\n')}\nQuery: ${data.query}`.trim();
     $('metricStatus').textContent = 'ok';
   } catch (err) {
     $('metricStatus').textContent = 'error';

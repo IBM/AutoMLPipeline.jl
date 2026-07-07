@@ -21,6 +21,7 @@ function plotContext(plot) {
     hours: plot.hours,
     stepMinutes: plot.stepMinutes,
     votepercent: plot.votepercent,
+    anomalyMode: plot.anomalyMode,
     query: plot.query,
     xRange: plot.xRange,
     yRange: plot.yRange,

@@ -41,13 +41,14 @@ function boundedNumber(value, fallback, min, max) {
   return Math.min(max, Math.max(min, n));
 }
 
-export async function queryMetricRange(config, { metric = 'cpu', hours = 24, stepMinutes = 10, votepercent = 0.5 } = {}) {
+export async function queryMetricRange(config, { metric = 'cpu', hours = 24, stepMinutes = 10, votepercent = 0.5, anomalyMode = 'quick' } = {}) {
   const selected = METRICS[metric];
   if (!selected) throw new Error(`Unknown metric: ${metric}`);
 
   const windowHours = boundedNumber(hours, 24, 1, 24 * 14);
   const step = Math.round(boundedNumber(stepMinutes, 10, 1, 24 * 60) * 60);
   const anomalyVotepercent = boundedNumber(votepercent, 0.5, 0.1, 1);
+  const detectorMode = anomalyMode === 'full' ? 'full' : 'quick';
   const end = Math.floor(Date.now() / 1000);
   const start = end - Math.round(windowHours * 60 * 60);
   const url = new URL('/api/v1/query_range', prometheusBase(config));
@@ -63,7 +64,7 @@ export async function queryMetricRange(config, { metric = 'cpu', hours = 24, ste
   const series = json.data?.result?.[0]?.values || [];
   const points = series.map(([ts, value]) => ({ ts: Number(ts), value: Number(value) })).filter((p) => Number.isFinite(p.value));
   const values = points.map((p) => p.value);
-  const anomalies = await detectAnomalies(points, { votepercent: anomalyVotepercent });
+  const anomalies = await detectAnomalies(points, { votepercent: anomalyVotepercent, mode: detectorMode });
   for (const index of anomalies.indexes) points[index].anomaly = true;
   return {
     metric,
@@ -79,6 +80,7 @@ export async function queryMetricRange(config, { metric = 'cpu', hours = 24, ste
     yRange: values.length ? { min: Math.min(...values), max: Math.max(...values) } : null,
     anomalyCount: anomalies.indexes.length,
     votepercent: anomalyVotepercent,
+    anomalyMode: anomalies.mode,
     warnings: anomalies.warnings,
     points
   };
