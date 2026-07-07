@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Argo AutoML Command Deck</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="hero panel">
+      <p class="eyebrow">Argo AutoML</p>
+      <h1>Command Deck</h1>
+      <p>Deploy ClusterWorkflowTemplates, inspect logs, query MLflow, and hand scoped MCP tools to an LLM agent.</p>
+      <div class="links" id="endpointLinks"></div>
+      <p class="session-note">Local session armed automatically after page load.</p>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-head"><h2>Templates</h2><span id="templateStatus" class="badge">loading</span></div>
+        <select id="templateSelect"></select>
+        <div id="params" class="params"></div>
+        <button id="deployBtn" disabled>Deploy template</button>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h2>YAML upload</h2><span class="badge muted">safe preview</span></div>
+        <input id="yamlFile" type="file" accept=".yaml,.yml" />
+        <pre id="yamlPreview" class="console">Upload a Workflow YAML to validate before submit.</pre>
+      </article>
+
+      <article class="panel logs">
+        <div class="panel-head"><h2>Workflow logs</h2><span id="workflowStatus" class="badge muted">idle</span></div>
+        <pre id="logs" class="console">Deployment output will appear here.</pre>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h2>MLflow results</h2><span id="mlflowStatus" class="badge muted">idle</span></div>
+        <button id="refreshMlflow">Query MLflow</button>
+        <pre id="mlflow" class="console">Metrics and runs will appear here.</pre>
+      </article>
+
+      <article class="panel metrics">
+        <div class="panel-head"><h2>Prometheus plot</h2><span id="metricStatus" class="badge muted">idle</span></div>
+        <select id="metricSelect"></select>
+        <button id="plotMetric">Plot 24h at 10m</button>
+        <canvas id="metricChart" width="900" height="280" aria-label="Prometheus metric plot"></canvas>
+        <pre id="metricSummary" class="console small">Choose network, CPU, memory, or latency.</pre>
+      </article>
+
+      <article class="panel prompt">
+        <div class="panel-head"><h2>Agent prompt</h2><span id="llmStatus" class="badge muted">checking</span></div>
+        <textarea id="prompt" placeholder="Ask the agent to inspect templates, logs, or results..."></textarea>
+        <button id="askBtn">Ask agent</button>
+        <div id="answer" class="console markdown">Agent answers and confirmation requests appear here.</div>
+      </article>
+    </section>
+  </main>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

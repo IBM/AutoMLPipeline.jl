@@ -1,0 +1,18 @@
+{
+  "name": "argo-automl-command-deck",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "check": "node --check server.js && find lib public test -name '*.js' -print0 | xargs -0 -n1 node --check"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.2",
+    "express": "^5.1.0",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {}
+}
