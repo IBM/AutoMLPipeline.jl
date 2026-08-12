@@ -16,7 +16,7 @@
 
 ### Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=IBM/AutoMLPipeline.jl&type=Date)](https://star-history.com/#IBM/AutoMLPipeline.jl&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=IBM/AutoMLPipeline.jl&type=Date)](https://star-history.dera.page/#IBM/AutoMLPipeline.jl&Date)
 
 ---
 
