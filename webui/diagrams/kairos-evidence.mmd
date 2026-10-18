@@ -1,0 +1,16 @@
+flowchart TD
+    Q["Operator question"] --> Builder["KAIROS context builder"]
+    Builder --> Plot["Selected KPI plot window"]
+    Builder --> Anom["Anomaly timestamps\nand detector settings"]
+    Builder --> ArgoMeta["Argo workflow metadata\nand logs"]
+    Builder --> Params["Workflow template parameters"]
+    Builder --> Runs["MLflow run metrics, params, tags, artifacts"]
+    Builder --> Labels["Testbed / site / vertical labels"]
+    Plot --> Redact["Redaction + minimisation"]
+    Anom --> Redact
+    ArgoMeta --> Redact
+    Params --> Redact
+    Runs --> Redact
+    Labels --> Redact
+    Redact --> Prompt["LLM prompt context"]
+    Prompt --> Answer["Markdown answer\nfacts, likely causes, caveats, next checks"]
