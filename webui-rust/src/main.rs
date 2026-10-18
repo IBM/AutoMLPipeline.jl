@@ -89,77 +89,71 @@ impl Config {
 }
 
 fn load_llm_config() -> LlmConfig {
-    let pi = load_pi_external();
-    let has_pi = pi.api_key.is_some() || pi.base_url.is_some() || pi.model.is_some();
+    let shell = load_zshenv_vars();
+    let api_key = env_or_zshenv("ETE_API_KEY", &shell).unwrap_or_default();
+    let base_url = env_or_zshenv("BASE_URL", &shell).unwrap_or_default();
+    let model = env_or_zshenv("LLM_MODEL", &shell).unwrap_or_else(|| "azure/gpt-5.5".into());
+    let source = if api_key.is_empty() || base_url.is_empty() {
+        "missing-env"
+    } else {
+        "env"
+    };
     LlmConfig {
-        // Pi models.json is the default; env vars only fill gaps.
-        api_key: pi
-            .api_key
-            .or_else(|| env::var("OPENAI_API_KEY").ok().filter(|s| !s.is_empty()))
-            .unwrap_or_default(),
-        base_url: pi
-            .base_url
-            .or_else(|| env::var("OPENAI_BASE_URL").ok().filter(|s| !s.is_empty()))
-            .unwrap_or_else(|| "https://api.openai.com/v1".into()),
-        model: pi
-            .model
-            .or_else(|| env::var("OPENAI_MODEL").ok().filter(|s| !s.is_empty()))
-            .unwrap_or_else(|| "gpt-4o-mini".into()),
-        source: if has_pi { "pi-models" } else { "env" }.into(),
-    }
-}
-
-#[derive(Default)]
-struct PiExternal {
-    api_key: Option<String>,
-    base_url: Option<String>,
-    model: Option<String>,
-}
-
-fn load_pi_external() -> PiExternal {
-    let path = env::var("PI_MODELS_FILE")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            PathBuf::from(env::var("HOME").unwrap_or_default()).join(".pi/agent/models.json")
-        });
-    let Ok(text) = fs::read_to_string(path) else {
-        return PiExternal::default();
-    };
-    let Ok(json) = serde_json::from_str::<serde_json::Value>(&text) else {
-        return PiExternal::default();
-    };
-    let provider = &json["providers"]["external"];
-    let api_key = provider["apiKey"]
-        .as_str()
-        .map(resolve_secret)
-        .filter(|s| !s.is_empty());
-    let base_url = provider["baseUrl"]
-        .as_str()
-        .map(str::to_string)
-        .filter(|s| !s.is_empty());
-    let model = provider["models"].as_array().and_then(|models| {
-        models
-            .iter()
-            .find(|m| m["id"].as_str() == Some("azure/gpt-5.5"))
-            .or_else(|| models.first())
-            .and_then(|m| m["id"].as_str())
-            .map(str::to_string)
-    });
-    PiExternal {
+        // BASE_URL and ETE_API_KEY from the process environment or ~/.zshenv are the only default agent credentials.
         api_key,
         base_url,
         model,
+        source: source.into(),
     }
 }
 
-fn resolve_secret(value: &str) -> String {
-    let trimmed = value.trim();
-    let name = trimmed
-        .strip_prefix("${")
-        .and_then(|s| s.strip_suffix('}'))
-        .or_else(|| trimmed.strip_prefix('$'));
-    name.and_then(|n| env::var(n).ok())
-        .unwrap_or_else(|| trimmed.to_string())
+fn env_or_zshenv(name: &str, zshenv: &HashMap<String, String>) -> Option<String> {
+    env::var(name)
+        .ok()
+        .or_else(|| zshenv.get(name).cloned())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+fn load_zshenv_vars() -> HashMap<String, String> {
+    let path = PathBuf::from(env::var("HOME").unwrap_or_default()).join(".zshenv");
+    fs::read_to_string(path)
+        .map(|text| parse_shell_assignments(&text))
+        .unwrap_or_default()
+}
+
+fn parse_shell_assignments(text: &str) -> HashMap<String, String> {
+    text.lines().filter_map(parse_shell_assignment).collect()
+}
+
+fn parse_shell_assignment(line: &str) -> Option<(String, String)> {
+    let line = line.trim();
+    if line.is_empty() || line.starts_with('#') {
+        return None;
+    }
+    let line = line.strip_prefix("export ").unwrap_or(line).trim();
+    let (name, value) = line.split_once('=')?;
+    let name = name.trim();
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        return None;
+    }
+    Some((
+        name.to_string(),
+        strip_shell_value(value.trim()).to_string(),
+    ))
+}
+
+fn strip_shell_value(value: &str) -> &str {
+    if value.len() >= 2 {
+        let bytes = value.as_bytes();
+        if matches!(
+            (bytes[0], bytes[value.len() - 1]),
+            (b'\'', b'\'') | (b'"', b'"')
+        ) {
+            return &value[1..value.len() - 1];
+        }
+    }
+    value
 }
 
 fn public_llm(llm: &LlmConfig) -> PublicLlm {
@@ -409,22 +403,56 @@ struct LlmUpdate {
 async fn update_llm(
     State(state): State<Arc<AppState>>,
     Json(input): Json<LlmUpdate>,
-) -> Json<serde_json::Value> {
-    let mut c = state.config.write().await;
+) -> impl IntoResponse {
+    let current = state.config.read().await.llm.clone();
+    let mut candidate = current;
     if let Some(base_url) = input.base_url.filter(|s| !s.trim().is_empty()) {
-        c.llm.base_url = base_url.trim().to_string();
+        candidate.base_url = base_url.trim().to_string();
     }
     if let Some(model) = input.model.filter(|s| !s.trim().is_empty()) {
-        c.llm.model = model.trim().to_string();
+        candidate.model = model.trim().to_string();
     }
     if let Some(api_key) = input
         .api_key
         .filter(|s| !s.trim().is_empty() && !s.chars().all(|ch| ch == '*'))
     {
-        c.llm.api_key = api_key;
+        candidate.api_key = api_key;
     }
-    c.llm.source = "ui".into();
-    Json(serde_json::json!({ "status": "ok", "llm": public_llm(&c.llm) }))
+    candidate.source = "ui".into();
+
+    if candidate.base_url.trim().is_empty() || candidate.api_key.trim().is_empty() {
+        let missing: Vec<&str> = [
+            (candidate.base_url.trim().is_empty(), "BASE_URL"),
+            (candidate.api_key.trim().is_empty(), "ETE_API_KEY"),
+        ]
+        .into_iter()
+        .filter_map(|(is_missing, name)| is_missing.then_some(name))
+        .collect();
+        return agent_error_response(
+            StatusCode::SERVICE_UNAVAILABLE,
+            &candidate,
+            &format!(
+                "Agent not configured: missing {} in the submitted credentials.",
+                missing.join(" and ")
+            ),
+        );
+    }
+
+    if let Err(message) = probe_llm(&state.client, &candidate).await {
+        return agent_error_response(
+            StatusCode::BAD_GATEWAY,
+            &candidate,
+            &format!("Agent not reachable: {message}"),
+        );
+    }
+
+    let public = public_llm(&candidate);
+    state.config.write().await.llm = candidate;
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({ "status": "ok", "llm": public })),
+    )
+        .into_response()
 }
 
 async fn templates(State(state): State<Arc<AppState>>) -> Json<serde_json::Value> {
@@ -498,17 +526,48 @@ async fn mlflow(
 async fn prompt(
     State(state): State<Arc<AppState>>,
     Json(body): Json<serde_json::Value>,
-) -> Json<serde_json::Value> {
+) -> impl IntoResponse {
     let c = state.config.read().await.clone();
     let prompt = body.get("prompt").and_then(|v| v.as_str()).unwrap_or("");
     let mut ctx = agent_context(prompt, body.get("context").cloned().unwrap_or_default());
     enrich_context(&state.client, &c, prompt, &mut ctx).await;
-    if !c.llm.api_key.is_empty() {
-        if let Ok(message) = call_llm(&state.client, &c.llm, prompt, &ctx).await {
-            return Json(serde_json::json!({ "type": "answer", "message": message }));
-        }
+    let llm_ctx = compact_context_for_llm(&ctx);
+
+    if c.llm.base_url.trim().is_empty() || c.llm.api_key.trim().is_empty() {
+        let missing: Vec<&str> = [
+            (c.llm.base_url.trim().is_empty(), "BASE_URL"),
+            (c.llm.api_key.trim().is_empty(), "ETE_API_KEY"),
+        ]
+        .into_iter()
+        .filter_map(|(is_missing, name)| is_missing.then_some(name))
+        .collect();
+        return agent_error_response(
+            StatusCode::SERVICE_UNAVAILABLE,
+            &c.llm,
+            &format!(
+                "Agent not configured: missing {} in process environment or ~/.zshenv.",
+                missing.join(" and ")
+            ),
+        );
     }
-    Json(local_answer(prompt, &ctx))
+
+    let llm_prompt = prompt_for_llm(prompt, &llm_ctx);
+    match call_llm(&state.client, &c.llm, &llm_prompt, &llm_ctx).await {
+        Ok(message) => (
+            StatusCode::OK,
+            Json(serde_json::json!({
+                "status": "ok",
+                "type": "answer",
+                "message": message
+            })),
+        )
+            .into_response(),
+        Err(message) => agent_error_response(
+            StatusCode::BAD_GATEWAY,
+            &c.llm,
+            &format!("Agent not reachable: {message}"),
+        ),
+    }
 }
 
 fn mentions(prompt: &str, needle: &str) -> bool {
@@ -522,6 +581,109 @@ fn agent_context(prompt: &str, ctx: serde_json::Value) -> serde_json::Value {
     serde_json::json!({
         "plot": ctx.get("plot").cloned().unwrap_or(serde_json::Value::Null),
         "streamPlot": ctx.get("streamPlot").cloned().unwrap_or(serde_json::Value::Null),
+    })
+}
+
+fn compact_context_for_llm(ctx: &serde_json::Value) -> serde_json::Value {
+    let mut compact = ctx.clone();
+    if let Some(obj) = compact.as_object_mut() {
+        if let Some(plot) = obj.get("plot").cloned() {
+            obj.insert("plot".into(), compact_plot_for_llm(&plot));
+        }
+        if let Some(plot) = obj.get("streamPlot").cloned() {
+            obj.insert("streamPlot".into(), compact_plot_for_llm(&plot));
+        }
+    }
+    compact
+}
+
+fn compact_plot_for_llm(plot: &serde_json::Value) -> serde_json::Value {
+    let Some(points) = plot.get("points").and_then(|v| v.as_array()) else {
+        return plot.clone();
+    };
+    let values: Vec<f64> = points
+        .iter()
+        .filter_map(|p| finite_number(p.get("value")))
+        .collect();
+    let mean = (!values.is_empty()).then(|| values.iter().sum::<f64>() / values.len() as f64);
+    let value_min = values.iter().copied().reduce(f64::min);
+    let value_max = values.iter().copied().reduce(f64::max);
+    let start = plot
+        .get("xRange")
+        .and_then(|r| r.get("start"))
+        .or_else(|| plot.get("start"));
+    let end = plot
+        .get("xRange")
+        .and_then(|r| r.get("end"))
+        .or_else(|| plot.get("end"));
+    let anomalies: Vec<serde_json::Value> = points
+        .iter()
+        .filter(|p| p.get("anomaly").and_then(|v| v.as_bool()).unwrap_or(false))
+        .take(8)
+        .map(|p| {
+            serde_json::json!({
+                "utc": unix_utc(p.get("ts").unwrap_or(&serde_json::Value::Null)),
+                "value": p.get("value").cloned().unwrap_or(serde_json::Value::Null),
+            })
+        })
+        .collect();
+    let label = plot.get("label").and_then(|v| v.as_str()).unwrap_or("plot");
+    let unit = plot.get("unit").and_then(|v| v.as_str()).unwrap_or("");
+    let query = plot
+        .get("query")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown query");
+    let summary = format!(
+        "{label} ({unit}), query {query}, samples {}, min {}, max {}, mean {}, anomalies {}.",
+        points.len(),
+        value_min
+            .map(|v| format!("{v:.4}"))
+            .unwrap_or_else(|| "n/a".into()),
+        value_max
+            .map(|v| format!("{v:.4}"))
+            .unwrap_or_else(|| "n/a".into()),
+        mean.map(|v| format!("{v:.4}"))
+            .unwrap_or_else(|| "n/a".into()),
+        anomalies.len()
+    );
+    serde_json::json!({
+        "summary": summary,
+        "metric": plot.get("metric").cloned().unwrap_or(serde_json::Value::Null),
+        "label": plot.get("label").cloned().unwrap_or(serde_json::Value::Null),
+        "unit": plot.get("unit").cloned().unwrap_or(serde_json::Value::Null),
+        "query": plot.get("query").cloned().unwrap_or(serde_json::Value::Null),
+        "hours": plot.get("hours").cloned().unwrap_or(serde_json::Value::Null),
+        "stepMinutes": plot.get("stepMinutes").cloned().unwrap_or(serde_json::Value::Null),
+        "startUtc": start.map(unix_utc).unwrap_or_else(|| "unknown".into()),
+        "endUtc": end.map(unix_utc).unwrap_or_else(|| "unknown".into()),
+        "valueMin": value_min,
+        "valueMax": value_max,
+        "mean": mean,
+        "anomalyCount": plot.get("anomalyCount").cloned().unwrap_or(serde_json::Value::Null),
+        "votepercent": plot.get("votepercent").cloned().unwrap_or(serde_json::Value::Null),
+        "anomalyMode": plot.get("anomalyMode").cloned().unwrap_or(serde_json::Value::Null),
+        "detector": plot.get("detector").cloned().unwrap_or(serde_json::Value::Null),
+        "pointCount": points.len(),
+        "anomalies": anomalies,
+        "pointsOmitted": true,
+        "omissionReason": "raw time-series points omitted before LLM call; summary fields and capped anomaly points preserved"
+    })
+}
+
+fn prompt_for_llm(prompt: &str, ctx: &serde_json::Value) -> String {
+    if has_plot_context(ctx) && mentions(prompt, "plot") {
+        return "Analyze supplied plot context. Return concise bullets: metric, query, time window, samples, values, anomalies, why repeated refresh may look unchanged, and what control to change next. Max 180 words.".into();
+    }
+    prompt.to_string()
+}
+
+fn has_plot_context(ctx: &serde_json::Value) -> bool {
+    ["plot", "streamPlot"].iter().any(|key| {
+        ctx.get(*key)
+            .filter(|v| !v.is_null())
+            .and_then(|v| v.as_object())
+            .map(|obj| !obj.is_empty())
+            .unwrap_or(false)
     })
 }
 
@@ -625,12 +787,11 @@ fn template_parameters_from_data(template: &serde_json::Value) -> Vec<serde_json
 
 fn run_argo_json(c: &Config, args: &[&str]) -> serde_json::Value {
     let out = run_argo(c, args);
-    if out["status"] == "ok" {
-        if let Some(text) = out.get("output").and_then(|v| v.as_str()) {
-            if let Ok(json) = serde_json::from_str::<serde_json::Value>(text) {
-                return serde_json::json!({ "status": "ok", "data": json });
-            }
-        }
+    if out["status"] == "ok"
+        && let Some(text) = out.get("output").and_then(|v| v.as_str())
+        && let Ok(json) = serde_json::from_str::<serde_json::Value>(text)
+    {
+        return serde_json::json!({ "status": "ok", "data": json });
     }
     out
 }
@@ -646,53 +807,164 @@ fn run_argo(c: &Config, args: &[&str]) -> serde_json::Value {
     }
 }
 
+async fn probe_llm(client: &reqwest::Client, llm: &LlmConfig) -> Result<(), String> {
+    let ctx = serde_json::json!({
+        "plot": {
+            "summary": "CPU usage (%), query average non-idle CPU, 24h window, 145 samples, min 2.35, max 2.67, mean 2.38, 4 anomalies.",
+            "label": "CPU usage",
+            "unit": "%",
+            "pointCount": 145,
+            "valueMin": 2.35,
+            "valueMax": 2.67,
+            "mean": 2.38,
+            "anomalyCount": 4
+        }
+    });
+    let prompt = prompt_for_llm("Explain this plot.", &ctx);
+    call_llm(client, llm, &prompt, &ctx)
+        .await
+        .map(|_| ())
+        .map_err(|message| format!("LLM chat probe failed: {message}"))
+}
+
 async fn call_llm(
     client: &reqwest::Client,
     llm: &LlmConfig,
     prompt: &str,
     ctx: &serde_json::Value,
 ) -> Result<String, String> {
-    let url = Url::parse(&llm.base_url)
-        .and_then(|base| base.join("chat/completions"))
-        .map_err(|e| e.to_string())?;
+    let mut last_error = String::new();
+    for attempt in 1..=3 {
+        match call_llm_once(client, llm, prompt, ctx).await {
+            Ok(message) => return Ok(message),
+            Err(message) if is_retryable_llm_error(&message) && attempt < 3 => {
+                last_error = message;
+                tokio::time::sleep(Duration::from_millis(250 * attempt)).await;
+            }
+            Err(message) => return Err(message),
+        }
+    }
+    Err(format!("LLM request failed after 3 attempts: {last_error}"))
+}
+
+async fn call_llm_once(
+    client: &reqwest::Client,
+    llm: &LlmConfig,
+    prompt: &str,
+    ctx: &serde_json::Value,
+) -> Result<String, String> {
+    let url = llm_chat_url(&llm.base_url).map_err(|e| format!("invalid LLM base URL: {e}"))?;
     let body = serde_json::json!({
         "model": llm.model,
         "messages": [
-            { "role": "system", "content": "You are an Argo AutoML assistant. By default use only Prometheus plots and metric anomaly stream. Use Argo context only when user mentions Argo. Use MLflow context only when user mentions MLflow. Convert Unix timestamps in answers to YYYY-MM-DD HH:MM:SS UTC. Be concise. State hypotheses as hypotheses. Never claim mutations. Do not use Markdown tables. Use bullet points for metrics; align related metric fields in the same bullet." },
+            { "role": "system", "content": "You are an Argo AutoML assistant. By default use only Prometheus plots and metric anomaly stream. Use Argo context only when user mentions Argo. Use MLflow context only when user mentions MLflow. Convert Unix timestamps in answers to YYYY-MM-DD HH:MM:SS UTC. Explain plots with metric, query, time window, sample count, min/max/mean if present, anomaly timestamps, likely cause, and what control to change next. State hypotheses as hypotheses. Never claim mutations. Do not use Markdown tables. Use clear bullets and enough detail for debugging." },
             { "role": "user", "content": serde_json::json!({ "prompt": prompt, "context": ctx }).to_string() }
         ]
     });
-    let res = client
-        .post(url)
-        .bearer_auth(&llm.api_key)
-        .json(&body)
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
+    let res = timeout(
+        Duration::from_secs(60),
+        client
+            .post(url)
+            .bearer_auth(&llm.api_key)
+            .json(&body)
+            .send(),
+    )
+    .await
+    .map_err(|_| "LLM request timed out after 60s".to_string())?
+    .map_err(|e| sanitize_llm_error(&e.to_string(), &llm.api_key))?;
     let status = res.status();
-    let json: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
+    let text = res
+        .text()
+        .await
+        .map_err(|e| sanitize_llm_error(&e.to_string(), &llm.api_key))?;
+    let json: serde_json::Value = serde_json::from_str(&text).map_err(|e| {
+        format!(
+            "LLM returned invalid JSON: {e}; body: {}",
+            sanitize_llm_error(&text, &llm.api_key)
+        )
+    })?;
     if !status.is_success() {
-        return Err(json.to_string());
+        return Err(format!(
+            "LLM HTTP {status}: {}",
+            sanitize_llm_error(&json.to_string(), &llm.api_key)
+        ));
     }
-    Ok(json["choices"][0]["message"]["content"]
+    let content = json["choices"][0]["message"]["content"]
         .as_str()
-        .unwrap_or("No LLM content returned.")
-        .to_string())
+        .unwrap_or("")
+        .trim();
+    if content.is_empty() {
+        return Err(format!(
+            "LLM returned no message content: {}",
+            sanitize_llm_error(&json.to_string(), &llm.api_key)
+        ));
+    }
+    Ok(content.to_string())
 }
 
-fn local_answer(prompt: &str, ctx: &serde_json::Value) -> serde_json::Value {
-    let lower = prompt.to_lowercase();
-    let message = if lower.contains("plot") || lower.contains("metric") || lower.contains("anomal")
-    {
-        local_plot_answer(ctx)
-    } else if lower.contains("mlflow") {
-        serde_json::to_string_pretty(&ctx["mlflow"]).unwrap_or_else(|_| "No MLflow context.".into())
-    } else if lower.contains("argo") || lower.contains("workflow") {
-        serde_json::to_string_pretty(&ctx["argo"]).unwrap_or_else(|_| "No Argo context.".into())
+fn is_retryable_llm_error(message: &str) -> bool {
+    [
+        "error sending request",
+        "timed out",
+        "connection",
+        "dns",
+        "tcp",
+        "tls",
+    ]
+    .iter()
+    .any(|needle| message.to_lowercase().contains(needle))
+}
+
+fn agent_error_response(
+    status: StatusCode,
+    llm: &LlmConfig,
+    message: &str,
+) -> axum::response::Response {
+    (
+        status,
+        Json(serde_json::json!({
+            "status": "error",
+            "type": "agent_error",
+            "message": sanitize_llm_error(message, &llm.api_key),
+            "agent": {
+                "baseUrl": llm.base_url,
+                "model": llm.model,
+                "hasKey": !llm.api_key.is_empty(),
+            },
+        })),
+    )
+        .into_response()
+}
+
+fn llm_chat_url(base_url: &str) -> Result<Url, url::ParseError> {
+    llm_endpoint_url(base_url, "chat/completions")
+}
+
+fn llm_endpoint_url(base_url: &str, suffix: &str) -> Result<Url, url::ParseError> {
+    let mut url = Url::parse(base_url.trim())?;
+    let mut path = url.path().trim_end_matches('/').to_string();
+    for endpoint in ["/chat/completions", "/models"] {
+        if path.ends_with(endpoint) {
+            path.truncate(path.len() - endpoint.len());
+        }
+    }
+    if path.is_empty() {
+        path = "/v1".into();
+    }
+    url.set_path(&format!("{path}/{suffix}"));
+    Ok(url)
+}
+
+fn finite_number(value: Option<&serde_json::Value>) -> Option<f64> {
+    value.and_then(|v| v.as_f64()).filter(|v| v.is_finite())
+}
+
+fn sanitize_llm_error(message: &str, api_key: &str) -> String {
+    if api_key.is_empty() {
+        message.to_string()
     } else {
-        "## Rust webui\n\nAgent context defaults to plots only. Mention Argo or MLflow to include that context.".into()
-    };
-    serde_json::json!({ "type": "local_answer", "message": message })
+        message.replace(api_key, "<redacted>")
+    }
 }
 
 fn unix_utc(ts: &serde_json::Value) -> String {
@@ -723,51 +995,6 @@ fn civil_from_days(days_since_epoch: i64) -> (i64, i64, i64) {
     let month = mp + if mp < 10 { 3 } else { -9 };
     year += if month <= 2 { 1 } else { 0 };
     (year, month, day)
-}
-
-fn local_plot_answer(ctx: &serde_json::Value) -> String {
-    fn section(name: &str, plot: Option<&serde_json::Value>) -> String {
-        let Some(plot) = plot else {
-            return String::new();
-        };
-        let label = plot.get("label").and_then(|v| v.as_str()).unwrap_or("plot");
-        let unit = plot.get("unit").and_then(|v| v.as_str()).unwrap_or("");
-        let point_count = plot
-            .get("points")
-            .and_then(|v| v.as_array())
-            .map(|a| a.len())
-            .unwrap_or(0);
-        let anomalies: Vec<String> = plot
-            .get("points")
-            .and_then(|v| v.as_array())
-            .into_iter()
-            .flatten()
-            .filter(|p| p.get("anomaly").and_then(|v| v.as_bool()).unwrap_or(false))
-            .take(12)
-            .map(|p| {
-                format!(
-                    "- {}: {} {unit}",
-                    unix_utc(p.get("ts").unwrap_or(&serde_json::Value::Null)),
-                    p.get("value").unwrap_or(&serde_json::Value::Null)
-                )
-            })
-            .collect();
-        format!(
-            "### {name}\n\n{label}: {}/{} anomalous points.\n\n{}",
-            anomalies.len(),
-            point_count,
-            if anomalies.is_empty() {
-                "- none".into()
-            } else {
-                anomalies.join("\n")
-            }
-        )
-    }
-    format!(
-        "## Plot anomalies\n\n{}\n\n{}\n\nPossible reason: correlate timestamps with workflow logs, node/pod restarts, traffic spikes, memory pressure, network saturation, or latency spikes.",
-        section("Prometheus plot", ctx.get("plot")),
-        section("Metric anomaly stream", ctx.get("streamPlot"))
-    )
 }
 
 async fn metric_options() -> Json<serde_json::Value> {
@@ -1110,17 +1337,233 @@ mod tests {
     #[test]
     fn converts_unix_time_to_utc() {
         assert_eq!(unix_utc(&serde_json::json!(0)), "1970-01-01 00:00:00 UTC");
-        assert_eq!(unix_utc(&serde_json::json!(1_700_000_000)), "2023-11-14 22:13:20 UTC");
+        assert_eq!(
+            unix_utc(&serde_json::json!(1_700_000_000)),
+            "2023-11-14 22:13:20 UTC"
+        );
     }
 
     #[test]
-    fn local_plot_answer_uses_utc_time() {
-        let ctx = serde_json::json!({
-            "plot": { "label": "cpu", "unit": "%", "points": [
-                { "ts": 1_700_000_000.0, "value": 99, "anomaly": true }
-            ] }
+    fn parses_zshenv_assignments_for_llm_defaults() {
+        let parsed = parse_shell_assignments(
+            r#"
+            export BASE_URL='https://ete-litellm.ai-models.vpc-int.res.ibm.com/v1'
+            ETE_API_KEY="secret-key"
+            LLM_MODEL=azure/gpt-5.5
+            # ignored comment
+            not valid=value
+            "#,
+        );
+        assert_eq!(
+            parsed.get("BASE_URL").map(String::as_str),
+            Some("https://ete-litellm.ai-models.vpc-int.res.ibm.com/v1")
+        );
+        assert_eq!(
+            parsed.get("ETE_API_KEY").map(String::as_str),
+            Some("secret-key")
+        );
+        assert_eq!(
+            parsed.get("LLM_MODEL").map(String::as_str),
+            Some("azure/gpt-5.5")
+        );
+        assert!(!parsed.contains_key("not valid"));
+    }
+
+    #[test]
+    fn llm_config_ignores_openai_and_pi_fallbacks() {
+        let home = env::temp_dir().join(format!("webui-rust-test-{}", random_hex(8)));
+        fs::create_dir_all(home.join(".pi/agent")).unwrap();
+        fs::write(
+            home.join(".pi/agent/models.json"),
+            r#"{"providers":{"external":{"apiKey":"pi-key","baseUrl":"https://pi.example/v1","models":[{"id":"pi/model"}]}}}"#,
+        )
+        .unwrap();
+        let vars = vec![
+            ("HOME", Some(home.display().to_string())),
+            ("BASE_URL", None),
+            ("ETE_API_KEY", None),
+            ("LLM_MODEL", None),
+            (
+                "OPENAI_BASE_URL",
+                Some("https://openai.example/v1".to_string()),
+            ),
+            ("OPENAI_API_KEY", Some("openai-key".to_string())),
+            ("OPENAI_MODEL", Some("openai/model".to_string())),
+        ];
+        temp_env::with_vars(vars, || {
+            let config = load_llm_config();
+            assert_eq!(config.base_url, "");
+            assert_eq!(config.api_key, "");
+            assert_eq!(config.model, "azure/gpt-5.5");
+            assert_eq!(config.source, "missing-env");
         });
-        assert!(local_plot_answer(&ctx).contains("2023-11-14 22:13:20 UTC"));
+        fs::remove_dir_all(home).unwrap();
+    }
+
+    #[test]
+    fn llm_chat_url_preserves_v1_path() {
+        assert_eq!(
+            llm_chat_url("https://example.test").unwrap().as_str(),
+            "https://example.test/v1/chat/completions"
+        );
+        assert_eq!(
+            llm_chat_url("https://example.test/v1").unwrap().as_str(),
+            "https://example.test/v1/chat/completions"
+        );
+        assert_eq!(
+            llm_chat_url("https://example.test/v1/").unwrap().as_str(),
+            "https://example.test/v1/chat/completions"
+        );
+        assert_eq!(
+            llm_chat_url("https://example.test/v1/chat/completions")
+                .unwrap()
+                .as_str(),
+            "https://example.test/v1/chat/completions"
+        );
+    }
+
+    #[test]
+    fn plot_prompts_are_normalized_for_remote_llm() {
+        let ctx = serde_json::json!({
+            "plot": { "label": "cpu", "pointCount": 145 }
+        });
+        let prompt = prompt_for_llm(
+            "Explain this plot in detail. Focus on metric, query, time window, min/max/mean, anomalies, and why it may look unchanged.",
+            &ctx,
+        );
+        assert!(prompt.contains("Analyze supplied plot context"));
+        assert!(prompt.contains("Max 180 words"));
+    }
+
+    #[test]
+    fn compact_context_for_llm_omits_raw_plot_points() {
+        let ctx = serde_json::json!({
+            "plot": {
+                "label": "cpu",
+                "unit": "%",
+                "query": "cpu_query",
+                "points": [
+                    { "ts": 1_700_000_000.0, "value": 1.0, "anomaly": false },
+                    { "ts": 1_700_000_600.0, "value": 99.0, "anomaly": true }
+                ]
+            },
+            "streamPlot": {
+                "label": "cpu stream",
+                "points": [
+                    { "ts": 1_700_000_000.0, "value": 2.0, "anomaly": false }
+                ]
+            }
+        });
+        let compact = compact_context_for_llm(&ctx);
+        assert!(compact["plot"].get("points").is_none());
+        assert_eq!(compact["plot"]["pointCount"], 2);
+        assert_eq!(compact["plot"]["pointsOmitted"], true);
+        assert_eq!(compact["plot"]["anomalies"].as_array().unwrap().len(), 1);
+        assert!(compact["streamPlot"].get("points").is_none());
+        assert_eq!(compact["streamPlot"]["pointCount"], 1);
+    }
+
+    #[test]
+    fn sanitize_llm_error_redacts_api_key() {
+        assert_eq!(
+            sanitize_llm_error("bad key secret-key", "secret-key"),
+            "bad key <redacted>"
+        );
+    }
+
+    #[test]
+    fn retryable_llm_errors_cover_transient_transport_failures() {
+        assert!(is_retryable_llm_error(
+            "error sending request for url (https://example.test/v1/chat/completions)"
+        ));
+        assert!(is_retryable_llm_error("LLM request timed out after 60s"));
+        assert!(!is_retryable_llm_error("LLM returned invalid JSON"));
+    }
+
+    fn test_config(llm: LlmConfig) -> Config {
+        Config {
+            host: "127.0.0.1".into(),
+            port: 0,
+            namespace: "argo".into(),
+            argo_server: "http://argo.test".into(),
+            template_url: "http://argo.test/templates".into(),
+            grafana_url: "http://grafana.test".into(),
+            mlflow_url: "http://mlflow.test".into(),
+            prometheus_metrics_url: "http://prometheus.test/metrics".into(),
+            prometheus_api_url: "http://prometheus.test".into(),
+            argo_bin: "argo".into(),
+            session_token: "token".into(),
+            llm,
+        }
+    }
+
+    #[tokio::test]
+    async fn prompt_returns_visible_agent_error_when_config_missing() {
+        let state = Arc::new(AppState {
+            config: RwLock::new(test_config(LlmConfig {
+                base_url: String::new(),
+                model: "azure/gpt-5.5".into(),
+                source: "missing-env".into(),
+                api_key: String::new(),
+            })),
+            client: reqwest::Client::new(),
+        });
+        let response = prompt(
+            State(state),
+            Json(serde_json::json!({ "prompt": "explain plot", "context": {} })),
+        )
+        .await
+        .into_response();
+        assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+        let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(json["status"], "error");
+        assert_eq!(json["type"], "agent_error");
+        assert!(json["message"].as_str().unwrap().contains("BASE_URL"));
+        assert!(json["message"].as_str().unwrap().contains("ETE_API_KEY"));
+        assert!(json.get("localAnswer").is_none());
+    }
+
+    #[tokio::test]
+    async fn update_llm_rejects_unreachable_agent_and_keeps_current_config() {
+        let state = Arc::new(AppState {
+            config: RwLock::new(test_config(LlmConfig {
+                base_url: "https://old.example/v1".into(),
+                model: "old/model".into(),
+                source: "env".into(),
+                api_key: "old-secret".into(),
+            })),
+            client: reqwest::Client::new(),
+        });
+        let response = update_llm(
+            State(state.clone()),
+            Json(LlmUpdate {
+                api_key: Some("new-secret".into()),
+                base_url: Some("http://127.0.0.1:9/v1".into()),
+                model: Some("bad/model".into()),
+            }),
+        )
+        .await
+        .into_response();
+        assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
+        let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(json["type"], "agent_error");
+        assert!(
+            json["message"]
+                .as_str()
+                .unwrap()
+                .contains("Agent not reachable")
+        );
+        assert!(!json.to_string().contains("new-secret"));
+        let saved = state.config.read().await.llm.clone();
+        assert_eq!(saved.base_url, "https://old.example/v1");
+        assert_eq!(saved.model, "old/model");
+        assert_eq!(saved.api_key, "old-secret");
     }
 
     #[test]
@@ -1133,8 +1576,18 @@ mod tests {
             "mlflow": { "run": "r" }
         });
         let out = agent_context("what happened?", ctx);
-        assert_eq!(out.get("plot").and_then(|v| v.get("label")).and_then(|v| v.as_str()), Some("cpu"));
-        assert_eq!(out.get("streamPlot").and_then(|v| v.get("label")).and_then(|v| v.as_str()), Some("stream"));
+        assert_eq!(
+            out.get("plot")
+                .and_then(|v| v.get("label"))
+                .and_then(|v| v.as_str()),
+            Some("cpu")
+        );
+        assert_eq!(
+            out.get("streamPlot")
+                .and_then(|v| v.get("label"))
+                .and_then(|v| v.as_str()),
+            Some("stream")
+        );
         assert!(out.get("logs").is_none());
         assert!(out.get("argo").is_none());
         assert!(out.get("mlflow").is_none());

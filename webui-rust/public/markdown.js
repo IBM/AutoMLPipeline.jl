@@ -68,7 +68,17 @@ export function promptResultMarkdown(data = {}) {
   if (data.type === 'confirmation_required') {
     return `## Confirm deployment\n\n- Tool: \`${data.tool}\`\n- Namespace: \`${data.namespace}\`\n- Template: \`${data.templateName}\`\n\n\`\`\`json\n${JSON.stringify(data.parameters || {}, null, 2)}\n\`\`\``;
   }
-  const parts = [data.message || JSON.stringify(data, null, 2)];
-  if (data.llmError) parts.push(`\n\n---\n\n**LLM fallback reason**\n\n\`\`\`json\n${data.llmError}\n\`\`\``);
-  return parts.join('');
+  if (data.type === 'agent_error') {
+    const agent = data.agent || {};
+    const parts = [
+      '## Agent not reachable',
+      '',
+      `- Error: ${data.message || 'unknown agent error'}`,
+      `- Endpoint: \`${agent.baseUrl || 'not configured'}\``,
+      `- Model: \`${agent.model || 'not configured'}\``,
+      `- API key loaded: \`${agent.hasKey ? 'yes' : 'no'}\``,
+    ];
+    return parts.join('\n');
+  }
+  return data.message || JSON.stringify(data, null, 2);
 }

@@ -6,7 +6,12 @@ const state = { config: null, templates: [], current: null, metrics: [], quickDe
 async function json(url, options = {}) {
   const res = await fetch(url, options);
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.message || res.statusText);
+  if (!res.ok) {
+    const err = new Error(body.message || res.statusText);
+    err.status = res.status;
+    err.body = body;
+    throw err;
+  }
   return body;
 }
 
@@ -14,20 +19,47 @@ function endpointLinks(config) {
   const links = [
     ['Argo', config.argoServer], ['Grafana', config.grafanaUrl], ['Mlflow', config.mlflowUrl], ['Prometheus metrics', config.prometheusMetricsUrl], ['MCP', config.mcpUrl]
   ];
-  $('endpointLinks').innerHTML = `${links.map(([name, href]) => `<a href="${href}" target="_blank" rel="noreferrer">${name}</a>`).join('')}<a href="#llmSettings">LLM credentials</a>`;
+  const nav = $('endpointLinks');
+  nav.replaceChildren();
+  links.forEach(([name, href]) => {
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noreferrer';
+    a.textContent = name;
+    nav.append(a);
+  });
+  const llm = document.createElement('a');
+  llm.href = '#llmSettings';
+  llm.textContent = 'LLM credentials';
+  nav.append(llm);
 }
 
 function renderLlm(config) {
   $('llmApiKey').value = config.llm.apiKey || '';
   $('llmBaseUrl').value = config.llm.baseUrl || '';
   $('llmModel').value = config.llm.model || '';
-  $('llmStatus').textContent = config.llm.hasKey ? config.llm.model : 'parser fallback';
+  $('llmStatus').className = config.llm.hasKey && config.llm.baseUrl ? 'badge' : 'badge bad';
+  if (!config.llm.baseUrl && !config.llm.hasKey) {
+    $('llmStatus').textContent = 'missing BASE_URL + ETE_API_KEY';
+  } else if (!config.llm.baseUrl) {
+    $('llmStatus').textContent = 'missing BASE_URL';
+  } else if (!config.llm.hasKey) {
+    $('llmStatus').textContent = 'missing ETE_API_KEY';
+  } else {
+    $('llmStatus').textContent = config.llm.model;
+  }
 }
 
 function renderTemplates() {
   const select = $('templateSelect');
   const currentName = state.current?.name;
-  select.innerHTML = state.templates.map((t, i) => `<option value="${i}">${t.name || 'unnamed'} · ${t.source || 'unknown'}</option>`).join('');
+  select.replaceChildren(...state.templates.map((t, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `${t.name || 'unnamed'} · ${t.source || 'unknown'}`;
+    return option;
+  }));
   const index = Math.max(0, state.templates.findIndex((t) => t.name === currentName));
   select.value = String(index);
   state.current = state.templates[index] || null;
@@ -44,15 +76,46 @@ async function loadTemplates() {
 }
 
 function renderMetricOptions() {
-  const metricOptions = state.metrics.map((m) => `<option value="${m.id}">${m.label} (${m.unit})</option>`).join('');
-  $('metricSelect').innerHTML = metricOptions;
-  $('cpuStreamDetector').innerHTML = state.quickDetectors.map((d) => `<option value="${d.id}">${d.label}</option>`).join('');
+  $('metricSelect').replaceChildren(...state.metrics.map((m) => {
+    const option = document.createElement('option');
+    option.value = m.id;
+    option.textContent = `${m.label} (${m.unit})`;
+    return option;
+  }));
+  $('cpuStreamDetector').replaceChildren(...state.quickDetectors.map((d) => {
+    const option = document.createElement('option');
+    option.value = d.id;
+    option.textContent = d.label;
+    return option;
+  }));
   $('cpuStreamDetector').value = 'caret:pca';
 }
 
 function renderParams() {
   const params = state.current?.parameters || [];
-  $('params').innerHTML = params.length ? params.map((p) => `<div class="field"><label><span>${p.name}</span><span>${p.required ? 'required' : 'default'}</span></label><input data-param="${p.name}" value="${p.value ?? p.default ?? ''}" /></div>`).join('') : '<p class="muted">No parameters loaded yet.</p>';
+  const container = $('params');
+  if (!params.length) {
+    const empty = document.createElement('p');
+    empty.className = 'muted';
+    empty.textContent = 'No parameters loaded yet.';
+    container.replaceChildren(empty);
+  } else {
+    container.replaceChildren(...params.map((p) => {
+      const field = document.createElement('div');
+      field.className = 'field';
+      const label = document.createElement('label');
+      const name = document.createElement('span');
+      name.textContent = p.name;
+      const status = document.createElement('span');
+      status.textContent = p.required ? 'required' : 'default';
+      label.append(name, status);
+      const input = document.createElement('input');
+      input.dataset.param = p.name;
+      input.value = p.value ?? p.default ?? '';
+      field.append(label, input);
+      return field;
+    }));
+  }
   $('deployBtn').disabled = !state.current;
 }
 
@@ -186,19 +249,34 @@ $('plotMetric').addEventListener('click', async () => {
   }
 });
 $('saveLlm').addEventListener('click', async () => {
-  $('llmSaveStatus').textContent = 'saving';
+  $('llmSaveStatus').textContent = 'verifying';
+  $('llmSaveStatus').className = 'badge muted';
+  $('llmSaveError').hidden = true;
+  $('llmSaveError').replaceChildren();
   try {
     const data = await json('/api/llm', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ apiKey: $('llmApiKey').value, baseUrl: $('llmBaseUrl').value, model: $('llmModel').value }) });
     state.config.llm = data.llm;
     renderLlm(state.config);
+    $('llmStatus').textContent = 'agent ok';
+    $('llmStatus').className = 'badge';
     await loadTemplates();
-    $('llmSaveStatus').textContent = 'saved';
+    $('llmSaveStatus').textContent = 'verified + saved';
     $('llmSaveStatus').className = 'badge';
   } catch (err) {
-    $('llmSaveStatus').textContent = 'error';
+    $('llmSaveStatus').textContent = 'verify failed';
     $('llmSaveStatus').className = 'badge bad';
+    $('llmSaveStatus').title = err.message;
+    $('llmStatus').textContent = 'agent error';
+    $('llmStatus').className = 'badge bad';
+    $('llmSaveError').hidden = false;
+    renderMarkdown($('llmSaveError'), err.body ? promptResultMarkdown(err.body) : `## Credential check failed\n\n${err.message}`);
   }
 });
+
+function renderMarkdown(target, markdown) {
+  const parsed = new DOMParser().parseFromString(markdownToHtml(markdown), 'text/html');
+  target.replaceChildren(...parsed.body.childNodes);
+}
 
 $('askBtn').addEventListener('click', async () => {
   $('answer').classList.add('markdown');
@@ -206,8 +284,14 @@ $('askBtn').addEventListener('click', async () => {
   const parameters = Object.fromEntries([...document.querySelectorAll('[data-param]')].map((el) => [el.dataset.param, el.value]));
   try {
     const data = await json('/api/prompt', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: $('prompt').value, context: { template: state.current, parameters, logs: $('logs').textContent, plot: state.plot, streamPlot: state.cpuStream } }) });
-    $('answer').innerHTML = markdownToHtml(promptResultMarkdown(data));
-  } catch (err) { $('answer').innerHTML = markdownToHtml(`**Error:** ${err.message}`); }
+    $('llmStatus').textContent = 'agent ok';
+    $('llmStatus').className = 'badge';
+    renderMarkdown($('answer'), promptResultMarkdown(data));
+  } catch (err) {
+    $('llmStatus').textContent = 'agent error';
+    $('llmStatus').className = 'badge bad';
+    renderMarkdown($('answer'), err.body ? promptResultMarkdown(err.body) : `## Error\n\n${err.message}`);
+  }
 });
 
-boot().catch((err) => { document.body.innerHTML = `<pre>${err.stack || err.message}</pre>`; });
+boot().catch((err) => { document.body.textContent = err.stack || err.message; });
