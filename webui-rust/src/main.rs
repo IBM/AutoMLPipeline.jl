@@ -578,10 +578,26 @@ fn agent_context(prompt: &str, ctx: serde_json::Value) -> serde_json::Value {
     if mentions(prompt, "argo") || mentions(prompt, "mlflow") {
         return ctx;
     }
-    serde_json::json!({
-        "plot": ctx.get("plot").cloned().unwrap_or(serde_json::Value::Null),
-        "streamPlot": ctx.get("streamPlot").cloned().unwrap_or(serde_json::Value::Null),
-    })
+    let mut out = serde_json::Map::new();
+    out.insert(
+        "plot".into(),
+        ctx.get("plot").cloned().unwrap_or(serde_json::Value::Null),
+    );
+    if wants_stream_plot(prompt) {
+        out.insert(
+            "streamPlot".into(),
+            ctx.get("streamPlot")
+                .cloned()
+                .unwrap_or(serde_json::Value::Null),
+        );
+    }
+    serde_json::Value::Object(out)
+}
+
+fn wants_stream_plot(prompt: &str) -> bool {
+    ["quick", "stream", "uni-detector", "quick detector"]
+        .iter()
+        .any(|needle| mentions(prompt, needle))
 }
 
 fn compact_context_for_llm(ctx: &serde_json::Value) -> serde_json::Value {
@@ -672,7 +688,7 @@ fn compact_plot_for_llm(plot: &serde_json::Value) -> serde_json::Value {
 
 fn prompt_for_llm(prompt: &str, ctx: &serde_json::Value) -> String {
     if has_plot_context(ctx) && mentions(prompt, "plot") {
-        return "Analyze supplied plot context. Return concise bullets: metric, query, time window, samples, values, anomalies, why repeated refresh may look unchanged, and what control to change next. Max 180 words.".into();
+        return "Analyze supplied full-detector plot context. Return concise bullets: metric, query, time window, samples, values, anomalies. Use quick/stream context only if provided. Max 180 words.".into();
     }
     prompt.to_string()
 }
@@ -857,7 +873,7 @@ async fn call_llm_once(
     let body = serde_json::json!({
         "model": llm.model,
         "messages": [
-            { "role": "system", "content": "You are an Argo AutoML assistant. By default use only Prometheus plots and metric anomaly stream. Use Argo context only when user mentions Argo. Use MLflow context only when user mentions MLflow. Convert Unix timestamps in answers to YYYY-MM-DD HH:MM:SS UTC. Explain plots with metric, query, time window, sample count, min/max/mean if present, anomaly timestamps, likely cause, and what control to change next. State hypotheses as hypotheses. Never claim mutations. Do not use Markdown tables. Use clear bullets and enough detail for debugging." },
+            { "role": "system", "content": "You are an Argo AutoML assistant. By default use only the full-detector Prometheus plot. Use quick detector or stream context only when user mentions quick, stream, or uni-detector. Use Argo context only when user mentions Argo. Use MLflow context only when user mentions MLflow. Convert Unix timestamps in answers to YYYY-MM-DD HH:MM:SS UTC. Explain plots with metric, query, time window, sample count, min/max/mean if present, anomaly timestamps, likely cause, and key behavior. State hypotheses as hypotheses. Never claim mutations. Do not use Markdown tables. Use clear bullets and enough detail for debugging." },
             { "role": "user", "content": serde_json::json!({ "prompt": prompt, "context": ctx }).to_string() }
         ]
     });
@@ -1428,10 +1444,10 @@ mod tests {
             "plot": { "label": "cpu", "pointCount": 145 }
         });
         let prompt = prompt_for_llm(
-            "Explain this plot in detail. Focus on metric, query, time window, min/max/mean, anomalies, and why it may look unchanged.",
+            "Explain this plot in detail. Focus on metric, query, time window, min/max/mean, and potential anomalies.",
             &ctx,
         );
-        assert!(prompt.contains("Analyze supplied plot context"));
+        assert!(prompt.contains("Analyze supplied full-detector plot context"));
         assert!(prompt.contains("Max 180 words"));
     }
 
@@ -1567,30 +1583,40 @@ mod tests {
     }
 
     #[test]
-    fn prompt_context_defaults_to_plots_only() {
+    fn prompt_context_defaults_to_full_detector_plot_only() {
         let ctx = serde_json::json!({
-            "plot": { "label": "cpu" },
-            "streamPlot": { "label": "stream" },
+            "plot": { "label": "cpu", "anomalyMode": "full" },
+            "streamPlot": { "label": "stream", "anomalyMode": "quick" },
             "logs": "secret logs",
             "argo": { "workflow": "w" },
             "mlflow": { "run": "r" }
         });
-        let out = agent_context("what happened?", ctx);
+        let out = agent_context("explain this plot", ctx);
         assert_eq!(
             out.get("plot")
-                .and_then(|v| v.get("label"))
+                .and_then(|v| v.get("anomalyMode"))
                 .and_then(|v| v.as_str()),
-            Some("cpu")
+            Some("full")
         );
-        assert_eq!(
-            out.get("streamPlot")
-                .and_then(|v| v.get("label"))
-                .and_then(|v| v.as_str()),
-            Some("stream")
-        );
+        assert!(out.get("streamPlot").is_none());
         assert!(out.get("logs").is_none());
         assert!(out.get("argo").is_none());
         assert!(out.get("mlflow").is_none());
+    }
+
+    #[test]
+    fn prompt_context_keeps_quick_stream_when_requested() {
+        let ctx = serde_json::json!({
+            "plot": { "label": "cpu", "anomalyMode": "full" },
+            "streamPlot": { "label": "stream", "anomalyMode": "quick" }
+        });
+        let out = agent_context("explain quick detector stream", ctx);
+        assert_eq!(
+            out.get("streamPlot")
+                .and_then(|v| v.get("anomalyMode"))
+                .and_then(|v| v.as_str()),
+            Some("quick")
+        );
     }
 
     #[test]

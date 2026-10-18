@@ -32,7 +32,7 @@ Implemented:
 - remote LLM agent calls with bounded retry for transient transport failures and visible errors for missing credentials, unreachable endpoints, HTTP failures, invalid JSON, empty responses, and timeouts
 - LLM credential save verifies the submitted endpoint/model/key with the same `/chat/completions` path used by prompts before persisting changes, and displays the structured agent error when verification fails
 - no local prompt fallback: if the remote agent is not configured, unreachable, timed out, or returns bad data, the prompt request fails with `agent_error`
-- plot prompt context is compacted and plot questions are normalized before remote LLM calls so explanations use the agent without raw time-series arrays or timeout-prone prompt wording
+- plot prompt context uses the full-detector plot by default, compacts raw points, and normalizes plot questions before remote LLM calls so explanations do not use quick-detector stream data unless explicitly requested
 - agent prompt context defaults to plots only; mention Argo or MLflow to include those systems
 
 Stubbed on purpose:

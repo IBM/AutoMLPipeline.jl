@@ -51,7 +51,7 @@ Make agent configuration strict and make every failed agent path explicit.
 
 `/api/prompt` now has no fallback path. If credentials are missing, the remote call times out, the endpoint is unreachable, the response is non-success, JSON is invalid, or message content is empty, the route returns non-2xx `agent_error`. It does not include `localAnswer` and does not synthesize a plot explanation.
 
-Prompt context is still compacted before remote LLM calls: raw plot `points` arrays are replaced with summary fields and capped anomaly points. Plot explanation prompts are normalized to concise agent instructions before the same remote chat call. This reduces timeout-prone payload/wording without bypassing the agent.
+Prompt context is still compacted before remote LLM calls: raw plot `points` arrays are replaced with summary fields and capped anomaly points. Plot explanation prompts use the full-detector plot by default and are normalized to concise agent instructions before the same remote chat call. Quick-detector stream context is included only when the user asks for quick, stream, or uni-detector data. This reduces timeout-prone payload/wording without bypassing the agent.
 
 `call_llm` uses a bounded timeout, retries transient transport failures against the same `/chat/completions` endpoint, preserves `/v1` when constructing `/chat/completions`, treats non-success HTTP status, invalid JSON, and empty content as explicit errors, and redacts the API key from surfaced error text.
 
