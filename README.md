@@ -158,6 +158,16 @@ pkg> update
 pkg> add AutoMLPipeline
 ```
 
+### Running Tests
+
+From a checkout, run package tests with the project active:
+
+```sh
+julia --project=. -e 'using Pkg; Pkg.test()'
+```
+
+`--pkg` is Julia's `--pkgimages` option and requires `yes`, `no`, or `existing`; it does not activate this package.
+
 ### Sample Usage
 
 Below outlines some typical way to preprocess and model any dataset.
