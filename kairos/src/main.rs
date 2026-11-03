@@ -1,6 +1,6 @@
 use axum::{
     Json, Router,
-    extract::{Query, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
@@ -69,7 +69,7 @@ impl Config {
             port: env::var("PORT")
                 .ok()
                 .and_then(|s| s.parse().ok())
-                .unwrap_or(8091),
+                .unwrap_or(8092),
             namespace: env::var("ARGO_NAMESPACE").unwrap_or_else(|_| "argo".into()),
             argo_server: env::var("ARGO_SERVER").unwrap_or_else(|_| "http://argo.home:8080".into()),
             template_url: env::var("ARGO_TEMPLATE_URL")
@@ -355,6 +355,7 @@ async fn main() {
         .route("/api/config", get(public_config))
         .route("/api/llm", post(update_llm))
         .route("/api/templates", get(templates))
+        .route("/api/templates/{name}", get(template_detail))
         .route("/api/workflows", get(workflows))
         .route("/api/workflows/submit", post(submit_workflow))
         .route("/api/mlflow", get(mlflow))
@@ -463,9 +464,37 @@ async fn templates(State(state): State<Arc<AppState>>) -> Json<serde_json::Value
         "templates": names.into_iter().map(|name| serde_json::json!({
             "name": name,
             "source": "argo",
-            "parameters": template_parameters(&c, &name),
+            "parameters": [],
+            "parametersLoaded": false,
         })).collect::<Vec<_>>()
     }))
+}
+
+async fn template_detail(
+    State(state): State<Arc<AppState>>,
+    Path(name): Path<String>,
+) -> impl IntoResponse {
+    if !safe_name(&name) {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "status": "error", "message": "Invalid template name" })),
+        )
+            .into_response();
+    }
+    let c = state.config.read().await.clone();
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "status": "ok",
+            "template": {
+                "name": name,
+                "source": "argo",
+                "parameters": template_parameters(&c, &name),
+                "parametersLoaded": true,
+            }
+        })),
+    )
+        .into_response()
 }
 
 async fn workflows(State(state): State<Arc<AppState>>) -> Json<serde_json::Value> {
@@ -688,7 +717,7 @@ fn compact_plot_for_llm(plot: &serde_json::Value) -> serde_json::Value {
 
 fn prompt_for_llm(prompt: &str, ctx: &serde_json::Value) -> String {
     if has_plot_context(ctx) && mentions(prompt, "plot") {
-        return "Analyze supplied full-detector plot context. Return concise bullets: metric, query, time window, samples, values, anomalies. Use quick/stream context only if provided. Max 180 words.".into();
+        return "Analyze supplied full-detector plot context. Return concise bullets: metric, query, time window, samples, values, anomalies. Use quick/stream context only if provided. Max 120 words.".into();
     }
     prompt.to_string()
 }
@@ -850,17 +879,20 @@ async fn call_llm(
     ctx: &serde_json::Value,
 ) -> Result<String, String> {
     let mut last_error = String::new();
-    for attempt in 1..=3 {
+    const MAX_ATTEMPTS: u64 = 2;
+    for attempt in 1..=MAX_ATTEMPTS {
         match call_llm_once(client, llm, prompt, ctx).await {
             Ok(message) => return Ok(message),
-            Err(message) if is_retryable_llm_error(&message) && attempt < 3 => {
+            Err(message) if is_retryable_llm_error(&message) && attempt < MAX_ATTEMPTS => {
                 last_error = message;
                 tokio::time::sleep(Duration::from_millis(250 * attempt)).await;
             }
             Err(message) => return Err(message),
         }
     }
-    Err(format!("LLM request failed after 3 attempts: {last_error}"))
+    Err(format!(
+        "LLM request failed after {MAX_ATTEMPTS} attempts: {last_error}"
+    ))
 }
 
 async fn call_llm_once(
@@ -870,15 +902,19 @@ async fn call_llm_once(
     ctx: &serde_json::Value,
 ) -> Result<String, String> {
     let url = llm_chat_url(&llm.base_url).map_err(|e| format!("invalid LLM base URL: {e}"))?;
-    let body = serde_json::json!({
+    let mut body = serde_json::json!({
         "model": llm.model,
         "messages": [
-            { "role": "system", "content": "You are an Argo AutoML assistant. By default use only the full-detector Prometheus plot. Use quick detector or stream context only when user mentions quick, stream, or uni-detector. Use Argo context only when user mentions Argo. Use MLflow context only when user mentions MLflow. Convert Unix timestamps in answers to YYYY-MM-DD HH:MM:SS UTC. Explain plots with metric, query, time window, sample count, min/max/mean if present, anomaly timestamps, likely cause, and key behavior. State hypotheses as hypotheses. Never claim mutations. Do not use Markdown tables. Use clear bullets and enough detail for debugging." },
+            { "role": "system", "content": "You are an Argo AutoML assistant. Use plot, Argo, or MLflow context only when provided and relevant. Convert Unix timestamps to YYYY-MM-DD HH:MM:SS UTC. Explain plots with metric, query, time window, sample count, min/max/mean if present, anomaly timestamps, likely cause, and key behavior. State hypotheses as hypotheses. Never claim mutations. Do not use Markdown tables. Be concise." },
             { "role": "user", "content": serde_json::json!({ "prompt": prompt, "context": ctx }).to_string() }
         ]
     });
+    if let Some(max_tokens) = llm_max_tokens() {
+        body["max_tokens"] = serde_json::json!(max_tokens);
+    }
+    let timeout_secs = llm_request_timeout_secs();
     let res = timeout(
-        Duration::from_secs(60),
+        Duration::from_secs(timeout_secs),
         client
             .post(url)
             .bearer_auth(&llm.api_key)
@@ -886,7 +922,7 @@ async fn call_llm_once(
             .send(),
     )
     .await
-    .map_err(|_| "LLM request timed out after 60s".to_string())?
+    .map_err(|_| format!("LLM request timed out after {timeout_secs}s"))?
     .map_err(|e| sanitize_llm_error(&e.to_string(), &llm.api_key))?;
     let status = res.status();
     let text = res
@@ -916,6 +952,22 @@ async fn call_llm_once(
         ));
     }
     Ok(content.to_string())
+}
+
+fn llm_request_timeout_secs() -> u64 {
+    env::var("LLM_TIMEOUT_SECS")
+        .ok()
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(20)
+        .clamp(5, 60)
+}
+
+fn llm_max_tokens() -> Option<u32> {
+    env::var("LLM_MAX_TOKENS")
+        .ok()
+        .and_then(|s| s.parse::<u32>().ok())
+        .map(|n| (n > 0).then_some(n.clamp(32, 4096)))
+        .unwrap_or(Some(512))
 }
 
 fn is_retryable_llm_error(message: &str) -> bool {
@@ -1448,7 +1500,7 @@ mod tests {
             &ctx,
         );
         assert!(prompt.contains("Analyze supplied full-detector plot context"));
-        assert!(prompt.contains("Max 180 words"));
+        assert!(prompt.contains("Max 120 words"));
     }
 
     #[test]
@@ -1492,8 +1544,28 @@ mod tests {
         assert!(is_retryable_llm_error(
             "error sending request for url (https://example.test/v1/chat/completions)"
         ));
-        assert!(is_retryable_llm_error("LLM request timed out after 60s"));
+        assert!(is_retryable_llm_error("LLM request timed out after 20s"));
         assert!(!is_retryable_llm_error("LLM returned invalid JSON"));
+    }
+
+    #[test]
+    fn llm_request_timeout_defaults_to_fast_visible_failure() {
+        temp_env::with_var("LLM_TIMEOUT_SECS", None::<&str>, || {
+            assert_eq!(llm_request_timeout_secs(), 20);
+        });
+        temp_env::with_var("LLM_TIMEOUT_SECS", Some("7"), || {
+            assert_eq!(llm_request_timeout_secs(), 7);
+        });
+    }
+
+    #[test]
+    fn llm_max_tokens_defaults_to_bounded_agent_responses() {
+        temp_env::with_var("LLM_MAX_TOKENS", None::<&str>, || {
+            assert_eq!(llm_max_tokens(), Some(512));
+        });
+        temp_env::with_var("LLM_MAX_TOKENS", Some("0"), || {
+            assert_eq!(llm_max_tokens(), None);
+        });
     }
 
     fn test_config(llm: LlmConfig) -> Config {

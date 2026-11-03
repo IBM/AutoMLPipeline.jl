@@ -1,7 +1,7 @@
 import { markdownToHtml, promptResultMarkdown } from './markdown.js';
 
 const $ = (id) => document.getElementById(id);
-const state = { config: null, templates: [], current: null, metrics: [], quickDetectors: [], workflowName: '', plot: null, cpuStream: null };
+const state = { config: null, templates: [], current: null, metrics: [], workflowName: '', plot: null, cpuStream: null, cpuStreamTimer: null, cpuStreamTick: 0 };
 
 async function json(url, options = {}) {
   const res = await fetch(url, options);
@@ -64,6 +64,7 @@ function renderTemplates() {
   select.value = String(index);
   state.current = state.templates[index] || null;
   renderParams();
+  loadCurrentTemplateDetails();
 }
 
 async function loadTemplates() {
@@ -75,6 +76,31 @@ async function loadTemplates() {
   renderTemplates();
 }
 
+async function loadCurrentTemplateDetails() {
+  const template = state.current;
+  if (!template?.name || template.parametersLoaded) return;
+  const expectedName = template.name;
+  $('templateStatus').textContent = 'loading params';
+  try {
+    const data = await json(`/api/templates/${encodeURIComponent(expectedName)}`);
+    const fresh = data.template;
+    const index = state.templates.findIndex((t) => t.name === expectedName);
+    if (index >= 0) state.templates[index] = { ...state.templates[index], ...fresh };
+    if (state.current?.name === expectedName) {
+      state.current = state.templates[index] || fresh;
+      renderParams();
+    }
+    $('templateStatus').textContent = `${state.templates.length} found`;
+    $('templateStatus').className = 'badge';
+  } catch (err) {
+    if (state.current?.name === expectedName) {
+      $('templateStatus').textContent = 'param error';
+      $('templateStatus').className = 'badge bad';
+      $('logs').textContent = err.message;
+    }
+  }
+}
+
 function renderMetricOptions() {
   $('metricSelect').replaceChildren(...state.metrics.map((m) => {
     const option = document.createElement('option');
@@ -82,22 +108,23 @@ function renderMetricOptions() {
     option.textContent = `${m.label} (${m.unit})`;
     return option;
   }));
-  $('cpuStreamDetector').replaceChildren(...state.quickDetectors.map((d) => {
-    const option = document.createElement('option');
-    option.value = d.id;
-    option.textContent = d.label;
-    return option;
-  }));
-  $('cpuStreamDetector').value = 'caret:pca';
 }
 
 function renderParams() {
   const params = state.current?.parameters || [];
   const container = $('params');
+  if (state.current && !state.current.parametersLoaded) {
+    const loading = document.createElement('p');
+    loading.className = 'muted';
+    loading.textContent = 'Loading template parameters...';
+    container.replaceChildren(loading);
+    $('deployBtn').disabled = true;
+    return;
+  }
   if (!params.length) {
     const empty = document.createElement('p');
     empty.className = 'muted';
-    empty.textContent = 'No parameters loaded yet.';
+    empty.textContent = 'No parameters for this template.';
     container.replaceChildren(empty);
   } else {
     container.replaceChildren(...params.map((p) => {
@@ -133,16 +160,16 @@ async function boot() {
   try {
     const data = await json('/api/prometheus/metrics');
     state.metrics = data.metrics || [];
-    state.quickDetectors = data.quickDetectors || [];
     renderMetricOptions();
   } catch (err) {
     $('metricStatus').textContent = 'error';
     $('metricStatus').className = 'badge bad';
     $('metricSummary').textContent = err.message;
   }
+  startSimulatedStream();
 }
 
-$('templateSelect').addEventListener('change', (event) => { state.current = state.templates[Number(event.target.value)]; renderParams(); });
+$('templateSelect').addEventListener('change', (event) => { state.current = state.templates[Number(event.target.value)]; renderParams(); loadCurrentTemplateDetails(); });
 $('deployBtn').addEventListener('click', async () => {
   $('deployBtn').disabled = true;
   const parameters = Object.fromEntries([...document.querySelectorAll('[data-param]')].map((el) => [el.dataset.param, el.value]));
@@ -200,10 +227,13 @@ function drawMetric(data, canvasId = 'metricChart') {
     if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
   });
   ctx.stroke();
-  ctx.fillStyle = '#ff7a90';
-  points.filter((p) => p.anomaly).forEach((p) => {
-    const x = xOf(points.indexOf(p)), y = yOf(p.value);
-    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+  points.forEach((p, i) => {
+    if (!p.anomaly) return;
+    const x = xOf(i), y = yOf(p.value);
+    ctx.fillStyle = p.severity === 'big' ? '#ff4d6d' : '#f7c66a';
+    ctx.beginPath(); ctx.arc(x, y, p.severity === 'big' ? 7 : 4, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff4'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(x, y, p.severity === 'big' ? 11 : 7, 0, Math.PI * 2); ctx.stroke();
   });
   ctx.fillStyle = '#b9d7ff';
   ctx.fillText(`${data.label} (${data.unit}) · anomalies ${data.anomalyCount || 0}`, left + 8, 20);
@@ -226,26 +256,118 @@ async function plotMetricChart() {
   $('metricStatus').textContent = 'ok';
 }
 
-async function plotCpuStreamChart() {
-  $('cpuStreamStatus').textContent = 'querying';
-  const params = new URLSearchParams({ metric: $('metricSelect').value || 'cpu', hours: $('metricHours').value || '24', stepMinutes: $('metricStepMinutes').value || '10', anomalyMode: 'quick', detector: $('cpuStreamDetector').value });
-  const data = await json(`/api/prometheus/range?${params}`);
+const STREAM_POINT_COUNT = 420;
+const STREAM_INTERVAL_MS = 150;
+const STREAM_STEP_SECONDS = 1;
+
+function chaoticUnit(tick, salt = 0) {
+  const x = Math.sin((tick + salt) * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function simulatedSpike(tick) {
+  const burst = chaoticUnit(Math.floor(tick / 3), 17);
+  const rare = chaoticUnit(tick, 41);
+  const twitch = chaoticUnit(tick + Math.floor(Math.sin(tick / 13) * 9), 97);
+  const isSpike = rare > 0.965 || (burst > 0.88 && tick % 3 === 0) || (twitch > 0.935 && Math.sin(tick / 7) > 0.25);
+  if (!isSpike) return null;
+
+  const big = rare > 0.986 || burst > 0.965;
+  const direction = chaoticUnit(tick, 73) > 0.45 ? 'up' : 'down';
+  const magnitude = (big ? 28 + chaoticUnit(tick, 11) * 26 : 7 + chaoticUnit(tick, 19) * 12) * (direction === 'up' ? 1 : -1);
+  return { severity: big ? 'big' : 'small', direction, magnitude: Number(magnitude.toFixed(2)) };
+}
+
+function simulatedPoint(tick, ts) {
+  const baseline = 54 + Math.sin(tick / 8) * 5 + Math.sin(tick / 21) * 7 + Math.sin(tick / 3) * 1.3 + (chaoticUnit(tick, 5) - 0.5) * 3.5;
+  const spike = simulatedSpike(tick);
+  const value = Math.max(5, baseline + (spike?.magnitude || 0));
+  return {
+    ts,
+    value: Number(value.toFixed(2)),
+    anomaly: Boolean(spike),
+    detected: Boolean(spike),
+    severity: spike?.severity || 'normal',
+    direction: spike?.direction || 'none'
+  };
+}
+
+function buildSimulatedStreamData(points) {
+  const values = points.map((p) => p.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const pad = Math.max(6, (max - min) * 0.12);
+  return {
+    metric: 'simulated-kpi',
+    label: 'Simulated KPI stream',
+    unit: 'score',
+    points,
+    xRange: { start: points[0].ts, end: points[points.length - 1].ts },
+    yRange: { min: min - pad, max: max + pad },
+    anomalyCount: points.filter((p) => p.anomaly).length,
+    anomalyMode: 'simulated',
+    detector: 'spike detector',
+    query: 'simulated rolling KPI baseline with chaotic small and big spike anomalies',
+    warnings: []
+  };
+}
+
+function simulatedStreamSummary(data) {
+  const recent = data.points
+    .filter((p) => p.anomaly)
+    .slice(-6)
+    .map((p) => `${new Date(p.ts * 1000).toLocaleTimeString()} ${p.severity} ${p.direction} spike ${p.value.toFixed(2)} ${data.unit}`)
+    .join('\n');
+  return `${data.label}: ${data.points.length} rolling points, streaming every ${STREAM_INTERVAL_MS}ms, ${data.anomalyCount} detected anomalies.\nDetector: simulated ${data.detector}; orange = small spike, red = big spike.\nLatest value: ${data.points.at(-1).value.toFixed(2)} ${data.unit}.\nRecent anomalies:\n${recent || 'none yet'}`;
+}
+
+function renderSimulatedStream() {
+  const points = state.cpuStream?.points || [];
+  if (!points.length) return;
+  const data = buildSimulatedStreamData(points);
   state.cpuStream = data;
   drawMetric(data, 'cpuStreamChart');
-  $('cpuStreamSummary').textContent = plotSummary(data);
-  $('cpuStreamStatus').textContent = 'ok';
+  $('cpuStreamSummary').textContent = simulatedStreamSummary(data);
+  $('cpuStreamStatus').textContent = 'streaming';
+  $('cpuStreamStatus').className = 'badge';
+}
+
+function seedSimulatedStream() {
+  const now = Math.floor(Date.now() / 1000);
+  const startTick = state.cpuStreamTick || 0;
+  const points = Array.from({ length: STREAM_POINT_COUNT }, (_, i) => {
+    const tick = startTick + i;
+    const ts = now - (STREAM_POINT_COUNT - 1 - i) * STREAM_STEP_SECONDS;
+    return simulatedPoint(tick, ts);
+  });
+  state.cpuStreamTick = startTick + STREAM_POINT_COUNT;
+  state.cpuStream = buildSimulatedStreamData(points);
+}
+
+function advanceSimulatedStream() {
+  if (!state.cpuStream?.points?.length) seedSimulatedStream();
+  const points = state.cpuStream.points.slice(1);
+  points.push(simulatedPoint(state.cpuStreamTick, state.cpuStream.points.at(-1).ts + STREAM_STEP_SECONDS));
+  state.cpuStreamTick += 1;
+  state.cpuStream = buildSimulatedStreamData(points);
+  renderSimulatedStream();
+}
+
+function startSimulatedStream() {
+  seedSimulatedStream();
+  renderSimulatedStream();
+  if (state.cpuStreamTimer) clearInterval(state.cpuStreamTimer);
+  state.cpuStreamTimer = setInterval(advanceSimulatedStream, STREAM_INTERVAL_MS);
 }
 
 $('plotMetric').addEventListener('click', async () => {
+  startSimulatedStream();
   try {
-    await Promise.all([plotMetricChart(), plotCpuStreamChart()]);
+    await plotMetricChart();
   } catch (err) {
     $('metricStatus').textContent = 'error';
     $('metricStatus').className = 'badge bad';
     $('metricSummary').textContent = err.message;
-    $('cpuStreamStatus').textContent = 'error';
-    $('cpuStreamStatus').className = 'badge bad';
-    $('cpuStreamSummary').textContent = err.message;
   }
 });
 $('saveLlm').addEventListener('click', async () => {
