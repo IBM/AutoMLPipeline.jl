@@ -21,6 +21,10 @@ function get_iris()
 end
 
 # -------------
+include("outlierdetector.jl")
+using .OutlierDetectors
+export OutlierDetector
+
 include("skanomalydetector.jl")
 using .SKAnomalyDetectors
 export SKAnomalyDetector, skanomalydetectors

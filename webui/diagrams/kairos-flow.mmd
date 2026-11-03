@@ -1,0 +1,17 @@
+flowchart LR
+    Operator["6G operator"] --> UI["KAIROS web UI / command deck"]
+    UI --> Argo["Argo Workflows / ClusterWorkflowTemplates"]
+    Argo --> AMP["AutoMLPipeline"]
+    AMP --> MLflow["MLflow + MinIO\nruns, metrics, artifacts"]
+    Testbed["SUNRISE-6G federated testbeds"] --> OTel["OpenTelemetry KPI streams"]
+    OTel --> Prom["Prometheus / Grafana"]
+    Prom --> UI
+    UI --> AutoAD["AutoAD / anomaly detectors"]
+    AutoAD --> Evidence["Evidence package\nplots, anomalies, logs, workflow stages, model outcomes"]
+    UI --> MCP["MCP read-only tools"]
+    MCP --> Argo
+    MCP --> MLflow
+    MCP --> Prom
+    Evidence --> LLM["LLM assistant"]
+    LLM --> Answer["Concise explanation\nwith facts, hypotheses, next checks"]
+    Answer --> Operator

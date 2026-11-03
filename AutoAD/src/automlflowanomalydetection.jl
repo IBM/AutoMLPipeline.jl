@@ -1,6 +1,5 @@
 module AutoMLFlowAnomalyDetections
 using PDFmerger: append_pdf!
-using Plots
 using Statistics
 using Serialization
 import PythonCall
@@ -89,6 +88,7 @@ function fit(mlfad::AutoMLFlowAnomalyDetection, X::DataFrame, Y::Vector=[])::Not
 end
 
 function plottroutput(mlfad::AutoMLFlowAnomalyDetection, Y::Union{Vector,DataFrame})
+  Plots = Base.require(Base.PkgId(Base.UUID("91a5bcdd-55d7-5caf-9e0b-520d859cae80"), "Plots"))
   data = Y
   votepercent = mlfad.model[:automodel].model[:votepercent]
   tmpdir = tempdir()
@@ -102,10 +102,10 @@ function plottroutput(mlfad::AutoMLFlowAnomalyDetection, Y::Union{Vector,DataFra
       coldata = data[:, strndx]
       ndx = findall(x -> x == true, coldata)
       Plots.plot(data[:,1], label="tsdata", title="Anomaly voting cutoff=$strndx")
-      xlabel!("X")
-      ylabel!("Y")
-      plp = scatter!(ndx, data[:,1][ndx], label="anomalous")
-      savefig(plp, artifact_plot)
+      Plots.xlabel!("X")
+      Plots.ylabel!("Y")
+      plp = Plots.scatter!(ndx, data[:,1][ndx], label="anomalous")
+      Plots.savefig(plp, artifact_plot)
       append_pdf!(artifact_allplots, artifact_plot, cleanup=true)
     end
   else
@@ -113,10 +113,10 @@ function plottroutput(mlfad::AutoMLFlowAnomalyDetection, Y::Union{Vector,DataFra
     coldata = data[:, strndx]
     ndx = findall(x -> x == true, coldata)
     Plots.plot(data[:,1], label="tsdata", title="Anomaly voting cutoff=$strndx")
-    xlabel!("X")
-    ylabel!("Y")
-    scatter!(ndx, data[:,1][ndx], label="anomalous")
-    savefig(artifact_allplots)
+    Plots.xlabel!("X")
+    Plots.ylabel!("Y")
+    Plots.scatter!(ndx, data[:,1][ndx], label="anomalous")
+    Plots.savefig(artifact_allplots)
   end
   MLF.log_artifact(artifact_allplots)
 end

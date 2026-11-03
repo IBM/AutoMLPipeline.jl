@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "mlflow-agent": {
+      "source": "mlflow/skills",
+      "sourceType": "github",
+      "skillPath": "mlflow-agent/SKILL.md",
+      "computedHash": "e1bc8147d7b557beb4a24699cd7d51b60f3cf9a8667b0f8fb3f8dfe221355e9e"
+    }
+  }
+}

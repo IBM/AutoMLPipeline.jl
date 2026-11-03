@@ -1,0 +1,14 @@
+flowchart TD
+    Session["Browser session / API token"] --> Server["KAIROS server"]
+    Server --> ReadOnly["Read-only reasoning path"]
+    ReadOnly --> ArgoRO["Argo status, logs, templates"]
+    ReadOnly --> MLflowRO["MLflow experiments, runs, metrics, artifacts"]
+    ReadOnly --> PromRO["Prometheus range queries"]
+    Server --> Mutating["Mutating operations"]
+    Mutating --> Gate["Explicit permission gate"]
+    Gate --> Ops["submit, retry, suspend, resume, delete, YAML deploy"]
+    ArgoRO --> Evidence["Logs, parameters, telemetry, tool results"]
+    MLflowRO --> Evidence
+    PromRO --> Evidence
+    Evidence --> Redact["Redact secrets + minimise context"]
+    Redact --> LLM["LLM assistant"]

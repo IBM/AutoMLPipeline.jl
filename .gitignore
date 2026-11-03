@@ -303,3 +303,18 @@ TSWLatexianTemp*
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
+/graphify-out
+/.graphifyignore
+/argo-workflow/webui/node_modules
+/argo-workflow/.pi
+/argo-workflow/.pi-subagents/artifacts
+/argo-workflow/webui/package-lock.json
+/.pi
+/.pi-subagents/artifacts
+/webui/node_modules
+/webui/package-lock.json
+/webui/.pi
+/webui/.agents/skills/mlflow-agent
+/webui/.pi-subagents/artifacts
+/webui-rust/.pi
+/webui-rust/Cargo.lock
