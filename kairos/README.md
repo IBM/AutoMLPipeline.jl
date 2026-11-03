@@ -1,11 +1,11 @@
 # Rust Argo AutoML Web UI
 
-Rust-native prototype of `../webui` focused on fast Prometheus plotting and anomaly detection without spawning Julia.
+Rust-native prototype of focused on fast Prometheus plotting and anomaly detection.
 
 ## Run
 
 ```sh
-cd webui-rust
+cd kairos
 cargo run
 ```
 
@@ -42,4 +42,4 @@ Stubbed on purpose:
 - MLflow query
 - MCP
 
-ponytail: this is a speed-first Rust slice, not a full Node feature clone. Add routes only when needed.
+
