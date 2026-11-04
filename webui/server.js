@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildConfig, llmFromRequest, publicConfig } from './lib/config.js';
@@ -17,6 +18,13 @@ export const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+export const mutationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 function cookies(req) {
   return Object.fromEntries((req.get('cookie') || '').split(';').map((part) => part.trim().split('=').map(decodeURIComponent)).filter(([k]) => k));
@@ -50,7 +58,7 @@ app.get('/api/config', (_req, res) => {
   res.json(publicConfig(config));
 });
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
-app.post('/api/llm', requireMutationAuth, (req, res) => {
+app.post('/api/llm', mutationLimiter, requireMutationAuth, (req, res) => {
   config.llm = llmFromRequest(config.llm, req.body);
   res.json({ status: 'ok', llm: publicConfig(config).llm });
 });
@@ -71,7 +79,7 @@ app.get('/api/workflows/:name/logs', async (req, res, next) => {
   try { res.json(await getWorkflowLogs(config, req.params.name, { tailLines: Number(req.query.tailLines || 500) })); } catch (err) { next(err); }
 });
 
-app.post('/api/workflows/submit', requireMutationAuth, async (req, res, next) => {
+app.post('/api/workflows/submit', mutationLimiter, requireMutationAuth, async (req, res, next) => {
   try {
     const result = req.body?.yaml ? await submitYamlWorkflow(config, req.body) : await submitTemplateWorkflow(config, req.body);
     res.json(result);
@@ -88,15 +96,16 @@ app.get('/api/prometheus/range', async (req, res, next) => {
   try { res.json({ status: 'ok', ...(await queryMetricRange(config, req.query)) }); } catch (err) { next(err); }
 });
 
-app.post('/api/prompt', requireMutationAuth, async (req, res, next) => {
+app.post('/api/prompt', mutationLimiter, requireMutationAuth, async (req, res, next) => {
   try { res.json(await answerPrompt(config, req.body)); } catch (err) { next(err); }
 });
 
-app.all('/mcp', async (req, res, next) => {
-  try {
-    if (req.method !== 'GET') return requireMutationAuth(req, res, () => handleMcpRequest(config, req, res).catch(next));
-    await handleMcpRequest(config, req, res);
-  } catch (err) { next(err); }
+app.get('/mcp', async (req, res, next) => {
+  try { await handleMcpRequest(config, req, res); } catch (err) { next(err); }
+});
+
+app.all('/mcp', mutationLimiter, requireMutationAuth, async (req, res, next) => {
+  try { await handleMcpRequest(config, req, res); } catch (err) { next(err); }
 });
 
 app.use((err, _req, res, _next) => {
