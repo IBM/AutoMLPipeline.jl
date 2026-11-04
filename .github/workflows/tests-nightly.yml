@@ -8,9 +8,12 @@ on:
         required: true
         default: nightly
 
+permissions:
+  contents: read
+
 jobs:
   tests:
-    name: Test Julia (${{ matrix.jlversion }}, ${{ matrix.os }}-${{ matrix.arch }})
+    name: Julia ${{ matrix.jlversion }} / ${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -29,7 +32,9 @@ jobs:
           cache-name: cache-artifacts
         with:
           path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          key: >-
+            ${{ runner.os }}-test-${{ env.cache-name }}-${{
+            hashFiles('**/Project.toml') }}
           restore-keys: |
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-

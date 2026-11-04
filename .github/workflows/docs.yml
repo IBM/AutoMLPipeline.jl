@@ -10,9 +10,14 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   docs:
-    if: ${{ !(github.event_name == 'pull_request') || contains(github.event.pull_request.labels.*.name, 'documentation') }}
+    if: >-
+      ${{ !(github.event_name == 'pull_request') ||
+      contains(github.event.pull_request.labels.*.name, 'documentation') }}
     name: Documentation
     runs-on: ubuntu-latest
     steps:
