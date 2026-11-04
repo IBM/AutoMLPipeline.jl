@@ -14,6 +14,8 @@ latest
 *.back
 Session.vim
 build.log
+kairos/graphify-out/
+src/.pi/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
