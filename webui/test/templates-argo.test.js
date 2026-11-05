@@ -14,7 +14,8 @@ test('argo UI cluster template page uses API endpoint', async () => {
   };
   try {
     const { templates } = await listTemplates({ templateUrl: 'http://argo.home:8080/cluster-workflow-templates' });
-    assert.ok(calls.includes('http://argo.home:8080/api/v1/cluster-workflow-templates'));
+    const apiCall = calls.map((call) => new URL(call)).find((url) => url.hostname === 'argo.home' && url.port === '8080');
+    assert.equal(apiCall?.pathname, '/api/v1/cluster-workflow-templates');
     assert.equal(templates.find((t) => t.name === 'automlai-dualsearch')?.parameters[0]?.name, 'workers');
   } finally {
     global.fetch = oldFetch;

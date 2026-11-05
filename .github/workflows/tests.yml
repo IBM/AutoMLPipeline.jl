@@ -10,9 +10,12 @@ on:
     tags:
       - "*"
 
+permissions:
+  contents: read
+
 jobs:
   test:
-    name: Test Julia ${{ matrix.jlversion }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    name: Julia ${{ matrix.jlversion }} / ${{ matrix.os }} / ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
