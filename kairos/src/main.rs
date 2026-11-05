@@ -5,7 +5,7 @@ use axum::{
     response::IntoResponse,
     routing::{get, post},
 };
-use rand::RngCore;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
