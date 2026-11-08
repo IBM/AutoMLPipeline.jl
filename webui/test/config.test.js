@@ -36,11 +36,31 @@ test('public config reports source without key', () => {
 });
 
 // ponytail: UI override stays in memory; persistence can wait until users need shared saved profiles.
-test('updates LLM credentials from UI without replacing masked key', () => {
+test('keeps stored LLM key only when base URL is unchanged', () => {
   const current = { apiKey: 'ete-key', baseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5', source: 'pi-external' };
-  assert.deepEqual(llmFromRequest(current, { baseUrl: 'https://other.example/v1', model: 'x' }), {
+  assert.deepEqual(llmFromRequest(current, { model: 'x' }), {
     apiKey: 'ete-key',
+    baseUrl: 'https://ete.example/v1',
+    lockedBaseUrl: 'https://ete.example/v1',
+    model: 'x',
+    source: 'ui'
+  });
+});
+
+test('requires a new LLM key when base URL changes', () => {
+  const current = { apiKey: 'ete-key', baseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5', source: 'pi-external' };
+  assert.throws(
+    () => llmFromRequest(current, { baseUrl: 'https://other.example/v1', model: 'x' }),
+    /Changing LLM baseUrl requires re-entering the API key/
+  );
+});
+
+test('accepts base URL changes when API key is supplied', () => {
+  const current = { apiKey: 'ete-key', baseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5', source: 'pi-external' };
+  assert.deepEqual(llmFromRequest(current, { apiKey: 'new-key', baseUrl: 'https://other.example/v1', model: 'x' }), {
+    apiKey: 'new-key',
     baseUrl: 'https://other.example/v1',
+    lockedBaseUrl: 'https://other.example/v1',
     model: 'x',
     source: 'ui'
   });

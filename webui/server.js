@@ -26,15 +26,11 @@ export const mutationLimiter = rateLimit({
   legacyHeaders: false
 });
 
-function cookies(req) {
-  return Object.fromEntries((req.get('cookie') || '').split(';').map((part) => part.trim().split('=').map(decodeURIComponent)).filter(([k]) => k));
-}
-
-function isSameOrigin(req) {
+function isAllowedOrigin(req) {
   const origin = req.get('origin');
-  if (!origin) return true;
+  if (!origin) return false;
   try {
-    return new URL(origin).host === req.get('host');
+    return config.allowedOrigins.includes(new URL(origin).origin);
   } catch {
     return false;
   }
@@ -43,24 +39,26 @@ function isSameOrigin(req) {
 export function requireMutationAuth(req, res, next) {
   const auth = req.get('authorization') || '';
   const candidates = [
-    cookies(req).argo_webui_token,
     auth.startsWith('Bearer ') ? auth.slice(7) : '',
     req.get('x-argo-webui-token') || ''
   ];
-  if (!candidates.includes(config.sessionToken) || !isSameOrigin(req)) {
+  if (!candidates.includes(config.sessionToken) || !isAllowedOrigin(req)) {
     return res.status(403).json({ status: 'error', message: 'Mutating route requires local session and same-origin request. Reload the UI, then retry.' });
   }
   next();
 }
 
 app.get('/api/config', (_req, res) => {
-  res.cookie('argo_webui_token', config.sessionToken, { httpOnly: true, sameSite: 'strict', secure: false, path: '/' });
   res.json(publicConfig(config));
 });
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.post('/api/llm', mutationLimiter, requireMutationAuth, (req, res) => {
-  config.llm = llmFromRequest(config.llm, req.body);
-  res.json({ status: 'ok', llm: publicConfig(config).llm });
+  try {
+    config.llm = llmFromRequest(config.llm, req.body);
+    res.json({ status: 'ok', llm: publicConfig(config).llm });
+  } catch (err) {
+    res.status(400).json({ status: 'error', message: redact(err.message || String(err)) });
+  }
 });
 
 app.get('/api/templates', async (_req, res, next) => {

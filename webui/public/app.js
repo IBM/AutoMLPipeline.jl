@@ -2,10 +2,23 @@ import { markdownToHtml, promptResultMarkdown } from './markdown.js';
 
 const $ = (id) => document.getElementById(id);
 const state = { config: null, templates: [], current: null, metrics: [], quickDetectors: [], workflowName: '', plot: null, cpuStream: null };
+const tokenKey = 'argo_webui_token';
+
+function mutationToken() {
+  let token = localStorage.getItem(tokenKey) || '';
+  if (!token) {
+    token = window.prompt('Paste ARGO_WEBUI_TOKEN from the server terminal to arm local mutations.') || '';
+    if (token) localStorage.setItem(tokenKey, token);
+  }
+  return token;
+}
 
 async function json(url, options = {}) {
-  const res = await fetch(url, options);
+  const headers = { ...(options.headers || {}) };
+  if (options.method && options.method !== 'GET') headers['x-argo-webui-token'] = mutationToken();
+  const res = await fetch(url, { ...options, headers });
   const body = await res.json().catch(() => ({}));
+  if (res.status === 403 && options.method && options.method !== 'GET') localStorage.removeItem(tokenKey);
   if (!res.ok) {
     const err = new Error(body.message || res.statusText);
     err.status = res.status;
