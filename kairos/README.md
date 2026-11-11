@@ -1,6 +1,6 @@
 # KAIROS-6G
 
-KAIROS-6G is a Rust-native operations command deck for SUNRISE-6G experiments. It combines Prometheus KPI plotting, anomaly detection, LLM-assisted reasoning, and Argo workflow submission so operators can see KPI drift, explain incidents, and launch remediation workflows from one local portal. The current prototype is intentionally local-first; access hardening is required before binding it beyond a trusted workstation.
+KAIROS-6G is a Rust-native operations command deck for SUNRISE-6G experiments. It combines Prometheus KPI plotting, anomaly detection, LLM-assisted reasoning, and Argo workflow submission so operators can see KPI drift, explain incidents, and launch remediation workflows from one local portal. The current prototype is local-first and enforces an API token on all non-health API routes before any non-loopback bind is allowed.
 
 ## Start
 
@@ -56,65 +56,56 @@ curl -fsS http://127.0.0.1:8092/api/health
 
 KAIROS binds to `127.0.0.1:8092` by default, which limits access to callers on the same host. Every non-health `/api/*` route now requires either `Authorization: Bearer <ARGO_WEBUI_TOKEN>` or `x-api-key: <ARGO_WEBUI_TOKEN>`, while `/api/health` remains public for probes. If `ARGO_WEBUI_TOKEN` is not set on loopback, the server generates a random token for that process and prints it to the terminal; if `HOST` is non-loopback, startup requires an explicit `ARGO_WEBUI_TOKEN`. The browser stores a pasted token in session storage only.
 
-## Access-hardening plan
+## Access control implementation
 
-### Goal
+KAIROS protects every non-health `/api/*` route with a single operator API token. The token is read from `ARGO_WEBUI_TOKEN` when set. On loopback binds (`127.0.0.1`, `localhost`, or `::1`), an unset or empty token generates a random per-process local token and prints it to the server terminal. On non-loopback binds such as `0.0.0.0`, startup exits unless `ARGO_WEBUI_TOKEN` is explicitly set.
 
-Make KAIROS safe to run on an operator workstation and ready for controlled deployment behind a portal or reverse proxy. Preserve local development speed, but make unsafe exposure hard to do by accident.
+Accepted request credentials:
 
-### Scope
+```http
+Authorization: Bearer <ARGO_WEBUI_TOKEN>
+x-api-key: <ARGO_WEBUI_TOKEN>
+```
 
-In scope:
+Response behavior:
 
-- HTTP API authentication and clear default access policy.
-- Secret handling for LLM credentials and portal tokens.
-- Safe bind/listen defaults and deployment guidance.
-- Basic security tests and operator-facing documentation.
+- `/api/health` stays public and returns `{"status":"ok"}` for probes.
+- Missing credentials on protected API routes return `401` with JSON error `Missing API token`.
+- Wrong credentials return `403` with JSON error `Invalid API token`.
+- Static UI assets remain public, but browser API calls need the token.
 
-Out of scope for the first hardening pass:
+Browser behavior:
 
-- Full user accounts/RBAC.
-- Multi-tenant authorization.
-- Replacing upstream Argo/Grafana/MLflow/Prometheus auth.
-- Public internet exposure without a reverse proxy or identity layer.
+- `public/app.js` adds `x-api-key` to same-origin `/api/*` calls except `/api/health`.
+- On a `401` or `403`, the UI clears any stale session token, prompts once for `ARGO_WEBUI_TOKEN`, stores the pasted value in `sessionStorage`, and retries the request once.
+- The token is not embedded in HTML, added to query strings, written to `localStorage`, returned by `/api/config`, or intentionally logged by the browser.
 
-### Implementation units
+Credential handling:
 
-1. **Enforce KAIROS API token** — implemented.
-   - Axum middleware checks `Authorization: Bearer <ARGO_WEBUI_TOKEN>` or `x-api-key: <ARGO_WEBUI_TOKEN>` for `/api/*` except `/api/health`.
-   - If `ARGO_WEBUI_TOKEN` is unset on loopback, server generates a random per-process token and prints it at startup; non-loopback binds require explicit `ARGO_WEBUI_TOKEN`.
-   - Missing credentials return `401`; wrong credentials return `403`.
-   - Tests in `src/main.rs` cover health-public, config-protected, and workflow-submit-protected paths.
+- `/api/config` masks the LLM API key and does not serialize the KAIROS session token.
+- `/api/llm` is protected by the same API middleware before it can update LLM credentials.
+- Downstream LLM errors are sanitized so submitted API keys do not appear in UI-visible errors.
 
-2. **Update browser client to send token** — implemented.
-   - `public/app.js` includes the selected token in same-origin API fetches.
-   - Operator pastes the token once; browser stores it in session storage only.
-   - Token is not placed in static HTML, query strings, logs, localStorage, or `/api/config` responses.
+Network policy:
 
-3. **Protect credential mutation**
-   - Keep masking `ETE_API_KEY` in `/api/config` responses.
-   - Require auth before `/api/llm` can update credentials.
-   - Keep sanitizing downstream LLM errors so API keys do not leak in UI or logs.
-   - Reject empty `BASE_URL`/`ETE_API_KEY` on save, as current code already does.
+- Keep `HOST=127.0.0.1` for local operator use.
+- For `HOST=0.0.0.0`, set `ARGO_WEBUI_TOKEN` explicitly and put KAIROS behind a trusted authenticated reverse proxy for real deployments.
 
-4. **Keep safe network defaults**
-   - Keep `HOST=127.0.0.1` as default.
-   - Require explicit `ARGO_WEBUI_TOKEN` when binding non-loopback.
-   - Document that `HOST=0.0.0.0` should still sit behind an authenticated reverse proxy for real deployments.
+Operator verification:
 
-5. **Add operator verification checklist**
-   - `curl http://127.0.0.1:8092/api/health` succeeds without auth.
-   - `curl http://127.0.0.1:8092/api/config` fails without auth after hardening.
-   - `curl -H "Authorization: Bearer $ARGO_WEBUI_TOKEN" http://127.0.0.1:8092/api/config` succeeds.
-   - UI still loads, plots Prometheus data, verifies LLM credentials, and handles prompt failures without leaking secrets.
+```sh
+curl -fsS http://127.0.0.1:8092/api/health
+# {"status":"ok"}
 
-### Acceptance criteria
+curl -i http://127.0.0.1:8092/api/config
+# HTTP/1.1 401 Unauthorized
 
-- `/api/health` remains public and returns `{"status":"ok"}`.
-- Every non-health `/api/*` route rejects unauthenticated callers.
-- Authenticated UI calls keep working with same-origin requests.
-- API keys never appear unmasked in `/api/config`, browser-rendered errors, or logs.
-- README start/config/health/access-control docs match actual behavior.
+curl -fsS -H "Authorization: Bearer $ARGO_WEBUI_TOKEN" \
+  http://127.0.0.1:8092/api/config
+# succeeds with masked LLM config and no session token field
+```
+
+Tests in `src/main.rs` cover public health access, missing/wrong/correct API tokens, bearer-token auth, `/api/llm` protection, workflow-submit protection, local-only generated tokens, and token/key non-leakage in config and LLM update errors.
 
 ## Scope
 
