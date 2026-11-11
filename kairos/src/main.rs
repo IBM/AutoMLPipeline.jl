@@ -1,8 +1,11 @@
 use axum::{
     Json, Router,
+    body::Body,
     extract::{Path, Query, State},
-    http::StatusCode,
-    response::IntoResponse,
+    http::{Request, StatusCode},
+    middleware,
+    middleware::Next,
+    response::{IntoResponse, Response},
     routing::{get, post},
 };
 use rand::Rng;
@@ -41,6 +44,8 @@ struct Config {
     prometheus_api_url: String,
     argo_bin: String,
     session_token: String,
+    #[serde(skip_serializing)]
+    generated_session_token: bool,
     llm: LlmConfig,
 }
 
@@ -64,6 +69,10 @@ struct PublicLlm {
 
 impl Config {
     fn from_env() -> Self {
+        let session_token = env::var("ARGO_WEBUI_TOKEN")
+            .ok()
+            .map(|token| token.trim().to_string())
+            .filter(|token| !token.is_empty());
         Self {
             host: env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into()),
             port: env::var("PORT")
@@ -82,7 +91,8 @@ impl Config {
             prometheus_api_url: env::var("PROMETHEUS_API_URL")
                 .unwrap_or_else(|_| "http://prom2.prometheus.home:8080".into()),
             argo_bin: env::var("ARGO_BIN").unwrap_or_else(|_| "argo".into()),
-            session_token: env::var("ARGO_WEBUI_TOKEN").unwrap_or_else(|_| random_hex(24)),
+            generated_session_token: session_token.is_none(),
+            session_token: session_token.unwrap_or_else(|| random_hex(24)),
             llm: load_llm_config(),
         }
     }
@@ -177,6 +187,10 @@ fn random_hex(bytes: usize) -> String {
     let mut buf = vec![0u8; bytes];
     rand::rng().fill_bytes(&mut buf);
     buf.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+fn is_loopback_host(host: &str) -> bool {
+    matches!(host.trim(), "127.0.0.1" | "localhost" | "::1")
 }
 
 #[derive(Serialize)]
@@ -342,6 +356,16 @@ struct PromSeries {
 async fn main() {
     tracing_subscriber::fmt().with_env_filter("info").init();
     let config = Config::from_env();
+    if config.generated_session_token && !is_loopback_host(&config.host) {
+        eprintln!("ARGO_WEBUI_TOKEN is required when HOST is not loopback.");
+        std::process::exit(1);
+    }
+    if config.generated_session_token {
+        println!(
+            "Generated local-only ARGO_WEBUI_TOKEN for this session: {}",
+            config.session_token
+        );
+    }
     let addr: SocketAddr = format!("{}:{}", config.host, config.port)
         .parse()
         .expect("HOST/PORT must form socket address");
@@ -350,26 +374,70 @@ async fn main() {
         client: reqwest::Client::new(),
     });
     let public_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("public");
-    let app = Router::new()
-        .route("/api/health", get(health))
-        .route("/api/config", get(public_config))
-        .route("/api/llm", post(update_llm))
-        .route("/api/templates", get(templates))
-        .route("/api/templates/{name}", get(template_detail))
-        .route("/api/workflows", get(workflows))
-        .route("/api/workflows/submit", post(submit_workflow))
-        .route("/api/mlflow", get(mlflow))
-        .route("/api/prometheus/metrics", get(metric_options))
-        .route("/api/prometheus/range", get(metric_range))
-        .route("/api/prompt", post(prompt))
-        .fallback_service(ServeDir::new(public_dir))
-        .with_state(state);
+    let app = app(state, public_dir);
 
     println!("Rust Argo AutoML Command Deck listening on http://{addr}");
     let listener = tokio::net::TcpListener::bind(addr)
         .await
         .expect("bind webui-rust");
     axum::serve(listener, app).await.expect("serve webui-rust");
+}
+
+fn app(state: Arc<AppState>, public_dir: PathBuf) -> Router {
+    let api = Router::new()
+        .route("/config", get(public_config))
+        .route("/llm", post(update_llm))
+        .route("/templates", get(templates))
+        .route("/templates/{name}", get(template_detail))
+        .route("/workflows", get(workflows))
+        .route("/workflows/submit", post(submit_workflow))
+        .route("/mlflow", get(mlflow))
+        .route("/prometheus/metrics", get(metric_options))
+        .route("/prometheus/range", get(metric_range))
+        .route("/prompt", post(prompt))
+        .route_layer(middleware::from_fn_with_state(
+            state.clone(),
+            require_api_token,
+        ));
+
+    Router::new()
+        .route("/api/health", get(health))
+        .nest("/api", api)
+        .fallback_service(ServeDir::new(public_dir))
+        .with_state(state)
+}
+
+async fn require_api_token(
+    State(state): State<Arc<AppState>>,
+    request: Request<Body>,
+    next: Next,
+) -> Response {
+    let expected = state.config.read().await.session_token.clone();
+    match supplied_api_token(&request) {
+        Some(token) if token == expected => next.run(request).await,
+        Some(_) => (
+            StatusCode::FORBIDDEN,
+            Json(serde_json::json!({ "status": "error", "message": "Invalid API token" })),
+        )
+            .into_response(),
+        None => (
+            StatusCode::UNAUTHORIZED,
+            Json(serde_json::json!({ "status": "error", "message": "Missing API token" })),
+        )
+            .into_response(),
+    }
+}
+
+fn supplied_api_token(request: &Request<Body>) -> Option<&str> {
+    bearer_token(request).or_else(|| header_str(request, "x-api-key"))
+}
+
+fn bearer_token(request: &Request<Body>) -> Option<&str> {
+    header_str(request, "authorization")?.strip_prefix("Bearer ")
+}
+
+fn header_str<'a>(request: &'a Request<Body>, name: &str) -> Option<&'a str> {
+    request.headers().get(name)?.to_str().ok()
 }
 
 async fn health() -> Json<serde_json::Value> {
@@ -1469,6 +1537,23 @@ mod tests {
     }
 
     #[test]
+    fn empty_argo_webui_token_generates_session_token() {
+        temp_env::with_var("ARGO_WEBUI_TOKEN", Some(""), || {
+            let config = Config::from_env();
+            assert!(config.generated_session_token);
+            assert!(!config.session_token.is_empty());
+        });
+    }
+
+    #[test]
+    fn loopback_host_detection_allows_only_local_defaults() {
+        assert!(is_loopback_host("127.0.0.1"));
+        assert!(is_loopback_host("localhost"));
+        assert!(is_loopback_host("::1"));
+        assert!(!is_loopback_host("0.0.0.0"));
+    }
+
+    #[test]
     fn llm_chat_url_preserves_v1_path() {
         assert_eq!(
             llm_chat_url("https://example.test").unwrap().as_str(),
@@ -1581,8 +1666,189 @@ mod tests {
             prometheus_api_url: "http://prometheus.test".into(),
             argo_bin: "argo".into(),
             session_token: "token".into(),
+            generated_session_token: false,
             llm,
         }
+    }
+
+    fn test_state() -> Arc<AppState> {
+        Arc::new(AppState {
+            config: RwLock::new(test_config(LlmConfig {
+                base_url: String::new(),
+                model: "azure/gpt-5.5".into(),
+                source: "missing-env".into(),
+                api_key: String::new(),
+            })),
+            client: reqwest::Client::new(),
+        })
+    }
+
+    #[tokio::test]
+    async fn api_health_remains_public_without_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .uri("/api/health")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn api_config_rejects_missing_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .uri("/api/config")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[tokio::test]
+    async fn api_config_rejects_wrong_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .uri("/api/config")
+                    .header("x-api-key", "wrong")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn api_config_accepts_x_api_key_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .uri("/api/config")
+                    .header("x-api-key", "token")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn api_config_accepts_bearer_token_without_leaking_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .uri("/api/config")
+                    .header("authorization", "Bearer token")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert!(json.get("sessionToken").is_none());
+    }
+
+    #[tokio::test]
+    async fn workflow_submit_rejects_missing_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/workflows/submit")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{"templateName":"demo"}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[tokio::test]
+    async fn llm_update_rejects_missing_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/llm")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[tokio::test]
+    async fn llm_update_rejects_wrong_token() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/llm")
+                    .header("content-type", "application/json")
+                    .header("x-api-key", "wrong")
+                    .body(Body::from(r#"{}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn llm_update_accepts_token_without_leaking_submitted_key() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/llm")
+                    .header("content-type", "application/json")
+                    .header("x-api-key", "token")
+                    .body(Body::from(r#"{"apiKey":"new-secret","model":"new/model"}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+        let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(json["type"], "agent_error");
+        assert!(!json.to_string().contains("new-secret"));
     }
 
     #[tokio::test]

@@ -1,11 +1,36 @@
 import { markdownToHtml, promptResultMarkdown } from './markdown.js';
 
 const $ = (id) => document.getElementById(id);
+const TOKEN_KEY = 'kairosApiToken';
 const state = { config: null, templates: [], current: null, metrics: [], workflowName: '', plot: null, cpuStream: null, cpuStreamTimer: null, cpuStreamTick: 0 };
 
-async function json(url, options = {}) {
-  const res = await fetch(url, options);
+function apiToken() {
+  return sessionStorage.getItem(TOKEN_KEY) || '';
+}
+
+function rememberApiToken(token) {
+  const trimmed = token.trim();
+  if (trimmed) sessionStorage.setItem(TOKEN_KEY, trimmed);
+  return trimmed;
+}
+
+function requestOptions(url, options) {
+  const next = { ...options, headers: { ...(options.headers || {}) } };
+  if (url.startsWith('/api/') && url !== '/api/health') {
+    const token = apiToken();
+    if (token) next.headers['x-api-key'] = token;
+  }
+  return next;
+}
+
+async function json(url, options = {}, retryAuth = true) {
+  const res = await fetch(url, requestOptions(url, options));
   const body = await res.json().catch(() => ({}));
+  if ((res.status === 401 || res.status === 403) && retryAuth) {
+    sessionStorage.removeItem(TOKEN_KEY);
+    const token = window.prompt('KAIROS API token required. Paste ARGO_WEBUI_TOKEN from the server terminal.');
+    if (token && rememberApiToken(token)) return json(url, options, false);
+  }
   if (!res.ok) {
     const err = new Error(body.message || res.statusText);
     err.status = res.status;
