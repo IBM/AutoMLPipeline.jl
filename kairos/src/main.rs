@@ -1,7 +1,7 @@
 use axum::{
     Json, Router,
     extract::{Path, Query, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     response::IntoResponse,
     routing::{get, post},
 };
@@ -41,6 +41,7 @@ struct Config {
     prometheus_api_url: String,
     argo_bin: String,
     session_token: String,
+    allowed_origins: Vec<String>,
     llm: LlmConfig,
 }
 
@@ -49,6 +50,7 @@ struct LlmConfig {
     base_url: String,
     model: String,
     source: String,
+    locked_base_url: String,
     #[serde(skip_serializing)]
     api_key: String,
 }
@@ -83,6 +85,14 @@ impl Config {
                 .unwrap_or_else(|_| "http://prom2.prometheus.home:8080".into()),
             argo_bin: env::var("ARGO_BIN").unwrap_or_else(|_| "argo".into()),
             session_token: env::var("ARGO_WEBUI_TOKEN").unwrap_or_else(|_| random_hex(24)),
+            allowed_origins: allowed_origins(
+                env::var("ARGO_WEBUI_ORIGINS").ok(),
+                &env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into()),
+                env::var("PORT")
+                    .ok()
+                    .and_then(|s| s.parse().ok())
+                    .unwrap_or(8092),
+            ),
             llm: load_llm_config(),
         }
     }
@@ -98,12 +108,37 @@ fn load_llm_config() -> LlmConfig {
     } else {
         "env"
     };
+    let locked_base_url = if api_key.is_empty() {
+        String::new()
+    } else {
+        base_url.clone()
+    };
     LlmConfig {
         // BASE_URL and ETE_API_KEY from the process environment or ~/.zshenv are the only default agent credentials.
         api_key,
         base_url,
         model,
         source: source.into(),
+        locked_base_url,
+    }
+}
+
+fn allowed_origins(configured: Option<String>, host: &str, port: u16) -> Vec<String> {
+    if let Some(origins) = configured {
+        return origins
+            .split(',')
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
+            .collect();
+    }
+    match host {
+        "127.0.0.1" | "localhost" | "0.0.0.0" | "::" | "::1" => vec![
+            format!("http://127.0.0.1:{port}"),
+            format!("http://localhost:{port}"),
+            format!("http://[::1]:{port}"),
+        ],
+        _ => vec![format!("http://{host}:{port}")],
     }
 }
 
@@ -154,6 +189,49 @@ fn strip_shell_value(value: &str) -> &str {
         }
     }
     value
+}
+
+fn mutation_auth_error(message: &str) -> axum::response::Response {
+    (
+        StatusCode::FORBIDDEN,
+        Json(serde_json::json!({ "status": "error", "message": message })),
+    )
+        .into_response()
+}
+
+fn require_mutation_auth(c: &Config, headers: &HeaderMap) -> Option<axum::response::Response> {
+    let Some(origin) = headers.get("origin").and_then(|v| v.to_str().ok()) else {
+        return Some(mutation_auth_error(
+            "Mutating route requires local session and same-origin request.",
+        ));
+    };
+    let Ok(origin) = Url::parse(origin).map(|u| u.origin().ascii_serialization()) else {
+        return Some(mutation_auth_error(
+            "Mutating route requires local session and same-origin request.",
+        ));
+    };
+    if !c.allowed_origins.iter().any(|allowed| allowed == &origin) {
+        return Some(mutation_auth_error(
+            "Mutating route requires local session and same-origin request.",
+        ));
+    }
+
+    let bearer = headers
+        .get("authorization")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.strip_prefix("Bearer "))
+        .unwrap_or_default();
+    let header_token = headers
+        .get("x-argo-webui-token")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or_default();
+    if bearer == c.session_token || header_token == c.session_token {
+        None
+    } else {
+        Some(mutation_auth_error(
+            "Mutating route requires local session and same-origin request.",
+        ))
+    }
 }
 
 fn public_llm(llm: &LlmConfig) -> PublicLlm {
@@ -363,9 +441,13 @@ async fn main() {
         .route("/api/prometheus/range", get(metric_range))
         .route("/api/prompt", post(prompt))
         .fallback_service(ServeDir::new(public_dir))
-        .with_state(state);
+        .with_state(state.clone());
 
     println!("Rust Argo AutoML Command Deck listening on http://{addr}");
+    println!(
+        "Mutation token: {}",
+        state.config.read().await.session_token
+    );
     let listener = tokio::net::TcpListener::bind(addr)
         .await
         .expect("bind webui-rust");
@@ -403,12 +485,32 @@ struct LlmUpdate {
 
 async fn update_llm(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(input): Json<LlmUpdate>,
 ) -> impl IntoResponse {
-    let current = state.config.read().await.llm.clone();
-    let mut candidate = current;
+    let config = state.config.read().await.clone();
+    if let Some(response) = require_mutation_auth(&config, &headers) {
+        return response;
+    }
+    let current = config.llm;
+    let mut candidate = current.clone();
+    let supplied_key = input
+        .api_key
+        .as_deref()
+        .is_some_and(|s| !s.trim().is_empty() && !s.chars().all(|ch| ch == '*'));
     if let Some(base_url) = input.base_url.filter(|s| !s.trim().is_empty()) {
-        candidate.base_url = base_url.trim().to_string();
+        let base_url = base_url.trim().to_string();
+        if base_url != current.base_url && !supplied_key {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({
+                    "status": "error",
+                    "message": "Changing LLM baseUrl requires re-entering the API key."
+                })),
+            )
+                .into_response();
+        }
+        candidate.base_url = base_url;
     }
     if let Some(model) = input.model.filter(|s| !s.trim().is_empty()) {
         candidate.model = model.trim().to_string();
@@ -418,6 +520,9 @@ async fn update_llm(
         .filter(|s| !s.trim().is_empty() && !s.chars().all(|ch| ch == '*'))
     {
         candidate.api_key = api_key;
+        candidate.locked_base_url = candidate.base_url.clone();
+    } else if candidate.locked_base_url.is_empty() && !candidate.api_key.is_empty() {
+        candidate.locked_base_url = current.base_url.clone();
     }
     candidate.source = "ui".into();
 
@@ -512,14 +617,19 @@ struct SubmitInput {
 
 async fn submit_workflow(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(input): Json<SubmitInput>,
 ) -> impl IntoResponse {
     let c = state.config.read().await.clone();
+    if let Some(response) = require_mutation_auth(&c, &headers) {
+        return response;
+    }
     if !safe_name(&input.template_name) {
         return (
             StatusCode::BAD_REQUEST,
             Json(serde_json::json!({ "status": "error", "message": "Invalid template name" })),
-        );
+        )
+            .into_response();
     }
     let mut args = vec![
         "-n".to_string(),
@@ -541,7 +651,7 @@ async fn submit_workflow(
     } else {
         StatusCode::INTERNAL_SERVER_ERROR
     };
-    (status, Json(result))
+    (status, Json(result)).into_response()
 }
 
 async fn mlflow(
@@ -554,9 +664,13 @@ async fn mlflow(
 
 async fn prompt(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<serde_json::Value>,
 ) -> impl IntoResponse {
     let c = state.config.read().await.clone();
+    if let Some(response) = require_mutation_auth(&c, &headers) {
+        return response;
+    }
     let prompt = body.get("prompt").and_then(|v| v.as_str()).unwrap_or("");
     let mut ctx = agent_context(prompt, body.get("context").cloned().unwrap_or_default());
     enrich_context(&state.client, &c, prompt, &mut ctx).await;
@@ -901,6 +1015,9 @@ async fn call_llm_once(
     prompt: &str,
     ctx: &serde_json::Value,
 ) -> Result<String, String> {
+    if !llm.locked_base_url.is_empty() && llm.base_url != llm.locked_base_url {
+        return Err("Refusing to send stored LLM key to changed baseUrl. Re-enter the API key to use a new endpoint.".into());
+    }
     let url = llm_chat_url(&llm.base_url).map_err(|e| format!("invalid LLM base URL: {e}"))?;
     let mut body = serde_json::json!({
         "model": llm.model,
@@ -1581,8 +1698,90 @@ mod tests {
             prometheus_api_url: "http://prometheus.test".into(),
             argo_bin: "argo".into(),
             session_token: "token".into(),
+            allowed_origins: vec!["http://127.0.0.1:0".into()],
             llm,
         }
+    }
+
+    fn auth_headers() -> HeaderMap {
+        let mut headers = HeaderMap::new();
+        headers.insert("origin", "http://127.0.0.1:0".parse().unwrap());
+        headers.insert("x-argo-webui-token", "token".parse().unwrap());
+        headers
+    }
+
+    #[test]
+    fn mutation_auth_rejects_missing_origin() {
+        let config = test_config(LlmConfig {
+            base_url: "https://old.example/v1".into(),
+            model: "old/model".into(),
+            source: "env".into(),
+            locked_base_url: "https://old.example/v1".into(),
+            api_key: "old-secret".into(),
+        });
+        let mut headers = HeaderMap::new();
+        headers.insert("x-argo-webui-token", "token".parse().unwrap());
+        assert!(require_mutation_auth(&config, &headers).is_some());
+    }
+
+    #[test]
+    fn mutation_auth_rejects_cookie_only_token() {
+        let config = test_config(LlmConfig {
+            base_url: "https://old.example/v1".into(),
+            model: "old/model".into(),
+            source: "env".into(),
+            locked_base_url: "https://old.example/v1".into(),
+            api_key: "old-secret".into(),
+        });
+        let mut headers = HeaderMap::new();
+        headers.insert("origin", "http://127.0.0.1:0".parse().unwrap());
+        headers.insert("cookie", "argo_webui_token=token".parse().unwrap());
+        assert!(require_mutation_auth(&config, &headers).is_some());
+    }
+
+    #[tokio::test]
+    async fn update_llm_requires_key_when_base_url_changes() {
+        let state = Arc::new(AppState {
+            config: RwLock::new(test_config(LlmConfig {
+                base_url: "https://old.example/v1".into(),
+                model: "old/model".into(),
+                source: "env".into(),
+                locked_base_url: "https://old.example/v1".into(),
+                api_key: "old-secret".into(),
+            })),
+            client: reqwest::Client::new(),
+        });
+        let response = update_llm(
+            State(state),
+            auth_headers(),
+            Json(LlmUpdate {
+                api_key: None,
+                base_url: Some("https://evil.example/v1".into()),
+                model: Some("bad/model".into()),
+            }),
+        )
+        .await
+        .into_response();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn call_llm_refuses_stored_key_after_base_url_drift() {
+        let client = reqwest::Client::new();
+        let out = call_llm(
+            &client,
+            &LlmConfig {
+                base_url: "https://evil.example/v1".into(),
+                model: "old/model".into(),
+                source: "env".into(),
+                locked_base_url: "https://old.example/v1".into(),
+                api_key: "old-secret".into(),
+            },
+            "explain",
+            &serde_json::json!({}),
+        )
+        .await;
+        assert!(out.unwrap_err().contains("Refusing to send stored LLM key"));
     }
 
     #[tokio::test]
@@ -1592,12 +1791,14 @@ mod tests {
                 base_url: String::new(),
                 model: "azure/gpt-5.5".into(),
                 source: "missing-env".into(),
+                locked_base_url: String::new(),
                 api_key: String::new(),
             })),
             client: reqwest::Client::new(),
         });
         let response = prompt(
             State(state),
+            auth_headers(),
             Json(serde_json::json!({ "prompt": "explain plot", "context": {} })),
         )
         .await
@@ -1621,12 +1822,14 @@ mod tests {
                 base_url: "https://old.example/v1".into(),
                 model: "old/model".into(),
                 source: "env".into(),
+                locked_base_url: "https://old.example/v1".into(),
                 api_key: "old-secret".into(),
             })),
             client: reqwest::Client::new(),
         });
         let response = update_llm(
             State(state.clone()),
+            auth_headers(),
             Json(LlmUpdate {
                 api_key: Some("new-secret".into()),
                 base_url: Some("http://127.0.0.1:9/v1".into()),

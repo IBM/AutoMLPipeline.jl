@@ -131,6 +131,9 @@ async function runReadOnlyTool(config, name, args) {
 }
 
 async function chat(config, messages) {
+  if (config.llm.lockedBaseUrl && config.llm.baseUrl !== config.llm.lockedBaseUrl) {
+    throw new Error('Refusing to send stored LLM key to changed baseUrl. Re-enter the API key to use a new endpoint.');
+  }
   const res = await fetch(new URL('/chat/completions', config.llm.baseUrl), {
     method: 'POST',
     headers: { authorization: `Bearer ${config.llm.apiKey}`, 'content-type': 'application/json' },
