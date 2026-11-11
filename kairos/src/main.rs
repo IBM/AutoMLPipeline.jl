@@ -54,6 +54,7 @@ struct LlmConfig {
     base_url: String,
     model: String,
     source: String,
+    locked_base_url: String,
     #[serde(skip_serializing)]
     api_key: String,
 }
@@ -108,12 +109,18 @@ fn load_llm_config() -> LlmConfig {
     } else {
         "env"
     };
+    let locked_base_url = if api_key.is_empty() {
+        String::new()
+    } else {
+        base_url.clone()
+    };
     LlmConfig {
         // BASE_URL and ETE_API_KEY from the process environment or ~/.zshenv are the only default agent credentials.
         api_key,
         base_url,
         model,
         source: source.into(),
+        locked_base_url,
     }
 }
 
@@ -474,9 +481,24 @@ async fn update_llm(
     Json(input): Json<LlmUpdate>,
 ) -> impl IntoResponse {
     let current = state.config.read().await.llm.clone();
-    let mut candidate = current;
+    let mut candidate = current.clone();
+    let supplied_key = input
+        .api_key
+        .as_deref()
+        .is_some_and(|s| !s.trim().is_empty() && !s.chars().all(|ch| ch == '*'));
     if let Some(base_url) = input.base_url.filter(|s| !s.trim().is_empty()) {
-        candidate.base_url = base_url.trim().to_string();
+        let base_url = base_url.trim().to_string();
+        if base_url != current.base_url && !supplied_key {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({
+                    "status": "error",
+                    "message": "Changing LLM baseUrl requires re-entering the API key."
+                })),
+            )
+                .into_response();
+        }
+        candidate.base_url = base_url;
     }
     if let Some(model) = input.model.filter(|s| !s.trim().is_empty()) {
         candidate.model = model.trim().to_string();
@@ -486,6 +508,9 @@ async fn update_llm(
         .filter(|s| !s.trim().is_empty() && !s.chars().all(|ch| ch == '*'))
     {
         candidate.api_key = api_key;
+        candidate.locked_base_url = candidate.base_url.clone();
+    } else if candidate.locked_base_url.is_empty() && !candidate.api_key.is_empty() {
+        candidate.locked_base_url = current.base_url.clone();
     }
     candidate.source = "ui".into();
 
@@ -946,6 +971,9 @@ async fn call_llm(
     prompt: &str,
     ctx: &serde_json::Value,
 ) -> Result<String, String> {
+    if !llm.locked_base_url.is_empty() && llm.base_url != llm.locked_base_url {
+        return Err("Refusing to send stored LLM key to changed baseUrl. Re-enter the API key to use a new endpoint.".into());
+    }
     let mut last_error = String::new();
     const MAX_ATTEMPTS: u64 = 2;
     for attempt in 1..=MAX_ATTEMPTS {
@@ -1677,6 +1705,7 @@ mod tests {
                 base_url: String::new(),
                 model: "azure/gpt-5.5".into(),
                 source: "missing-env".into(),
+                locked_base_url: String::new(),
                 api_key: String::new(),
             })),
             client: reqwest::Client::new(),
@@ -1852,12 +1881,57 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn update_llm_requires_key_when_base_url_changes() {
+        let state = Arc::new(AppState {
+            config: RwLock::new(test_config(LlmConfig {
+                base_url: "https://old.example/v1".into(),
+                model: "old/model".into(),
+                source: "env".into(),
+                locked_base_url: "https://old.example/v1".into(),
+                api_key: "old-secret".into(),
+            })),
+            client: reqwest::Client::new(),
+        });
+        let response = update_llm(
+            State(state),
+            Json(LlmUpdate {
+                api_key: None,
+                base_url: Some("https://evil.example/v1".into()),
+                model: Some("bad/model".into()),
+            }),
+        )
+        .await
+        .into_response();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn call_llm_refuses_stored_key_after_base_url_drift() {
+        let client = reqwest::Client::new();
+        let out = call_llm(
+            &client,
+            &LlmConfig {
+                base_url: "https://evil.example/v1".into(),
+                model: "old/model".into(),
+                source: "env".into(),
+                locked_base_url: "https://old.example/v1".into(),
+                api_key: "old-secret".into(),
+            },
+            "explain",
+            &serde_json::json!({}),
+        )
+        .await;
+        assert!(out.unwrap_err().contains("Refusing to send stored LLM key"));
+    }
+
+    #[tokio::test]
     async fn prompt_returns_visible_agent_error_when_config_missing() {
         let state = Arc::new(AppState {
             config: RwLock::new(test_config(LlmConfig {
                 base_url: String::new(),
                 model: "azure/gpt-5.5".into(),
                 source: "missing-env".into(),
+                locked_base_url: String::new(),
                 api_key: String::new(),
             })),
             client: reqwest::Client::new(),
@@ -1887,6 +1961,7 @@ mod tests {
                 base_url: "https://old.example/v1".into(),
                 model: "old/model".into(),
                 source: "env".into(),
+                locked_base_url: "https://old.example/v1".into(),
                 api_key: "old-secret".into(),
             })),
             client: reqwest::Client::new(),

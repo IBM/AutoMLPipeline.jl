@@ -30,7 +30,7 @@ test('ETE chat request omits unsupported temperature override and exposes read-o
     return new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), { status: 200 });
   };
   try {
-    const out = await answerPrompt({ namespace: 'argo', llm: { apiKey: 'sk-live', baseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5' } }, { prompt: 'summarize' });
+    const out = await answerPrompt({ namespace: 'argo', llm: { apiKey: 'sk-live', baseUrl: 'https://ete.example/v1', lockedBaseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5' } }, { prompt: 'summarize' });
     assert.equal(out.type, 'answer');
     assert.equal(request.headers.authorization, 'Bearer sk-live');
     assert.equal(request.body.model, 'azure/gpt-5.5');
@@ -38,6 +38,23 @@ test('ETE chat request omits unsupported temperature override and exposes read-o
     assert.equal(request.body.tool_choice, 'auto');
     assert.ok(request.body.tools.some((t) => t.function.name === 'mlflow_search_runs'));
     assert.ok(request.body.tools.some((t) => t.function.name === 'list_workflows'));
+  } finally {
+    globalThis.fetch = oldFetch;
+  }
+});
+
+test('refuses to send stored LLM key after base URL drift', async () => {
+  const oldFetch = globalThis.fetch;
+  let called = false;
+  globalThis.fetch = async () => {
+    called = true;
+    throw new Error('must not call attacker endpoint');
+  };
+  try {
+    const out = await answerPrompt({ namespace: 'argo', llm: { apiKey: 'sk-live', baseUrl: 'https://evil.example/v1', lockedBaseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5' } }, { prompt: 'summarize' });
+    assert.equal(called, false);
+    assert.equal(out.type, 'fallback');
+    assert.match(out.llmError, /Refusing to send stored LLM key to changed baseUrl/);
   } finally {
     globalThis.fetch = oldFetch;
   }
@@ -60,7 +77,7 @@ test('LLM can call MLflow and Argo read-only tools without confirmation', async 
   try {
     const out = await answerPrompt({
       namespace: 'argo',
-      llm: { apiKey: 'sk-live', baseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5' },
+      llm: { apiKey: 'sk-live', baseUrl: 'https://ete.example/v1', lockedBaseUrl: 'https://ete.example/v1', model: 'azure/gpt-5.5' },
       llmToolHandlers: {
         list_workflows: async () => ({ status: 'ok', workflows: [{ metadata: { name: 'wf' } }] }),
         mlflow_search_runs: async () => ({ runs: [{ info: { run_id: 'r1' } }] })
