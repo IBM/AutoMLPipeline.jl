@@ -42,7 +42,6 @@ struct Config {
     mlflow_url: String,
     prometheus_metrics_url: String,
     prometheus_api_url: String,
-    argo_bin: String,
     session_token: String,
     #[serde(skip_serializing)]
     generated_session_token: bool,
@@ -91,7 +90,6 @@ impl Config {
                 .unwrap_or_else(|_| "http://prom1.prometheus.home:8080/metrics".into()),
             prometheus_api_url: env::var("PROMETHEUS_API_URL")
                 .unwrap_or_else(|_| "http://prom2.prometheus.home:8080".into()),
-            argo_bin: env::var("ARGO_BIN").unwrap_or_else(|_| "argo".into()),
             generated_session_token: session_token.is_none(),
             session_token: session_token.unwrap_or_else(|| random_hex(24)),
             llm: load_llm_config(),
@@ -934,8 +932,8 @@ fn run_argo_json(c: &Config, args: &[&str]) -> serde_json::Value {
     out
 }
 
-fn run_argo(c: &Config, args: &[&str]) -> serde_json::Value {
-    match Command::new(&c.argo_bin).args(args).output() {
+fn run_argo(_c: &Config, args: &[&str]) -> serde_json::Value {
+    match Command::new("argo").args(args).output() {
         Ok(out) => serde_json::json!({
             "status": if out.status.success() { "ok" } else { "error" },
             "output": String::from_utf8_lossy(&out.stdout),
@@ -1692,7 +1690,6 @@ mod tests {
             mlflow_url: "http://mlflow.test".into(),
             prometheus_metrics_url: "http://prometheus.test/metrics".into(),
             prometheus_api_url: "http://prometheus.test".into(),
-            argo_bin: "argo".into(),
             session_token: "token".into(),
             generated_session_token: false,
             llm,

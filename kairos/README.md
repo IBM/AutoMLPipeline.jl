@@ -40,7 +40,7 @@ curl -fsS http://127.0.0.1:8092/api/health
 | `ARGO_NAMESPACE` | `argo` | Argo namespace used by workflow operations. |
 | `ARGO_SERVER` | `http://argo.home:8080` | Argo UI/API base URL shown in portal links. |
 | `ARGO_TEMPLATE_URL` | `http://argo.home:8080/cluster-workflow-templates` | Template source endpoint. |
-| `ARGO_BIN` | `argo` | Argo CLI path for local workflow commands. |
+| `PATH` | shell default | Must include the `argo` CLI; workflow commands always invoke `argo` directly. |
 | `GRAFANA_URL` | `http://grafana.home:8080` | Grafana link. |
 | `MLFLOW_URL` | `http://mlflow.home:8080` | MLflow API/link. |
 | `PROMETHEUS_METRICS_URL` | `http://prom1.prometheus.home:8080/metrics` | Prometheus metrics endpoint. |
