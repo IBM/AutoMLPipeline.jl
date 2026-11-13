@@ -573,14 +573,25 @@ async fn template_detail(
             .into_response();
     }
     let c = state.config.read().await.clone();
+    let template_name = match existing_template_name(&c, &name) {
+        Ok(Some(template_name)) => template_name,
+        Ok(None) => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(serde_json::json!({ "status": "error", "message": "Template not found" })),
+            )
+                .into_response();
+        }
+        Err(error) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response(),
+    };
     (
         StatusCode::OK,
         Json(serde_json::json!({
             "status": "ok",
             "template": {
-                "name": name,
+                "name": template_name,
                 "source": "argo",
-                "parameters": template_parameters(&c, &name),
+                "parameters": template_parameters(&c, &template_name),
                 "parametersLoaded": true,
             }
         })),
@@ -612,18 +623,40 @@ async fn submit_workflow(
             Json(serde_json::json!({ "status": "error", "message": "Invalid template name" })),
         );
     }
+    let mut parameters = Vec::new();
+    for (key, value) in input.parameters.unwrap_or_default() {
+        if safe_name(&key) {
+            if !safe_parameter_value(&value) {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(
+                        serde_json::json!({ "status": "error", "message": "Invalid parameter value" }),
+                    ),
+                );
+            }
+            parameters.push((key, value));
+        }
+    }
+    let template_name = match existing_template_name(&c, &input.template_name) {
+        Ok(Some(template_name)) => template_name,
+        Ok(None) => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(serde_json::json!({ "status": "error", "message": "Template not found" })),
+            );
+        }
+        Err(error) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(error)),
+    };
     let mut args = vec![
         "-n".to_string(),
         c.namespace.clone(),
         "submit".into(),
         "--from".into(),
-        format!("clusterworkflowtemplate/{}", input.template_name),
+        format!("clusterworkflowtemplate/{template_name}"),
     ];
-    for (key, value) in input.parameters.unwrap_or_default() {
-        if safe_name(&key) {
-            args.push("-p".into());
-            args.push(format!("{key}={value}"));
-        }
+    for (key, value) in parameters {
+        args.push("-p".into());
+        args.push(format!("{key}={value}"));
     }
     let refs: Vec<&str> = args.iter().map(String::as_str).collect();
     let result = run_argo(&c, &refs);
@@ -880,6 +913,14 @@ fn safe_name(value: &str) -> bool {
             .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
 }
 
+fn safe_parameter_value(value: &str) -> bool {
+    value.len() <= 1024
+        && value.chars().all(|c| {
+            c.is_ascii_alphanumeric()
+                || matches!(c, '_' | '-' | '.' | '/' | ':' | '=' | ',' | '@' | '%' | '+')
+        })
+}
+
 fn argo_names(c: &Config, args: &[&str]) -> Vec<String> {
     run_argo(c, args)
         .get("output")
@@ -893,6 +934,40 @@ fn argo_names(c: &Config, args: &[&str]) -> Vec<String> {
         })
         .filter(|s| !s.is_empty())
         .collect()
+}
+
+fn existing_template_name(
+    c: &Config,
+    requested: &str,
+) -> Result<Option<String>, serde_json::Value> {
+    if !safe_name(requested) {
+        return Ok(None);
+    }
+    let out = run_argo(c, &["cluster-template", "list", "-o", "name"]);
+    if out["status"] != "ok" {
+        return Err(out);
+    }
+    Ok(existing_template_name_from_names(
+        requested,
+        out.get("output")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .lines()
+            .map(|s| {
+                s.trim()
+                    .trim_start_matches("clusterworkflowtemplate/")
+                    .to_string()
+            })
+            .filter(|s| !s.is_empty())
+            .collect(),
+    ))
+}
+
+fn existing_template_name_from_names(requested: &str, names: Vec<String>) -> Option<String> {
+    if !safe_name(requested) {
+        return None;
+    }
+    names.into_iter().find(|name| name == requested)
 }
 
 fn template_parameters(c: &Config, name: &str) -> Vec<serde_json::Value> {
@@ -1816,6 +1891,27 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn workflow_submit_rejects_parameter_value_with_control_char() {
+        use tower::ServiceExt;
+
+        let response = app(test_state(), PathBuf::from("public"))
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/workflows/submit")
+                    .header("content-type", "application/json")
+                    .header("x-api-key", "token")
+                    .body(Body::from(
+                        r#"{"templateName":"demo","parameters":{"dataset":"iris\n--evil"}}"#,
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
     async fn llm_update_rejects_missing_token() {
         use tower::ServiceExt;
 
@@ -2034,6 +2130,21 @@ mod tests {
         let ctx = serde_json::json!({ "logs": "keep", "argo": {}, "mlflow": {} });
         assert_eq!(agent_context("show argo", ctx.clone()), ctx);
         assert_eq!(agent_context("show mlflow", ctx.clone()), ctx);
+    }
+
+    #[test]
+    fn existing_template_name_from_names_returns_listed_name_only() {
+        let name = existing_template_name_from_names(
+            "demo",
+            vec!["other".into(), "demo".into(), "demo-2".into()],
+        );
+        assert_eq!(name.as_deref(), Some("demo"));
+    }
+
+    #[test]
+    fn existing_template_name_from_names_rejects_unlisted_name() {
+        let name = existing_template_name_from_names("missing", vec!["demo".into()]);
+        assert_eq!(name, None);
     }
 
     #[test]
